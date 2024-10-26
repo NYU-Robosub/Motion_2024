@@ -244,17 +244,17 @@ def searchGate(target, sensor, thrusterPub, cvDict):
             # The gate must be behind the curve of rotation.
             if target == "center":
               targetAngle = ((360 - angleDifference) / 2 + poleAngle[1]) % 360
-              turn((sensor.get("angles")[2] -targetAngle)%360)
+              turn((sensor.get("angles")[2] -targetAngle)%360, sensor, thrusterPub)
             elif target == "left":
               targetAngle = ((360 - angleDifference) / 4 + poleAngle[1]) % 360
-              turn((sensor.get("angles")[2] -targetAngle)%360)
+              turn((sensor.get("angles")[2] -targetAngle)%360, sensor, thrusterPub)
           else:
             if target == "center":
               targetAngle = (angleDifference / 2 + poleAngle[0]) % 360
-              turn((sensor.get("angles")[2] -targetAngle)%360)
+              turn((sensor.get("angles")[2] -targetAngle)%360, sensor, thrusterPub)
             elif target == "left":
               targetAngle = (angleDifference / 4 + poleAngle[0]) % 360
-              turn((sensor.get("angles")[2] -targetAngle)%360)
+              turn((sensor.get("angles")[2] -targetAngle)%360, sensor, thrusterPub)
           return True
     # Turn until we find at least one pole on the gate
     move("right", sensor, thrusterPub)
