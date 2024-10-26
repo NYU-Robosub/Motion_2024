@@ -419,7 +419,7 @@ def PIDroll(sensor, target, thrusterPub):
     # speed is degree/s^2
     message = []
     if speed < 0.001 and abs(e_prev) < 1:
-      message.append(4) # 3 for pitch
+      message.append(4) # 4 for roll
       message.append(0)
       thrusterPub.publish(Int32MultiArray(message))
       break
