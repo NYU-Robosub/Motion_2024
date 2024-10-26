@@ -13,8 +13,7 @@ from std_msgs.msg import Float64MultiArray, String, Float64, Bool, Int32MultiArr
 from math import *
 from time import time, sleep
 
-# Contain the class number for each object
-CV_DICT = {"pole":0}
+
 # Threshold for temperature and moisture
 TEMP_T = 100
 LEAK_T = 10
@@ -49,14 +48,14 @@ def cvBottomCallback(data, sensor):
   sensor["CV_bottom"] = unflatten(data)
 
 
-def cv_bottom(sensor):
+def cvBottom(sensor):
   return sensor.get("CV_bottom").deepcopy()
 
 
-def findObject(object, sensor):
+def findObject(object, sensor, cvDict):
   found = False
   for i in cv(sensor):
-    if i[4] == CV_DICT[object]:
+    if i[4] == cvDict[object]:
       return i
   return False
 
@@ -134,7 +133,7 @@ def temperatureCallback(data, sensor, thrusterPub):
 def leakCallback(data, sensor, thrusterPub):
   # Callback function for the leak sensor subscriber
   sensor['leak'] = data # data is float
-  if data > Leak_T: # if data is greater than the threshold
+  if data > LEAK_T: # if data is greater than the threshold
     endRun(sensor, thrusterPub)
 
 
@@ -177,7 +176,7 @@ def turn(degree, sensor, thrusterPub):
     angleDiff = (sensor.get("angles")[2] - initAngle) % 360
 
 
-def searchGate(target, sensor, thrusterPub):
+def searchGate(target, sensor, thrusterPub, cvDict):
   # Find the gate and point target.
   # Steps:
   # 1. Reotate right until find one pole, record its angle
@@ -199,7 +198,7 @@ def searchGate(target, sensor, thrusterPub):
     # curPoleCenter records the x-coordinate of the center of the poles detected.
     curPoleCenter = []
     for bbox in bboxes:
-      if bbox[4] == CV_DICT['pole']:
+      if bbox[4] == cvDict['pole']:
         poleCount += 1
         # Add the x-coordinate of the middle of the pole that is detected.
         curPoleCenter.append((bbox[0] + bbox[1])/2)
@@ -255,16 +254,16 @@ def searchGate(target, sensor, thrusterPub):
               targetAngle = (angleDifference / 4 + poleAngle[0]) % 360
               turn((sensor.get("angles")[2] -targetAngle)%360)
           return True
-      # Turn until we find at least one pole on the gate
-      move("right", sensor, thrusterPub)
+    # Turn until we find at least one pole on the gate
+    move("right", sensor, thrusterPub)
 
 
-def alignObj(obj, sensor, axis=0.5):
+def alignObj(obj, sensor, thrusterPub, cvDict, axis=0.5):
   # ALign horizontally to ensure the specified object is at a specific part of the camera frame.
   while (True):
     for i in cv(sensor):
       # Detected the marker
-      if i[4] == CV_DICT[obj]:
+      if i[4] == cvDict[obj]:
         x1 = i[0]
         x2 = i[1]
         if (abs((x1+x2)/2)-axis)<=0.05:
@@ -307,8 +306,8 @@ def PIDxy(sensor, target, thrusterPub):
   # Move target distance in the xy plane, target can be negative
   start_x = sensor.get("distance")[0]
   start_y = sensor.get("distance")[1]
-  target_x = start_x + math.cos(sensor.get("angles")[2]) * target
-  target_y = start_y + math.sin(sensor.get("angles")[2]) * target
+  target_x = start_x + cos(sensor.get("angles")[2]) * target
+  target_y = start_y + sin(sensor.get("angles")[2]) * target
   time_prev = time()
   e_prev = 0
   integral = 0
@@ -356,7 +355,7 @@ def PIDturn(sensor, target, thrusterPub):
       thrusterPub.publish(Int32MultiArray(message))
     sleep(0.001)
 
-  def PIDdepth(sensor, target, thrusterPub):
+def PIDdepth(sensor, target, thrusterPub):
     # Move up the target distance. target can be negative
     start = sensor.get("depth")
     target = start + target
