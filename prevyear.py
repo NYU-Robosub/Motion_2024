@@ -13,9 +13,7 @@ import Serial
 import rospy
 from std_msgs.msg import Float64MultiArray, Float64, Bool, Int32MultiArray
 from math import *
-from util import move, cvCallback, cvBottomCallback, depthCallback, \
-gyroCallback, touchCallback, turn, cv_bottom, findObject, changeDepth, alignObj, \
-cv, searchGate, moveTillGone, pressureCallback, distanceCallback
+from util import *
 from time import sleep
 
 rospy.init_node('qualification', anonymous=True)
@@ -28,7 +26,7 @@ gate_width = 3
 # Move step size
 step = 0.2
 # Contain the class number for each object
-CV_dictionary = {"pole":0}
+cvDict = {"pole":0}
 
 # CV_result: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
 # angle: The angles on x-axis, y-axis, and z-axis from gyrometer. Format is 360 degrees. angles[2] is suppose to be the horizontal angle
@@ -42,9 +40,9 @@ cvBottomSUb = rospy.Subscriber('CVbottom', Float64MultiArray, cvBottomCallback, 
 
 thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
 # Get distance from bottom from bottom camera
-depthSub = rospy.Subscriber('depth_sensor', Float64, depth_callback, callback_args=sensor)
+depthSub = rospy.Subscriber('depth_sensor', Float64, depthCallback, callback_args=sensor)
 # Get angle from IMU
-gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=sensor)
+gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
 # From touch sensor
 touchSub = rospy.Subscriber("touch_sensor", Bool, touchCallback, callback_args=sensor)
 # Get distance from surface from pressure sensor
@@ -57,57 +55,57 @@ def alignPath(path):
   # Then use the width of the bounding box to determine the direction of the path.
   # path is the initial bounding box of the path.
   x_center = (path[0] + path[1])/2
-  y_center = (path[2] + path[3])/2
-  while abs(x_center - 0.5) > 0.05 or abs(y_center - 0.5) > 0.05:
-    if abs(y_center - 0.5) > 0.05:
+  yCenter = (path[2] + path[3])/2
+  while abs(x_center - 0.5) > 0.05 or abs(yCenter - 0.5) > 0.05:
+    if abs(yCenter - 0.5) > 0.05:
       # y-coordinate is not aligned
-      if y_center > 0.5:
+      if yCenter > 0.5:
         # If path is at the upper part of the frame, move forward.
         move("forward", sensor, thrusterPub, 0.1)
-        bboxes = cv_bottom()
-        path = findObject("path")
+        bboxes = cvBottom()
+        path = findObject("path", sensor, cvDict)
         while(not path):
           # Path is no longer in the frame, which means we overshoot
           move("backward", sensor, thrusterPub, 0.01)
-          bboxes = cv_bottom()
-          path = findObject("path")
+          bboxes = cvBottom()
+          path = findObject("path", sensor, cvDict)
       else:
         # Path is at the lower part of the frame, move backward.
         move("backward", sensor, thrusterPub, 0.1)
-        bboxes = cv_bottom(sensor)
-        path = findObject("path")
+        bboxes = cvBottom(sensor)
+        path = findObject("path", sensor, cvDict)
         while(not path):
           move("forward", sensor, thrusterPub, 0.01)
-          bboxes = cv_bottom(sensor)
-          path = findObject("path")
+          bboxes = cvBottom(sensor)
+          path = findObject("path", sensor, cvDict)
     else:
       if x_center > 0.5:
         # If path is at the upper part of the frame, move forward.
         turn(90, sensor, thrusterPub)
         move("forward", sensor, thrusterPub, 0.1)
         turn(270, sensor, thrusterPub)
-        bboxes = cv_bottom(sensor)
-        path = findObject("path")
+        bboxes = cvBottom(sensor)
+        path = findObject("path", sensor, cvDict)
         while(not path):
           turn(270, sensor, thrusterPub)
           move("forward", sensor, thrusterPub, 0.01)
           turn(90, sensor, thrusterPub)
-          bboxes = cv_bottom(sensor)
-          path = findObject("path")
+          bboxes = cvBottom(sensor)
+          path = findObject("path", sensor, cvDict)
       else:
         turn(270, sensor, thrusterPub)
         move("forward", sensor, thrusterPub, 0.1)
         turn(90, sensor, thrusterPub)
-        bboxes = cv_bottom(sensor)
-        path = findObject("path")
+        bboxes = cvBottom(sensor)
+        path = findObject("path", sensor, cvDict)
         while(not path):
           turn(90, sensor, thrusterPub)
           move("forward", sensor, thrusterPub, 0.01)
           turn(270, sensor, thrusterPub)
-          bboxes = cv_bottom(sensor)
-          path = findObject("path")
+          bboxes = cvBottom(sensor)
+          path = findObject("path", sensor, cvDict)
       x_center = (path[0] + path[1])/2
-      y_center = (path[2] + path[3])/2
+      yCenter = (path[2] + path[3])/2
     directPath(path)
 
 
@@ -124,7 +122,7 @@ def directPath(pathObj):
   for i in range(0,90,5):
     turn(5, sensor, thrusterPub)
     # Get the current bounding box ratio
-    pathObj = cv_bottom(sensor)
+    pathObj = cvBottom(sensor)
     width = pathObj[1] - pathObj[0]
     length = pathObj[3] - pathObj[2]
     new_ratio = length/width
@@ -153,8 +151,8 @@ def followThePath():
     turn(270, sensor, thrusterPub)
     # Move left from the point out of the gate for the gate's width while search for the gate
     for i in range(ceil(gate_width / step)):
-      bboxes = cv_bottom(sensor)
-      path = findObject("path")
+      bboxes = cvBottom(sensor)
+      path = findObject("path", sensor, cvDict)
       if path:
         # If path is found, turn to point away from the gate and align the gate.
         turn (90)
@@ -164,8 +162,8 @@ def followThePath():
     # Turn 180 degrees, move right from the point out of the gate for double the gate's width while search for the gate
     # This is to cover the distance we moved left
     for i in range(ceil((gate_width * 2) / step)):
-      bboxes = cv_bottom(sensor)
-      path = findObject("path")
+      bboxes = cvBottom(sensor)
+      path = findObject("path", sensor, cvDict)
       if path:
         turn(270, sensor, thrusterPub)
         # If path is found, turn to point away from the gate and align the gate.
@@ -177,26 +175,37 @@ def followThePath():
 
 def alignVertical(obj):
   # Align the obj vertically.
+  reachedBottom = False
   while (True):
+    found = False
     for i in cv(sensor):
       # Detected the obj
-      if i[4] == CV_dictionary[obj]:
+      if i[4] == cvDict[obj]:
         y1 = i[2]
         y2 = i[3]
-        y_center = (y1+y2)/2
-      if abs(y_center - 0.5) > 0.05:
-        if y_center > 0.5:
-          move("up", sensor, thrusterPub)
+        yCenter = (y1+y2)/2
+        found = True
+        if abs(yCenter - 0.5) > 0.05:
+          if yCenter > 0.5:
+            move("up", sensor, thrusterPub)
+          else:
+            move("down", sensor, thrusterPub)
         else:
-          move("down", sensor, thrusterPub)
-      else:
-        return
+          return True
 
-    # obj not detected by cv
-    if sensor.get("depth") > 0.2:
-      move("down", sensor, thrusterPub)
-    elif sensor.get("pressure") > 0.3:
-      move("up", sensor, thrusterPub)
+    if not found:
+      # obj not detected by cv
+      if sensor.get("depth") > 0.2 and not reachedBottom:
+        # Have not reached bottom of pool before, so search by going down.
+        move("down", sensor, thrusterPub)
+      elif sensor.get("pressure") > 0.3:
+        # Have reached bottom of pool, so search by going up.
+        reachedBottom = True
+        move("up", sensor, thrusterPub)
+      else:
+        # Reached top and bottom, object not found 
+        print("Cannot find object")
+        return False
 
 def buoy(classNum):
   # Hit the object corresponding to classNum on the buoy
@@ -205,23 +214,23 @@ def buoy(classNum):
   # Change the depth to the depth of the buoy.
   changeDepth(0.9, sensor, thrusterPub)
   # Move until buoy is within sight.
-  while not findObject("buoy"):
+  while not findObject("buoy", sensor, cvDict):
     move("forward", sensor, thrusterPub)
   # Align buoy to the center of the frame both horizontally and vertically.
   alignVertical("buoy")
-  alignObj("buoy")
+  alignObj("buoy", sensor, thrusterPub, cvDict)
   # Move until one of the two images of the correct class is within frame.
-  while not findObject(classNum+"img2") and not findObject(classNum+"img2"):
+  while not findObject(classNum+"img2", sensor, cvDict) and not findObject(classNum+"img2", sensor, cvDict):
     move("forward", sensor, thrusterPub)
   # Assign one image of the correct class that is within the frame to be targetObj.
   targetObj = None
-  if findObject(classNum+"img2"):
+  if findObject(classNum+"img2", sensor, cvDict):
     targetObj = classNum+"img2"
   else:
     targetObj = classNum+"img3"
   # Align targetObj to the center of the frame both horizontally and vertically.
   alignVertical(targetObj)
-  alignObj(targetObj)
+  alignObj(targetObj, sensor, thrusterPub, cvDict)
   # Move forward until the buoy is hit.
   while not sensor.get("touch"):
     move("forward", sensor, thrusterPub)
@@ -234,11 +243,11 @@ def main():
       sleep(60)
       break
   changeDepth(0.3, sensor, thrusterPub)
-  searchGate("left", sensor, thrusterPub)
+  searchGate("left", sensor, thrusterPub, cvDict)
   targetClass = None # The string for which class we are targeting.
-  while not findObject("class1img1") and not findObject("class2img1"):
+  while not findObject("class1img1", sensor, cvDict) and not findObject("class2img1", sensor, cvDict):
     move("forward", sensor, thrusterPub)
-  if findObject("class1img1"):
+  if findObject("class1img1", sensor, cvDict):
     targetClass = "class1"
     alignObj("class1img1")
   else:
