@@ -52,9 +52,11 @@ def cvBottom(sensor):
   return sensor.get("CV_bottom").deepcopy()
 
 
-def findObject(object, sensor, cvDict):
+def findObject(object, bboxes, cvDict):
+  # Look for the object in the list of bounding boxes
+  # bboxes is a list of bounding boxes.
   found = False
-  for i in cv(sensor):
+  for i in bboxes:
     if i[4] == cvDict[object]:
       return i
   return False

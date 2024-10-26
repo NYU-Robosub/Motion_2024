@@ -63,21 +63,21 @@ def alignPath(path):
         # If path is at the upper part of the frame, move forward.
         move("forward", sensor, thrusterPub, 0.1)
         bboxes = cvBottom()
-        path = findObject("path", sensor, cvDict)
+        path = findObject("path", bboxes, cvDict)
         while(not path):
           # Path is no longer in the frame, which means we overshoot
           move("backward", sensor, thrusterPub, 0.01)
           bboxes = cvBottom()
-          path = findObject("path", sensor, cvDict)
+          path = findObject("path", bboxes, cvDict)
       else:
         # Path is at the lower part of the frame, move backward.
         move("backward", sensor, thrusterPub, 0.1)
         bboxes = cvBottom(sensor)
-        path = findObject("path", sensor, cvDict)
+        path = findObject("path", bboxes, cvDict)
         while(not path):
           move("forward", sensor, thrusterPub, 0.01)
           bboxes = cvBottom(sensor)
-          path = findObject("path", sensor, cvDict)
+          path = findObject("path", bboxes, cvDict)
     else:
       if x_center > 0.5:
         # If path is at the upper part of the frame, move forward.
@@ -85,25 +85,25 @@ def alignPath(path):
         move("forward", sensor, thrusterPub, 0.1)
         turn(270, sensor, thrusterPub)
         bboxes = cvBottom(sensor)
-        path = findObject("path", sensor, cvDict)
+        path = findObject("path", bboxes, cvDict)
         while(not path):
           turn(270, sensor, thrusterPub)
           move("forward", sensor, thrusterPub, 0.01)
           turn(90, sensor, thrusterPub)
           bboxes = cvBottom(sensor)
-          path = findObject("path", sensor, cvDict)
+          path = findObject("path", bboxes, cvDict)
       else:
         turn(270, sensor, thrusterPub)
         move("forward", sensor, thrusterPub, 0.1)
         turn(90, sensor, thrusterPub)
         bboxes = cvBottom(sensor)
-        path = findObject("path", sensor, cvDict)
+        path = findObject("path", bboxes, cvDict)
         while(not path):
           turn(90, sensor, thrusterPub)
           move("forward", sensor, thrusterPub, 0.01)
           turn(270, sensor, thrusterPub)
           bboxes = cvBottom(sensor)
-          path = findObject("path", sensor, cvDict)
+          path = findObject("path", bboxes, cvDict)
       x_center = (path[0] + path[1])/2
       yCenter = (path[2] + path[3])/2
     directPath(path)
@@ -152,7 +152,7 @@ def followThePath():
     # Move left from the point out of the gate for the gate's width while search for the gate
     for i in range(ceil(gate_width / step)):
       bboxes = cvBottom(sensor)
-      path = findObject("path", sensor, cvDict)
+      path = findObject("path", bboxes, cvDict)
       if path:
         # If path is found, turn to point away from the gate and align the gate.
         turn (90)
@@ -163,7 +163,7 @@ def followThePath():
     # This is to cover the distance we moved left
     for i in range(ceil((gate_width * 2) / step)):
       bboxes = cvBottom(sensor)
-      path = findObject("path", sensor, cvDict)
+      path = findObject("path", bboxes, cvDict)
       if path:
         turn(270, sensor, thrusterPub)
         # If path is found, turn to point away from the gate and align the gate.
@@ -214,17 +214,19 @@ def buoy(classNum):
   # Change the depth to the depth of the buoy.
   changeDepth(0.9, sensor, thrusterPub)
   # Move until buoy is within sight.
-  while not findObject("buoy", sensor, cvDict):
+  while not findObject("buoy", cv(sensor), cvDict):
     move("forward", sensor, thrusterPub)
   # Align buoy to the center of the frame both horizontally and vertically.
   alignVertical("buoy")
   alignObj("buoy", sensor, thrusterPub, cvDict)
   # Move until one of the two images of the correct class is within frame.
-  while not findObject(classNum+"img2", sensor, cvDict) and not findObject(classNum+"img2", sensor, cvDict):
+  bboxes = cv(sensor)
+  while not findObject(classNum+"img2", bboxes, cvDict) and not findObject(classNum+"img2", bboxes, cvDict):
     move("forward", sensor, thrusterPub)
+    bboxes = cv(sensor)
   # Assign one image of the correct class that is within the frame to be targetObj.
   targetObj = None
-  if findObject(classNum+"img2", sensor, cvDict):
+  if findObject(classNum+"img2", cv(sensor), cvDict):
     targetObj = classNum+"img2"
   else:
     targetObj = classNum+"img3"
@@ -245,9 +247,9 @@ def main():
   changeDepth(0.3, sensor, thrusterPub)
   searchGate("left", sensor, thrusterPub, cvDict)
   targetClass = None # The string for which class we are targeting.
-  while not findObject("class1img1", sensor, cvDict) and not findObject("class2img1", sensor, cvDict):
+  while not findObject("class1img1", cv(sensor), cvDict) and not findObject("class2img1", cv(sensor), cvDict):
     move("forward", sensor, thrusterPub)
-  if findObject("class1img1", sensor, cvDict):
+  if findObject("class1img1", cv(sensor), cvDict):
     targetClass = "class1"
     alignObj("class1img1")
   else:
