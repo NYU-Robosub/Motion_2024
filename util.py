@@ -38,7 +38,7 @@ def cvCallback(data, sensor):
   # sensor is the object to be modified
   # Computer vision: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
   sensor["CV_result"] = unflatten(data)
-  print("CV results updated: 2%s", sensor["CV_result"])
+  
 
 
 def cv(sensor):
@@ -48,7 +48,7 @@ def cv(sensor):
 
 def cvBottomCallback(data, sensor):
   sensor["CV_bottom"] = unflatten(data)
-  print("Bottom CV results updated: %s", sensor["CV_bottom"])
+  p
 
 
 def cv_bottom(sensor):
@@ -90,12 +90,12 @@ def move(direction, sensor, thrusterPub, distance=0.2):
 
 def depthCallback(data, sensor):
   sensor["depth"] = float(data)
-  print("Depth updated: %.2f", sensor["depth"])
+
 
 
 def pressureCallback(data, sensor):
   sensor["pressure"] = float(data)
-  print("Pressure updated: %.2f", sensor["pressure"])
+  
 
 def gyroCallback(data, sensor):
   # The angles on x-axis, y-axis, and z-axis from gyrometer. Format is 360 degrees. angles[2] is suppose to be the horizontal angle
@@ -103,16 +103,14 @@ def gyroCallback(data, sensor):
   for i in range(len(data)):
     angles.append(float(data[i]))
   sensor["angles"] = angles
-  print("Gyro angles updated: %s", sensor["angles"])
+ 
 
 def distanceCallback(data, sensor):
   sensor["distance"] = data
-  print("Distance updated: %s", sensor["distance"])
-
+  
 
 def touchCallback(data,sensor):
   sensor['touch'] = bool(data)
-  print("Touch sensor status: %s", sensor['touch'])
 
 def temperatureCallback(data, sensor, thrusterPub):
   print("Temperature updated: %.2f", sensor['temperature'])
