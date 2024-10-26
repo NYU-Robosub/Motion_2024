@@ -21,7 +21,7 @@ LEAK_T = 10
 def unflatten(data, length=5):
   # Convert the CV data to a list of list
   if len(data) % length != 0:
-    print("Wrong data")
+    print("unflatten - Invalid data length in CV result")
     return []
   output_count = int(len(data) / length)
   result = []
@@ -37,6 +37,7 @@ def cvCallback(data, sensor):
   # sensor is the object to be modified
   # Computer vision: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
   sensor["CV_result"] = unflatten(data)
+  
 
 
 def cv(sensor):
@@ -46,6 +47,7 @@ def cv(sensor):
 
 def cvBottomCallback(data, sensor):
   sensor["CV_bottom"] = unflatten(data)
+  
 
 
 def cvBottom(sensor):
@@ -65,6 +67,7 @@ def move(direction, sensor, thrusterPub, distance=0.2):
   # Default distance to move is 0.2 m each time
   # 0.2 m correspond to 5 degrees when turning left and right
   # Turn 5 degree at a time
+  print("Moving %s by distance: %.2f meters", direction, distance)
   message = []
   # 0 for forward and backward, 1 for turning, 2 for changing depth, 3 for pitch and 4 for roll
   if direction == "forward":
@@ -80,7 +83,7 @@ def move(direction, sensor, thrusterPub, distance=0.2):
   elif direction == "down":
     PIDdepth(sensor, -distance, thrusterPub)
   else:
-    print("Invalid input: ", direction)
+    print("Invalid direction input: %s", direction)
     return
 
 
@@ -88,9 +91,10 @@ def depthCallback(data, sensor):
   sensor["depth"] = float(data)
 
 
+
 def pressureCallback(data, sensor):
   sensor["pressure"] = float(data)
-
+  
 
 def gyroCallback(data, sensor, thrusterPub):
   # The angles on x-axis, y-axis, and z-axis from gyrometer. Format is 360 degrees. angles[2] is suppose to be the horizontal angle 
@@ -117,32 +121,37 @@ def gyroCallback(data, sensor, thrusterPub):
 
 def distanceCallback(data, sensor):
   sensor["distance"] = data
-
+  
 
 def touchCallback(data,sensor):
   sensor['touch'] = bool(data)
 
-
 def temperatureCallback(data, sensor, thrusterPub):
+  print("Temperature updated: %.2f", sensor['temperature'])
   # Callback function for the temperature sensor subscriber
   sensor['temperature'] = float(data)
   if data > TEMP_T:
+    print("Critical temperature dected")
     endRun(sensor, thrusterPub)
 
 
 def leakCallback(data, sensor, thrusterPub):
+  sensor['leak'] = float(data.data)
   # Callback function for the leak sensor subscriber
   sensor['leak'] = data # data is float
   if data > LEAK_T: # if data is greater than the threshold
+    print("Leak detected")
     endRun(sensor, thrusterPub)
 
 
 def endRun(sensor, thrusterPub):
   # Make the robot move to the surface and end the program.
+  print("Ending run")
   changeDepth(0, sensor, thrusterPub)
   exit()
 
 def changeDepth(target, sensor, thrusterPub):
+  print("Changing depth to %.2f meters", target)
   # Change the depth to target meters above the bottom of the pool. Depth from camera being used
   # If target is negative or 0, the target is meter below the top of the pool. Pressure sensor being used.
   initial_depth = 0
@@ -162,6 +171,7 @@ def changeDepth(target, sensor, thrusterPub):
 
 def turn(degree, sensor, thrusterPub):
   # Turn degree clockwise. Does not support negative
+  print("Turning by %.2f degrees", degree)
   initAngle = sensor.get("angles")[2]
   if degree > 180:
     move("left", sensor, thrusterPub, degree-180)
@@ -186,6 +196,8 @@ def searchGate(target, sensor, thrusterPub, cvDict):
 
   # target can be set to "center" or "left", which the center of the gate or the midpoint between left pole and center of the gate.
   # poleFound is the number of pole whose angle has been determined.
+  
+  print("Searching gate begins")
   poleFound = 0
   poleAngle = [0, 0]
   prevPoleCenter = None
@@ -200,8 +212,10 @@ def searchGate(target, sensor, thrusterPub, cvDict):
     for bbox in bboxes:
       if bbox[4] == cvDict['pole']:
         poleCount += 1
+        print("Total of", poleCount, "poles detected")
         # Add the x-coordinate of the middle of the pole that is detected.
         curPoleCenter.append((bbox[0] + bbox[1])/2)
+        print("Current pole center:", curPoleCenter)
 
     # The pole at the center of the frame
     centeredPole = None
@@ -209,13 +223,16 @@ def searchGate(target, sensor, thrusterPub, cvDict):
     # Decide action based on the number of poles in the image
     if poleCount == 1 and abs(curPoleCenter[0] - 0.5) < marginOfError:
       # If one pole is detected and that pole is in the center of the frame.
-        centeredPole =  curPoleCenter[0]
+      print("Pole 1 detected")
+      centeredPole =  curPoleCenter[0]
     elif poleCount == 2:
+      print("Both poles detected in the same frame")
       # Two poles are found in the same frame
       if abs(curPoleCenter[0] - 0.5) < marginOfError:
         centeredPole = curPoleCenter[0]
       elif abs(curPoleCenter[1] - 0.5) < marginOfError:
         centeredPole = curPoleCenter[1]
+      print("Current pole at the center of the frame: ", curPoleCenter)
     # No pole found otherwise
 
 
@@ -224,10 +241,12 @@ def searchGate(target, sensor, thrusterPub, cvDict):
         if not prevPoleCenter:
           # No pole in the last frame, this is a new pole
           poleFound += 1
+          print("New pole found, total pole found:", poleFound)
         elif prevPoleCenter < centeredPole:
           # The pole in previous frame is left of the pole in the current frame.
           # As the robot is moving right, the pole is a new pole
           poleFound += 1
+          print("New pole found, total pole found:", poleFound)
 
         # Otherwise, the pole in previous frame is right of the pole in the current frame.
         # As the robot is moving right, the pole is the previous pole
@@ -240,44 +259,56 @@ def searchGate(target, sensor, thrusterPub, cvDict):
           if angleDifference > 180:
             # The difference in angle of pole 2 and pole 1 is larger than 180
             # The gate must be behind the curve of rotation.
+            print("The angle difference is: ", angleDifference, "behind the gate")
             if target == "center":
               targetAngle = ((360 - angleDifference) / 2 + poleAngle[1]) % 360
+              print("Target is at the center, turning: ", (sensor.get("angles")[2] -targetAngle)%360, "degrees")
               turn((sensor.get("angles")[2] -targetAngle)%360)
             elif target == "left":
               targetAngle = ((360 - angleDifference) / 4 + poleAngle[1]) % 360
+              print("Target is at the left, turning: ", (sensor.get("angles")[2] -targetAngle)%360, "degrees")
               turn((sensor.get("angles")[2] -targetAngle)%360)
           else:
+            print("The angle difference is: ", angleDifference, ", facing the gate")
             if target == "center":
               targetAngle = (angleDifference / 2 + poleAngle[0]) % 360
+              print("Target is at the center, turning: ", (sensor.get("angles")[2] -targetAngle)%360, "degrees")
               turn((sensor.get("angles")[2] -targetAngle)%360)
             elif target == "left":
               targetAngle = (angleDifference / 4 + poleAngle[0]) % 360
+              print("Target is at the left, turning: ", (sensor.get("angles")[2] -targetAngle)%360, "degrees")
               turn((sensor.get("angles")[2] -targetAngle)%360)
+          print("Searching gate ends")
           return True
     # Turn until we find at least one pole on the gate
     move("right", sensor, thrusterPub)
 
 
 def alignObj(obj, sensor, thrusterPub, cvDict, axis=0.5):
+  print("Begin aligning to ", obj)
   # ALign horizontally to ensure the specified object is at a specific part of the camera frame.
   while (True):
     for i in cv(sensor):
       # Detected the marker
       if i[4] == cvDict[obj]:
+        print("Marker detected")
         x1 = i[0]
         x2 = i[1]
         if (abs((x1+x2)/2)-axis)<=0.05:
           # Return the width of the marker
+          print("Align object ends")
           return (x2-x1)
         elif abs(axis - x1) < abs(x2 - axis):
           move('right', sensor)
         else:
           move('left', sensor)
     # Marker not detected by cv
-    move("right", sensor, thrusterPub)
+    print("Marker not detected by cv, moving to the right")
+    move("right", sensor, thrusterPub) #fix
 
 
 def moveTillGone(object, sensor, thrusterPub):
+  print("Move till gone begins")
   counter = 0
   while True:
     result = findObject(object)
@@ -285,6 +316,7 @@ def moveTillGone(object, sensor, thrusterPub):
       move("forward", sensor, thrusterPub)
       counter += 1
     else:
+      print("Object gone")
       return counter
 
 
