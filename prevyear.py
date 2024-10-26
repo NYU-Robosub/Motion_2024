@@ -53,101 +53,118 @@ pressureSub = rospy.Subscriber("pressure_sensor", Float64, pressureCallback, cal
 distanceSub = rospy.Subscriber("displacement_sensor", Float64MultiArray, distanceCallback, callback_args=sensor)
 
 def alignPath(path):
-  # First place the path at the center of the image.
-  # Then use the width of the bounding box to determine the direction of the path.
-  # path is the initial bounding box of the path.
-  x_center = (path[0] + path[1])/2
-  y_center = (path[2] + path[3])/2
-  while abs(x_center - 0.5) > 0.05 or abs(y_center - 0.5) > 0.05:
-    if abs(y_center - 0.5) > 0.05:
-      # y-coordinate is not aligned
-      if y_center > 0.5:
-        # If path is at the upper part of the frame, move forward.
-        move("forward", sensor, thrusterPub, 0.1)
-        bboxes = cv_bottom()
-        path = findObject("path")
-        while(not path):
-          # Path is no longer in the frame, which means we overshoot
-          move("backward", sensor, thrusterPub, 0.01)
-          bboxes = cv_bottom()
-          path = findObject("path")
-      else:
-        # Path is at the lower part of the frame, move backward.
-        move("backward", sensor, thrusterPub, 0.1)
-        bboxes = cv_bottom(sensor)
-        path = findObject("path")
-        while(not path):
-          move("forward", sensor, thrusterPub, 0.01)
-          bboxes = cv_bottom(sensor)
-          path = findObject("path")
-    else:
-      if x_center > 0.5:
-        # If path is at the upper part of the frame, move forward.
-        turn(90, sensor, thrusterPub)
-        move("forward", sensor, thrusterPub, 0.1)
-        turn(270, sensor, thrusterPub)
-        bboxes = cv_bottom(sensor)
-        path = findObject("path")
-        while(not path):
-          turn(270, sensor, thrusterPub)
-          move("forward", sensor, thrusterPub, 0.01)
-          turn(90, sensor, thrusterPub)
-          bboxes = cv_bottom(sensor)
-          path = findObject("path")
-      else:
-        turn(270, sensor, thrusterPub)
-        move("forward", sensor, thrusterPub, 0.1)
-        turn(90, sensor, thrusterPub)
-        bboxes = cv_bottom(sensor)
-        path = findObject("path")
-        while(not path):
-          turn(90, sensor, thrusterPub)
-          move("forward", sensor, thrusterPub, 0.01)
-          turn(270, sensor, thrusterPub)
-          bboxes = cv_bottom(sensor)
-          path = findObject("path")
-      x_center = (path[0] + path[1])/2
-      y_center = (path[2] + path[3])/2
+    # First place the path at the center of the image.
+    # Then use the width of the bounding box to determine the direction of the path.
+    # path is the initial bounding box of the path.
+    x_center = (path[0] + path[1]) / 2
+    y_center = (path[2] + path[3]) / 2
+    print(f"Starting alignment. Initial x_center: {x_center}, y_center: {y_center}")
+    while abs(x_center - 0.5) > 0.05 or abs(y_center - 0.5) > 0.05:
+        if abs(y_center - 0.5) > 0.05:
+            # y-coordinate is not aligned
+            if y_center > 0.5:
+                # If path is at the upper part of the frame, move forward.
+                print("Path is at the upper part of the frame, moving forward.")
+                move("forward", sensor, thrusterPub, 0.1)
+                bboxes = cv_bottom()
+                path = findObject("path")
+                while not path:
+                    # Path is no longer in the frame, which means we overshoot
+                    print("Path overshot, moving backward.")
+                    move("backward", sensor, thrusterPub, 0.01)
+                    bboxes = cv_bottom()
+                    path = findObject("path")
+            else:
+                # Path is at the lower part of the frame, move backward.
+                print("Path is at the lower part of the frame, moving backward.")
+                move("backward", sensor, thrusterPub, 0.1)
+                bboxes = cv_bottom(sensor)
+                path = findObject("path")
+                while not path:
+                    print("Path overshot, moving forward.")
+                    move("forward", sensor, thrusterPub, 0.01)
+                    bboxes = cv_bottom(sensor)
+                    path = findObject("path")
+        else:
+            if x_center > 0.5:
+                # If path is at the upper part of the frame, move forward.
+                print("Path is at the right part of the frame, turning and moving forward.")
+                turn(90, sensor, thrusterPub)
+                move("forward", sensor, thrusterPub, 0.1)
+                turn(270, sensor, thrusterPub)
+                bboxes = cv_bottom(sensor)
+                path = findObject("path")
+                while not path:
+                    print("Path overshot, turning and moving forward.")
+                    turn(270, sensor, thrusterPub)
+                    move("forward", sensor, thrusterPub, 0.01)
+                    turn(90, sensor, thrusterPub)
+                    bboxes = cv_bottom(sensor)
+                    path = findObject("path")
+            else:
+                print("Path is at the left part of the frame, turning and moving forward.")
+                turn(270, sensor, thrusterPub)
+                move("forward", sensor, thrusterPub, 0.1)
+                turn(90, sensor, thrusterPub)
+                bboxes = cv_bottom(sensor)
+                path = findObject("path")
+                while not path:
+                    print("Path overshot, turning and moving forward.")
+                    turn(90, sensor, thrusterPub)
+                    move("forward", sensor, thrusterPub, 0.01)
+                    turn(270, sensor, thrusterPub)
+                    bboxes = cv_bottom(sensor)
+                    path = findObject("path")
+        x_center = (path[0] + path[1]) / 2
+        y_center = (path[2] + path[3]) / 2
+        print(f"Updated x_center: {x_center}, y_center: {y_center}")
     directPath(path)
 
 
 def directPath(pathObj):
-  # Use the width of the bounding box to determine the direction of the path.
-  # At the start of the function, we are pointing away from the gate
-  width = pathObj[1] - pathObj[0]
-  length = pathObj[3] - pathObj[2]
-  cur_ratio = length/width
-  turning_angle = 0
-  #cur_ratio is the largest ratio
-
-
-  for i in range(0,90,5):
-    turn(5, sensor, thrusterPub)
-    # Get the current bounding box ratio
-    pathObj = cv_bottom(sensor)
+    # Use the width of the bounding box to determine the direction of the path.
+    # At the start of the function, we are pointing away from the gate
     width = pathObj[1] - pathObj[0]
     length = pathObj[3] - pathObj[2]
-    new_ratio = length/width
-    if new_ratio>cur_ratio:
-      cur_ratio = new_ratio
-      turning_angle = i
-  turn(180, sensor, thrusterPub)
+    cur_ratio = length / width
+    turning_angle = 0
+    print(f"Initial ratio of length and width: {cur_ratio}, starting direction alignment.")
 
-  for i in range(0,90,5):
-    turn(5, sensor, thrusterPub)
-    # Get the current bounding box ratio
-    width = pathObj[1] - pathObj[0]
-    length = pathObj[3] - pathObj[2]
-    new_ratio = length/width
-    if new_ratio>cur_ratio:
-      cur_ratio = new_ratio
-      turning_angle = i+270
-  #turning_angle with the largest ratio
-  turn(turning_angle, sensor, thrusterPub)
-  #robot facing the direction of the path marker
+    # cur_ratio is the largest ratio
+    for i in range(0, 90, 5):
+        turn(5, sensor, thrusterPub)
+        # Get the current bounding box ratio
+        pathObj = cv_bottom(sensor)
+        width = pathObj[1] - pathObj[0]
+        length = pathObj[3] - pathObj[2]
+        new_ratio = length / width
+        if new_ratio > cur_ratio:
+            cur_ratio = new_ratio
+            turning_angle = i
+        print(f"Turned {i} degrees, new ratio: {new_ratio}, current best angle: {turning_angle}")
+
+    turn(180, sensor, thrusterPub)
+    print("Turned 180 degrees, checking the other side.")
+
+    for i in range(0, 90, 5):
+        turn(5, sensor, thrusterPub)
+        # Get the current bounding box ratio
+        width = pathObj[1] - pathObj[0]
+        length = pathObj[3] - pathObj[2]
+        new_ratio = length / width
+        if new_ratio > cur_ratio:
+            cur_ratio = new_ratio
+            turning_angle = i + 270
+        print(f"Turned {i + 90} degrees, new ratio: {new_ratio}, current best angle: {turning_angle}")
+
+    # turning_angle with the largest ratio
+    turn(turning_angle, sensor, thrusterPub)
+    # robot facing the direction of the path marker
+    print(f"Turned to the best angle: {turning_angle}. Robot is facing the path marker.")
 
 def followThePath():
   # Find the path and then orient the robot in the direction of the path
+  print("Finding the path and alighning the robot in the direction of the path.")
   changeDepth(1.5, sensor, thrusterPub)
   while True:
     turn(270, sensor, thrusterPub)
@@ -171,12 +188,14 @@ def followThePath():
         # If path is found, turn to point away from the gate and align the gate.
         alignPath(path)
         return
+    print("Path not found, moving backward and retrying.")
     move("backward", sensor, thrusterPub, gate_width * 2)
     turn(270, sensor, thrusterPub)
     move("forward", sensor, thrusterPub, 1)
 
 def alignVertical(obj):
   # Align the obj vertically.
+  print('Aligning the object vertically')
   while (True):
     for i in cv(sensor):
       # Detected the obj
@@ -184,24 +203,30 @@ def alignVertical(obj):
         y1 = i[2]
         y2 = i[3]
         y_center = (y1+y2)/2
+        print(f'Object detected. y_center: {y_center}')
       if abs(y_center - 0.5) > 0.05:
         if y_center > 0.5:
           move("up", sensor, thrusterPub)
+         
         else:
           move("down", sensor, thrusterPub)
       else:
+        print('Object aligned vertically')
         return
 
-    # obj not detected by cv
+    # obj not detected by cv. The object must be between 0.2m above the bottom and 0.3 below surface
     if sensor.get("depth") > 0.2:
       move("down", sensor, thrusterPub)
+      print('Object not detected. Moving down')
     elif sensor.get("pressure") > 0.3:
       move("up", sensor, thrusterPub)
+      print('Object not detected. Moving up')
 
 def buoy(classNum):
   # Hit the object corresponding to classNum on the buoy
   # classNum is a string indicating the class to hit.
 
+  print("Starting the task to hit buoy.")
   # Change the depth to the depth of the buoy.
   changeDepth(0.9, sensor, thrusterPub)
   # Move until buoy is within sight.
@@ -224,7 +249,8 @@ def buoy(classNum):
   alignObj(targetObj)
   # Move forward until the buoy is hit.
   while not sensor.get("touch"):
-    move("forward", sensor, thrusterPub)
+    move("forward", sensor, thrusterPub)  
+  print("Buoy is successfully hit.")
 
 
 
