@@ -55,11 +55,11 @@ def alignPath(path):
   # Then use the width of the bounding box to determine the direction of the path.
   # path is the initial bounding box of the path.
   x_center = (path[0] + path[1])/2
-  y_center = (path[2] + path[3])/2
-  while abs(x_center - 0.5) > 0.05 or abs(y_center - 0.5) > 0.05:
-    if abs(y_center - 0.5) > 0.05:
+  yCenter = (path[2] + path[3])/2
+  while abs(x_center - 0.5) > 0.05 or abs(yCenter - 0.5) > 0.05:
+    if abs(yCenter - 0.5) > 0.05:
       # y-coordinate is not aligned
-      if y_center > 0.5:
+      if yCenter > 0.5:
         # If path is at the upper part of the frame, move forward.
         move("forward", sensor, thrusterPub, 0.1)
         bboxes = cvBottom()
@@ -105,7 +105,7 @@ def alignPath(path):
           bboxes = cvBottom(sensor)
           path = findObject("path")
       x_center = (path[0] + path[1])/2
-      y_center = (path[2] + path[3])/2
+      yCenter = (path[2] + path[3])/2
     directPath(path)
 
 
@@ -175,26 +175,37 @@ def followThePath():
 
 def alignVertical(obj):
   # Align the obj vertically.
+  reachedBottom = False
+  reachedTop = False
   while (True):
+    found = False
     for i in cv(sensor):
       # Detected the obj
       if i[4] == cvDict[obj]:
         y1 = i[2]
         y2 = i[3]
-        y_center = (y1+y2)/2
-      if abs(y_center - 0.5) > 0.05:
-        if y_center > 0.5:
-          move("up", sensor, thrusterPub)
+        yCenter = (y1+y2)/2
+        found = True
+        if abs(yCenter - 0.5) > 0.05:
+          if yCenter > 0.5:
+            move("up", sensor, thrusterPub)
+          else:
+            move("down", sensor, thrusterPub)
         else:
-          move("down", sensor, thrusterPub)
-      else:
-        return
+          return
 
-    # obj not detected by cv
-    if sensor.get("depth") > 0.2:
-      move("down", sensor, thrusterPub)
-    elif sensor.get("pressure") > 0.3:
-      move("up", sensor, thrusterPub)
+    if not found:
+      # obj not detected by cv
+      if sensor.get("depth") > 0.2 and not reachedBottom:
+        move("down", sensor, thrusterPub)
+      elif sensor.get("pressure") > 0.3 and not reachedTop:
+        reachedBottom = True
+        move("up", sensor, thrusterPub)
+      elif not reachedTop:
+        reachedTop = True
+      else:
+        print("Cannot find object")
+        return 
 
 def buoy(classNum):
   # Hit the object corresponding to classNum on the buoy
