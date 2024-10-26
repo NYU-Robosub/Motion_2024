@@ -22,7 +22,7 @@ LEAK_T = 10
 def unflatten(data, length=5):
   # Convert the CV data to a list of list
   if len(data) % length != 0:
-    print("Wrong data")
+    print("unflatten - Invalid data length in CV result")
     return []
   output_count = int(len(data) / length)
   result = []
@@ -38,6 +38,7 @@ def cvCallback(data, sensor):
   # sensor is the object to be modified
   # Computer vision: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
   sensor["CV_result"] = unflatten(data)
+  print("CV results updated: 2%s", sensor["CV_result"])
 
 
 def cv(sensor):
@@ -47,6 +48,7 @@ def cv(sensor):
 
 def cvBottomCallback(data, sensor):
   sensor["CV_bottom"] = unflatten(data)
+  print("Bottom CV results updated: %s", sensor["CV_bottom"])
 
 
 def cv_bottom(sensor):
@@ -66,6 +68,7 @@ def move(direction, sensor, thrusterPub, distance=0.2):
   # Default distance to move is 0.2 m each time
   # 0.2 m correspond to 5 degrees when turning left and right
   # Turn 5 degree at a time
+  print("Moving %s by distance: %.2f meters", direction, distance)
   message = []
   # 0 for forward and backward, 1 for turning, 2 for changing depth
   if direction == "forward":
@@ -81,17 +84,18 @@ def move(direction, sensor, thrusterPub, distance=0.2):
   elif direction == "down":
     PIDdepth(sensor, -distance, thrusterPub)
   else:
-    print("Invalid input: ", direction)
+    print("Invalid direction input: %s", direction)
     return
 
 
 def depthCallback(data, sensor):
   sensor["depth"] = float(data)
+  print("Depth updated: %.2f", sensor["depth"])
 
 
 def pressureCallback(data, sensor):
   sensor["pressure"] = float(data)
-
+  print("Pressure updated: %.2f", sensor["pressure"])
 
 def gyroCallback(data, sensor):
   # The angles on x-axis, y-axis, and z-axis from gyrometer. Format is 360 degrees. angles[2] is suppose to be the horizontal angle
@@ -99,36 +103,43 @@ def gyroCallback(data, sensor):
   for i in range(len(data)):
     angles.append(float(data[i]))
   sensor["angles"] = angles
-
+  print("Gyro angles updated: %s", sensor["angles"])
 
 def distanceCallback(data, sensor):
   sensor["distance"] = data
+  print("Distance updated: %s", sensor["distance"])
 
 
 def touchCallback(data,sensor):
   sensor['touch'] = bool(data)
-
+  print("Touch sensor status: %s", sensor['touch'])
 
 def temperatureCallback(data, sensor, thrusterPub):
+  print("Temperature updated: %.2f", sensor['temperature'])
   # Callback function for the temperature sensor subscriber
   sensor['temperature'] = float(data)
   if data > TEMP_T:
+    print("Critical temperature dected")
     endRun(sensor, thrusterPub)
 
 
 def leakCallback(data, sensor, thrusterPub):
+  sensor['leak'] = float(data.data)
   # Callback function for the leak sensor subscriber
   sensor['leak'] = data # data is float
-  if data > Leak_T: # if data is greater than the threshold
+  if data > LEAK_T: # if data is greater than the threshold
+    print("Leak detected")
     endRun(sensor, thrusterPub)
 
 
 def endRun(sensor, thrusterPub):
   # Make the robot move to the surface and end the program.
+  print("Ending run")
   changeDepth(0, sensor, thrusterPub)
   exit()
 
 def changeDepth(target, sensor, thrusterPub):
+  print("Changing depth to %.2f meters", target)
   # Change the depth to target meters above the bottom of the pool. Depth from camera being used
   # If target is negative or 0, the target is meter below the top of the pool. Pressure sensor being used.
   initial_depth = 0
@@ -148,6 +159,7 @@ def changeDepth(target, sensor, thrusterPub):
 
 def turn(degree, sensor, thrusterPub):
   # Turn degree clockwise. Does not support negative
+  print("Turning by %.2f degrees", degree)
   initAngle = sensor.get("angles")[2]
   if degree > 180:
     move("left", sensor, thrusterPub, degree-180)
@@ -163,6 +175,8 @@ def turn(degree, sensor, thrusterPub):
 
 
 def searchGate(target, sensor, thrusterPub):
+  print("Searching gate begins")
+  printPoleCount = 0
   # Find the gate and point target.
   # Steps:
   # 1. Reotate right until find one pole, record its angle
@@ -186,8 +200,10 @@ def searchGate(target, sensor, thrusterPub):
     for bbox in bboxes:
       if bbox[4] == CV_DICT['pole']:
         poleCount += 1
+        print("Total of", poleCount, "poles detected")
         # Add the x-coordinate of the middle of the pole that is detected.
         curPoleCenter.append((bbox[0] + bbox[1])/2)
+        print("", curPoleCenter)
 
     # The pole at the center of the frame
     centeredPole = None
