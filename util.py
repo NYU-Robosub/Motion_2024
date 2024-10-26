@@ -48,7 +48,7 @@ def cv(sensor):
 
 def cvBottomCallback(data, sensor):
   sensor["CV_bottom"] = unflatten(data)
-  p
+  
 
 
 def cv_bottom(sensor):
@@ -201,7 +201,7 @@ def searchGate(target, sensor, thrusterPub):
         print("Total of", poleCount, "poles detected")
         # Add the x-coordinate of the middle of the pole that is detected.
         curPoleCenter.append((bbox[0] + bbox[1])/2)
-        print("", curPoleCenter)
+        print("Current pole center:", curPoleCenter)
 
     # The pole at the center of the frame
     centeredPole = None
@@ -209,13 +209,16 @@ def searchGate(target, sensor, thrusterPub):
     # Decide action based on the number of poles in the image
     if poleCount == 1 and abs(curPoleCenter[0] - 0.5) < marginOfError:
       # If one pole is detected and that pole is in the center of the frame.
-        centeredPole =  curPoleCenter[0]
+      print("Pole 1 detected")
+      centeredPole =  curPoleCenter[0]
     elif poleCount == 2:
+      print("Both poles detected in the same frame")
       # Two poles are found in the same frame
       if abs(curPoleCenter[0] - 0.5) < marginOfError:
         centeredPole = curPoleCenter[0]
       elif abs(curPoleCenter[1] - 0.5) < marginOfError:
         centeredPole = curPoleCenter[1]
+      print("Current pole at the center of the frame: ", curPoleCenter)
     # No pole found otherwise
 
 
@@ -224,10 +227,12 @@ def searchGate(target, sensor, thrusterPub):
         if not prevPoleCenter:
           # No pole in the last frame, this is a new pole
           poleFound += 1
+          print("New pole found, total pole found:", poleFound)
         elif prevPoleCenter < centeredPole:
           # The pole in previous frame is left of the pole in the current frame.
           # As the robot is moving right, the pole is a new pole
           poleFound += 1
+          print("New pole found, total pole found:", poleFound)
 
         # Otherwise, the pole in previous frame is right of the pole in the current frame.
         # As the robot is moving right, the pole is the previous pole
@@ -240,22 +245,28 @@ def searchGate(target, sensor, thrusterPub):
           if angleDifference > 180:
             # The difference in angle of pole 2 and pole 1 is larger than 180
             # The gate must be behind the curve of rotation.
+            print("The angle difference is: ", angleDifference, "behind the gate")
             if target == "center":
               targetAngle = ((360 - angleDifference) / 2 + poleAngle[1]) % 360
+              print("Target is at the center, turning: ", (sensor.get("angles")[2] -targetAngle)%360, "degrees")
               turn((sensor.get("angles")[2] -targetAngle)%360)
             elif target == "left":
               targetAngle = ((360 - angleDifference) / 4 + poleAngle[1]) % 360
+              print("Target is at the left, turning: ", (sensor.get("angles")[2] -targetAngle)%360, "degrees")
               turn((sensor.get("angles")[2] -targetAngle)%360)
           else:
+            print("The angle difference is: ", angleDifference, ", facing the gate")
             if target == "center":
               targetAngle = (angleDifference / 2 + poleAngle[0]) % 360
+              print("Target is at the center, turning: ", (sensor.get("angles")[2] -targetAngle)%360, "degrees")
               turn((sensor.get("angles")[2] -targetAngle)%360)
             elif target == "left":
               targetAngle = (angleDifference / 4 + poleAngle[0]) % 360
+              print("Target is at the left, turning: ", (sensor.get("angles")[2] -targetAngle)%360, "degrees")
               turn((sensor.get("angles")[2] -targetAngle)%360)
           return True
       # Turn until we find at least one pole on the gate
-      move("right", sensor, thrusterPub)
+    move("right", sensor, thrusterPub)
 
 
 def alignObj(obj, sensor, axis=0.5):
@@ -278,6 +289,7 @@ def alignObj(obj, sensor, axis=0.5):
 
 
 def moveTillGone(object, sensor, thrusterPub):
+  print("Move till gone begins")
   counter = 0
   while True:
     result = findObject(object)
@@ -285,6 +297,7 @@ def moveTillGone(object, sensor, thrusterPub):
       move("forward", sensor, thrusterPub)
       counter += 1
     else:
+      print("Object gone")
       return counter
 
 
