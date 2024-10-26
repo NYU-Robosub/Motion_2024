@@ -279,10 +279,10 @@ def alignObj(obj, sensor, thrusterPub, cvDict, axis=0.5):
     move("right", sensor, thrusterPub)
 
 
-def moveTillGone(object, sensor, thrusterPub):
+def moveTillGone(object, sensor, thrusterPub, cvDict):
   counter = 0
   while True:
-    result = findObject(object)
+    result = findObject(object, cv(sensor), cvDict)
     if result:
       move("forward", sensor, thrusterPub)
       counter += 1
