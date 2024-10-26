@@ -264,6 +264,7 @@ def searchGate(target, sensor, thrusterPub):
               targetAngle = (angleDifference / 4 + poleAngle[0]) % 360
               print("Target is at the left, turning: ", (sensor.get("angles")[2] -targetAngle)%360, "degrees")
               turn((sensor.get("angles")[2] -targetAngle)%360)
+          print("Searching gate ends")
           return True
       # Turn until we find at least one pole on the gate
     move("right", sensor, thrusterPub)
@@ -271,22 +272,26 @@ def searchGate(target, sensor, thrusterPub):
 
 
 def alignObj(obj, sensor, axis=0.5):
+  print("Begin aligning to ", obj)
   # ALign horizontally to ensure the specified object is at a specific part of the camera frame.
   while (True):
     for i in cv(sensor):
       # Detected the marker
       if i[4] == CV_DICT[obj]:
+        print("Marker detected")
         x1 = i[0]
         x2 = i[1]
         if (abs((x1+x2)/2)-axis)<=0.05:
           # Return the width of the marker
+          print("Align object ends")
           return (x2-x1)
         elif abs(axis - x1) < abs(x2 - axis):
           move('right', sensor)
         else:
           move('left', sensor)
     # Marker not detected by cv
-    move("right", sensor, thrusterPub)
+    print("Marker not detected by cv, moving to the right")
+    move("right", sensor, thrusterPub) #fix
 
 
 def moveTillGone(object, sensor, thrusterPub):
