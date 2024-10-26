@@ -267,6 +267,7 @@ def searchGate(target, sensor, thrusterPub):
           return True
       # Turn until we find at least one pole on the gate
     move("right", sensor, thrusterPub)
+   
 
 
 def alignObj(obj, sensor, axis=0.5):
