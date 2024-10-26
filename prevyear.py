@@ -176,7 +176,6 @@ def followThePath():
 def alignVertical(obj):
   # Align the obj vertically.
   reachedBottom = False
-  reachedTop = False
   while (True):
     found = False
     for i in cv(sensor):
@@ -192,20 +191,21 @@ def alignVertical(obj):
           else:
             move("down", sensor, thrusterPub)
         else:
-          return
+          return True
 
     if not found:
       # obj not detected by cv
       if sensor.get("depth") > 0.2 and not reachedBottom:
+        # Have not reached bottom of pool before, so search by going down.
         move("down", sensor, thrusterPub)
-      elif sensor.get("pressure") > 0.3 and not reachedTop:
+      elif sensor.get("pressure") > 0.3:
+        # Have reached bottom of pool, so search by going up.
         reachedBottom = True
         move("up", sensor, thrusterPub)
-      elif not reachedTop:
-        reachedTop = True
       else:
+        # Reached top and bottom, object not found 
         print("Cannot find object")
-        return 
+        return False
 
 def buoy(classNum):
   # Hit the object corresponding to classNum on the buoy
