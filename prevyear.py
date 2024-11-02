@@ -55,12 +55,12 @@ def alignPath(path):
   # Then use the width of the bounding box to determine the direction of the path.
   # path is the initial bounding box of the path.
   x_center = (path[0] + path[1])/2
-  yCenter = (path[2] + path[3])/2
+  y_center = (path[2] + path[3])/2
   print(f"Starting alignment. Initial x_center: {x_center}, y_center: {y_center}")
-  while abs(x_center - 0.5) > 0.05 or abs(yCenter - 0.5) > 0.05:
-    if abs(yCenter - 0.5) > 0.05:
+  while abs(x_center - 0.5) > 0.05 or abs(y_center - 0.5) > 0.05:
+    if abs(y_center - 0.5) > 0.05:
       # y-coordinate is not aligned
-      if yCenter > 0.5:
+      if y_center > 0.5:
         # If path is at the upper part of the frame, move forward.
         print("Path is at the upper part of the frame, moving forward.")
         move("forward", sensor, thrusterPub, 0.1)
@@ -84,7 +84,8 @@ def alignPath(path):
           bboxes = cvBottom(sensor)
           path = findObject("path", bboxes, cvDict)
     else:
-      if x_center > 0.5:
+      # x-coordinate is not aligned
+      if x_center > 0.5: 
         # If path is at the right part of the frame, move right.
         print("Path is at the right part of the frame, moving to the right.")
         turn(90, sensor, thrusterPub)
@@ -114,7 +115,7 @@ def alignPath(path):
           bboxes = cvBottom(sensor)
           path = findObject("path", bboxes, cvDict)
       x_center = (path[0] + path[1])/2
-      yCenter = (path[2] + path[3])/2
+      y_center = (path[2] + path[3])/2
       print(f"Updated x_center: {x_center}, y_center: {y_center}")
     directPath(path)
 
@@ -132,7 +133,7 @@ def directPath(pathObj):
     for i in range(0, 90, 5):
         turn(5, sensor, thrusterPub)
         # Get the current bounding box ratio
-        pathObj = cv_bottom(sensor)
+        pathObj = cvBottom(sensor)
         width = pathObj[1] - pathObj[0]
         length = pathObj[3] - pathObj[2]
         new_ratio = length / width
@@ -203,10 +204,10 @@ def alignVertical(obj):
         y1 = i[2]
         y2 = i[3]
 
-        yCenter = (y1+y2)/2
+        y_center = (y1+y2)/2
         found = True
-        if abs(yCenter - 0.5) > 0.05:
-          if yCenter > 0.5:
+        if abs(y_center - 0.5) > 0.05:
+          if y_center > 0.5:
             move("up", sensor, thrusterPub)
           else:
             move("down", sensor, thrusterPub)
