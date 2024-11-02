@@ -147,7 +147,7 @@ def endRun(sensor, thrusterPub):
 def changeDepth(target, sensor, thrusterPub):
   # Change the depth to target meters above the bottom of the pool. Depth from camera being used
   # If target is negative or 0, the target is meter below the top of the pool. Pressure sensor being used.
-  initial_depth = 0
+  #initial_depth = 0
   if target > 0:
     while abs(sensor.get("depth") - target) > 0.1:
       if sensor.get("depth") > target:
