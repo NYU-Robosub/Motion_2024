@@ -130,8 +130,9 @@ def directPath(pathObj):
     print(f"Initial ratio of length and width: {cur_ratio}, starting direction alignment.")
 
     # cur_ratio is the largest ratio
-    for i in range(0, 90, 5):
-        turn(5, sensor, thrusterPub)
+    for i in range(0, 90, 1):
+        turn(1, sensor, thrusterPub)
+        sleep(0.1)
         # Get the current bounding box ratio
         pathObj = cvBottom(sensor)
         width = pathObj[1] - pathObj[0]
@@ -145,8 +146,9 @@ def directPath(pathObj):
     turn(180, sensor, thrusterPub)
     print("Turned 180 degrees, checking the other side.")
 
-    for i in range(0, 90, 5):
-        turn(5, sensor, thrusterPub)
+    for i in range(0, 90, 1):
+        turn(1, sensor, thrusterPub)
+        sleep(0.1)
         # Get the current bounding box ratio
         width = pathObj[1] - pathObj[0]
         length = pathObj[3] - pathObj[2]
