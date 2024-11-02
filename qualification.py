@@ -51,7 +51,7 @@ depthSub = rospy.Subscriber('depth_sensor', Float64, depthCallback, callback_arg
 touchSub = rospy.Subscriber("touch_sensor", Bool, touchCallback, callback_args=sensor)
 
 # Subscribing to IMU to get angle
-gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=sensor)
+gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
 
 # Subscribe to IMU to get distance
 distanceSub = rospy.Subscriber("displacement_sensor", Float64MultiArray, distanceCallback, callback_args=sensor)
