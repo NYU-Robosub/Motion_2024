@@ -188,11 +188,11 @@ def turn(degree, sensor, thrusterPub):
   else:
     move("right", sensor, thrusterPub, degree)
   angleDiff = (sensor.get("angles")[2] - initAngle) % 360
-  while abs(angleDiff - degree) >= 5:
+  while abs(angleDiff - degree) >= 2:
     if angleDiff < degree and degree - angleDiff < 180:
-      move("right", sensor, thrusterPub)
+      move("right", sensor, thrusterPub, 1)
     else:
-      move("left", sensor, thrusterPub)
+      move("left", sensor, thrusterPub, 1)
     angleDiff = (sensor.get("angles")[2] - initAngle) % 360
 
 

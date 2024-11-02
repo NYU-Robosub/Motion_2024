@@ -8,7 +8,6 @@ Original file is located at
 """
 
 
-
 import Serial
 import rospy
 from std_msgs.msg import Float64MultiArray, Float64, Bool, Int32MultiArray
@@ -55,12 +54,12 @@ def alignPath(path):
   # Then use the width of the bounding box to determine the direction of the path.
   # path is the initial bounding box of the path.
   x_center = (path[0] + path[1])/2
-  yCenter = (path[2] + path[3])/2
+  y_center = (path[2] + path[3])/2
   print(f"Starting alignment. Initial x_center: {x_center}, y_center: {y_center}")
-  while abs(x_center - 0.5) > 0.05 or abs(yCenter - 0.5) > 0.05:
-    if abs(yCenter - 0.5) > 0.05:
+  while abs(x_center - 0.5) > 0.05 or abs(y_center - 0.5) > 0.05:
+    if abs(y_center - 0.5) > 0.05:
       # y-coordinate is not aligned
-      if yCenter > 0.5:
+      if y_center > 0.5:
         # If path is at the upper part of the frame, move forward.
         print("Path is at the upper part of the frame, moving forward.")
         move("forward", sensor, thrusterPub, 0.1)
@@ -84,7 +83,8 @@ def alignPath(path):
           bboxes = cvBottom(sensor)
           path = findObject("path", bboxes, cvDict)
     else:
-      if x_center > 0.5:
+      # x-coordinate is not aligned
+      if x_center > 0.5: 
         # If path is at the right part of the frame, move right.
         print("Path is at the right part of the frame, moving to the right.")
         turn(90, sensor, thrusterPub)
@@ -114,7 +114,7 @@ def alignPath(path):
           bboxes = cvBottom(sensor)
           path = findObject("path", bboxes, cvDict)
       x_center = (path[0] + path[1])/2
-      yCenter = (path[2] + path[3])/2
+      y_center = (path[2] + path[3])/2
       print(f"Updated x_center: {x_center}, y_center: {y_center}")
     directPath(path)
 
@@ -129,10 +129,11 @@ def directPath(pathObj):
     print(f"Initial ratio of length and width: {cur_ratio}, starting direction alignment.")
 
     # cur_ratio is the largest ratio
-    for i in range(0, 90, 5):
-        turn(5, sensor, thrusterPub)
+    for i in range(0, 90, 1):
+        turn(1, sensor, thrusterPub)
+        sleep(0.1)
         # Get the current bounding box ratio
-        pathObj = cv_bottom(sensor)
+        pathObj = cvBottom(sensor)
         width = pathObj[1] - pathObj[0]
         length = pathObj[3] - pathObj[2]
         new_ratio = length / width
@@ -144,8 +145,9 @@ def directPath(pathObj):
     turn(180, sensor, thrusterPub)
     print("Turned 180 degrees, checking the other side.")
 
-    for i in range(0, 90, 5):
-        turn(5, sensor, thrusterPub)
+    for i in range(0, 90, 1):
+        turn(1, sensor, thrusterPub)
+        sleep(0.1)
         # Get the current bounding box ratio
         width = pathObj[1] - pathObj[0]
         length = pathObj[3] - pathObj[2]
@@ -203,10 +205,10 @@ def alignVertical(obj):
         y1 = i[2]
         y2 = i[3]
 
-        yCenter = (y1+y2)/2
+        y_center = (y1+y2)/2
         found = True
-        if abs(yCenter - 0.5) > 0.05:
-          if yCenter > 0.5:
+        if abs(y_center - 0.5) > 0.05:
+          if y_center > 0.5:
             move("up", sensor, thrusterPub)
           else:
             move("down", sensor, thrusterPub)
@@ -272,10 +274,10 @@ def main():
     move("forward", sensor, thrusterPub)
   if findObject("class1img1", cv(sensor), cvDict):
     targetClass = "class1"
-    alignObj("class1img1")
+    alignObj("class1img1", sensor, thrusterPub, cvDict)
   else:
     targetClass = "class2"
-    alignObj("class2img1")
+    alignObj("class2img1", sensor, thrusterPub, cvDict)
   moveTillGone(targetClass+"img1", sensor, thrusterPub)
   for i in range(ceil(through_gate/step)):
     move("forward", sensor, thrusterPub)
