@@ -8,7 +8,6 @@ Original file is located at
 """
 
 
-
 import Serial
 import rospy
 from std_msgs.msg import Float64MultiArray, Float64, Bool, Int32MultiArray
@@ -265,7 +264,10 @@ def buoy(classNum):
 
 
 def main():
-  sleep(5)
+  while True:
+    if sensor.get("touch"):
+      sleep(60)
+      break
   changeDepth(0.3, sensor, thrusterPub)
   searchGate("left", sensor, thrusterPub, cvDict)
   targetClass = None # The string for which class we are targeting.
@@ -273,10 +275,10 @@ def main():
     move("forward", sensor, thrusterPub)
   if findObject("class1img1", cv(sensor), cvDict):
     targetClass = "class1"
-    alignObj("class1img1")
+    alignObj("class1img1", sensor, thrusterPub, cvDict)
   else:
     targetClass = "class2"
-    alignObj("class2img1")
+    alignObj("class2img1", sensor, thrusterPub, cvDict)
   moveTillGone(targetClass+"img1", sensor, thrusterPub)
   for i in range(ceil(through_gate/step)):
     move("forward", sensor, thrusterPub)
