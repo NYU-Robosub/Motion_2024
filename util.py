@@ -18,6 +18,10 @@ from time import time, sleep
 TEMP_T = 100
 LEAK_T = 10
 
+# initial value for depth and pressure, added for changeDepth function
+INIT_DEPTH = 1
+INIT_PRESSURE = 0
+
 def unflatten(data, length=5):
   # Convert the CV data to a list of list
   if len(data) % length != 0:
@@ -149,17 +153,17 @@ def changeDepth(target, sensor, thrusterPub):
   # If target is negative or 0, the target is meter below the top of the pool. Pressure sensor being used.
   #initial_depth = 0
   if target > 0:
-    while abs(sensor.get("depth") - target) > 0.1:
-      if sensor.get("depth") > target:
-        move("down", sensor, thrusterPub)
+    while abs(sensor.get("depth", INIT_DEPTH ) - target) > 0.1:
+      if sensor.get("depth", INIT_DEPTH) > target:
+        move("down", sensor, thrusterPub, sensor.get("depth", INIT_DEPTH) - target)
       else:
-        move("up", sensor, thrusterPub)
+        move("up", sensor, thrusterPub, target - sensor.get("depth", INIT_DEPTH))
   else:
-    while abs(sensor.get("pressure")-abs(target)) > 0.1:
-      if sensor.get("pressure") < abs(target):
-        move("down", sensor, thrusterPub)
+    while abs(sensor.get("pressure", INIT_PRESSURE)-abs(target)) > 0.1:
+      if sensor.get("pressure", INIT_PRESSURE) < abs(target):
+        move("down", sensor, thrusterPub, abs(target) - sensor.get("pressure", INIT_PRESSURE))
       else:
-        move("up", sensor, thrusterPub)
+        move("up", sensor, thrusterPub, sensor.get("pressure", INIT_PRESSURE) - abs(target))
 
 
 def turn(degree, sensor, thrusterPub):
@@ -285,7 +289,7 @@ def moveTillGone(object, sensor, thrusterPub, cvDict):
     result = findObject(object, cv(sensor), cvDict)
     if result:
       move("forward", sensor, thrusterPub)
-      counter += 1
+      counter += 0.2
     else:
       return counter
 
