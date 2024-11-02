@@ -264,10 +264,7 @@ def buoy(classNum):
 
 
 def main():
-  while True:
-    if sensor.get("touch"):
-      sleep(60)
-      break
+  sleep(5)
   changeDepth(0.3, sensor, thrusterPub)
   searchGate("left", sensor, thrusterPub, cvDict)
   targetClass = None # The string for which class we are targeting.
