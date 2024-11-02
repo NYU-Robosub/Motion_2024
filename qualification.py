@@ -82,10 +82,12 @@ def alignMarker(axis):
 
 def objectCaptured(object):
   # Check whether the object is captured by the camera
-  # Return the x-coordinate of the center of the object
+  # Return the x-coordinates of the center of the object
   for i in cv():
     if i[4] == CV_dictionary[object]:
+      print(object ," captured by the camera, the x-coordinates is: ", (i[0] + i[1]) / 2)
       return (i[0] + i[1]) / 2
+  print("NO ", object, " captured by the camera")
   return -1
 
 
@@ -96,12 +98,13 @@ def aroundMarker():
 # Turn right
 # Keep going forward until marker is not visible
 # Turn right
+  print("Around marker begins")
   while True:
     width = alignMarker(0.5)
     if width > 0.2:
       break
     move("forward", sensor, thrusterPub)
-  alignMarker(0.8)
+  alignMarker(0.8) 
   distanceMoved = moveTillGone("marker", sensor, thrusterPub)
   turn(90, sensor, thrusterPub)
   captured = objectCaptured("marker")
@@ -124,12 +127,15 @@ def aroundMarker():
     captured = objectCaptured("marker")
   # Move back the same distance as move forward
   move("forward", sensor, thrusterPub, distance=distanceMoved)
+  print("Around marker ends")
 
 def main():
+  print("Qualification Start")
   sleep(5)
   changeDepth(0.3, sensor, thrusterPub)
   searchGate("center", sensor, thrusterPub)
   moveTillGone("pole", sensor, thrusterPub)
+  print("Getting close to gate")
   move("forward", sensor, thrusterPub, distance=through_gate)
   aroundMarker()
   searchGate("center", sensor, thrusterPub)
