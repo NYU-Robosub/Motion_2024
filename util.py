@@ -272,9 +272,9 @@ def alignObj(obj, sensor, thrusterPub, cvDict, axis=0.5):
           # Return the width of the marker
           return (x2-x1)
         elif abs(axis - x1) < abs(x2 - axis):
-          move('right', sensor)
+          move('right', sensor, thrusterPub)
         else:
-          move('left', sensor)
+          move('left', sensor, thrusterPub)
     # Marker not detected by cv
     move("right", sensor, thrusterPub)
 
