@@ -28,7 +28,8 @@ Original file is located at
 # Computer vision: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
 import Serial
 import rospy
-from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray
+from time import sleep
+from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray, Bool
 from util import cvCallback, depthCallback, gyroCallback, cv, turn, changeDepth, searchGate, move, moveTillGone, touchCallback, distanceCallback
 
 
@@ -44,7 +45,7 @@ cvSub = rospy.Subscriber('CV', Float64MultiArray, cvCallback, callback_args=sens
 thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
 
 #Subscribing to the depth sensor
-depthSub = rospy.Subscriber('depth_sensor', Float64, depth_callback, callback_args=sensor)
+depthSub = rospy.Subscriber('depth_sensor', Float64, depthCallback, callback_args=sensor)
 
 # Subscribing to the touch sensor
 touchSub = rospy.Subscriber("touch_sensor", Bool, touchCallback, callback_args=sensor)
@@ -130,6 +131,7 @@ def aroundMarker():
 
 def main():
   print("Qualification Start")
+  sleep(5)
   changeDepth(0.3, sensor, thrusterPub)
   searchGate("center", sensor, thrusterPub)
   moveTillGone("pole", sensor, thrusterPub)
