@@ -100,6 +100,10 @@ def gyroCallback(data, sensor, thrusterPub):
   # angle[1] is angle with y-axis used for roll
   # angle[2] is angle with z-axis used for yaw -> turn
 
+  #We can get the current angle of the robot and adjust 
+  # movement constantly to ensure the robot is always facing 
+  # the correct direction during movement.
+
   angles = []
   for i in range(len(data)):
     angles.append(float(data[i]))
