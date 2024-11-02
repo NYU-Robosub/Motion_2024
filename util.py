@@ -106,12 +106,12 @@ def gyroCallback(data, sensor, thrusterPub):
   sensor["angles"] = angles
 
   # if we are not doing roll ourself adjust the pitch and roll to stablize 
-  if not sensor["pitch"] and abs(angles[0]) > 1:
+  if not sensor.get("pitch", False) and abs(angles[0]) > 1:
     sensor["pitch"] = True
     PIDpitch(sensor, -angles[0] , thrusterPub)
     sensor["pitch"] = False
 
-  if not sensor["roll"] and abs(angles[1]) > 1:
+  if not sensor.get("roll", False) and abs(angles[1]) > 1:
     sensor["roll"] = True
     PIDpitch(sensor, -angles[1] , thrusterPub)
     sensor["roll"] = False
