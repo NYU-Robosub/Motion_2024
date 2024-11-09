@@ -283,3 +283,7 @@ def main():
   followThePath()
   buoy(targetClass)
   changeDepth(0, sensor, thrusterPub)
+
+
+if __name__ == "__main__":
+  main()
