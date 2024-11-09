@@ -47,7 +47,7 @@ def timeoutCallback(data, responsePub):
 
 
 responsePub = rospy.Subscriber("timeout_response", Bool)
-timeoutSub = rospy.Subscriber("timeout", Bool, timeoutCallback, callsback_args=responsePub)
+timeoutSub = rospy.Subscriber("timeout", Bool, timeoutCallback, callback_args=responsePub)
 
 # Subscribe to the CV output
 cvSub = rospy.Subscriber('CV', Float64MultiArray, cvCallback, callback_args=sensor)
