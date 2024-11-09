@@ -153,3 +153,6 @@ def main():
   for i in range(through_gate):
     move("forward", sensor, thrusterPub)
 
+
+if __name__ == "__main__":
+  main()
