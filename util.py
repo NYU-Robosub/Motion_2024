@@ -7,8 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/1Z6j1h4NaKWoPxip77ZwgNpgCsN1AVjFH
 """
 
-import Serial
-import rospy
 from std_msgs.msg import Float64MultiArray, String, Float64, Bool, Int32MultiArray
 from math import *
 from time import time, sleep
