@@ -13,7 +13,7 @@ def responseCallback(data, timeoutPub):
 
 
 timeoutPub = rospy.Publisher("timeout", Bool)
-responseSub = rospy.Subscriber("timeout_response", Bool, responseCallback, callsback_args=timeoutPub)
+responseSub = rospy.Subscriber("timeout_response", Bool, responseCallback, callback_args=timeoutPub)
 
 
 while not blocked:
