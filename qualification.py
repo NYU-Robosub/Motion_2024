@@ -40,6 +40,16 @@ through_gate = 3.5
 sensor = {}
 
 
+def timeoutCallback(data, responsePub):
+  if data:
+    responsePub.publish(Bool(True))
+    input("Press ENTER to continue")
+    responsePub.publish(Bool(False))
+
+
+responsePub = rospy.Subscriber("timeout_response", Bool)
+timeoutSub = rospy.Subscriber("timeout", Bool, timeoutCallback, callsback_args=responsePub)
+
 # Subscribe to the CV output
 cvSub = rospy.Subscriber('CV', Float64MultiArray, cvCallback, callback_args=sensor)
 thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
@@ -58,6 +68,7 @@ distanceSub = rospy.Subscriber("displacement_sensor", Float64MultiArray, distanc
 
 # Contain the class number for each object
 CV_dictionary = {"pole":0}
+
 
 def alignMarker(axis):
   # Ensure marker is at the axis at the specific x-coordinate.
