@@ -26,37 +26,33 @@ if __name__ == '__main__':
         msg = input("Message: ")
         if topic == "CV":
             msg = ast.literal_eval(msg)
-            cvMsg = Float64MultiArray()
-            cvMsg.data = msg
+            cvMsg = Float64MultiArray(msg)
             cvPub.publish(cvMsg)
         elif topic == "Depth":
             depthF = float(msg)
-            depthMsg = Float64()
-            depthMsg.data = depthF
+            depthMsg = Float64(depthF)
             depthPub.publish(depthMsg)
         elif topic == "Gyro":
             gyroF = float(msg)
-            gyroMsg = Float64()
-            gyroMsg.data = gyroF
+            gyroMsg = Float64(gyroF)
             gyroPub.publish(gyroMsg)
         elif topic == "Touch":
-            touchMsg = Bool()
-            touchMsg.data = bool(ord(msg[0])-102)
+            touchB = False
+            if msg.upper() == "T":
+                touchB = True
+            touchMsg = Bool(touchB)
             touchPub.publish(touchMsg)
         elif topic == "Distance":
             distanceF = float(msg)
-            distanceMsg = Float64()
-            distanceMsg.data = distanceF
+            distanceMsg = Float64(distanceF)
             distancePub.publish(distanceMsg)
         elif topic == "CV_bottom":
             msg = ast.literal_eval(msg)
-            cvBottomMsg = Float64MultiArray()
-            cvBottomMsg.data = msg
+            cvBottomMsg = Float64MultiArray(msg)
             cvBottomPub.publish(cvBottomMsg)
         elif topic == "pressure":
             pressureF = float(msg)
-            pressureMsg = Float64()
-            pressureMsg.data = pressureF
+            pressureMsg = Float64(pressureF)
             pressurePub.publish(pressureMsg)
         else:
             print("Invalid topic")
