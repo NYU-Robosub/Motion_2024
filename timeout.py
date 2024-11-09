@@ -3,7 +3,7 @@ from std_msgs.msg import Bool
 from time import sleep
 
 blocked = False
-
+rospy.init_node('timeout', anonymous=True)
 
 def responseCallback(data, timeoutPub):
     blocked = data
