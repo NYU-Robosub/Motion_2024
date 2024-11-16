@@ -41,8 +41,10 @@ sensor = {}
 
 def timeoutCallback(data, responsePub):
   if data:
+    print("Stopped")
     responsePub.publish(Bool(True))
-    sleep(10)
+    sleep(100)
+    print("Continued")
     responsePub.publish(Bool(False))
 
 

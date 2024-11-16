@@ -159,7 +159,7 @@ def endRun(sensor, thrusterPub):
   exit()
 
 def changeDepth(target, sensor, thrusterPub):
-  print("Changing depth to %.2f meters", target)
+  print(f"Changing depth to {target} meters")
   # Change the depth to target meters above the bottom of the pool. Depth from camera being used
   # If target is negative or 0, the target is meter below the top of the pool. Pressure sensor being used.
   #initial_depth = 0
