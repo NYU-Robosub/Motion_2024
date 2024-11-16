@@ -10,8 +10,8 @@ if __name__ == '__main__':
 
     cvPub = rospy.Publisher('CV', Float64MultiArray)
     depthPub = rospy.Publisher('depth_sensor', Float64)
-    gyroPub = rospy.Publisher('gyro_sensor', Float64)
-    distancePub = rospy.Publisher('displacement_sensor', Float64)
+    gyroPub = rospy.Publisher('gyro_sensor', Float64MultiArray)
+    distancePub = rospy.Publisher('displacement_sensor', Float64MultiArray)
     pressurePub = rospy.Publisher("pressure_sensor", Float64)
 
     #prevyear
@@ -50,8 +50,9 @@ if __name__ == '__main__':
             depthMsg = Float64(depthF)
             depthPub.publish(depthMsg)
         elif topic == "GYRO":
-            gyroF = float(msg)
-            gyroMsg = Float64(gyroF)
+            msg = ast.literal_eval(msg)
+            gyroMsg = Float64MultiArray()
+            gyroMsg.data = msg
             gyroPub.publish(gyroMsg)
         elif topic == "DISTANCE":
             msg = ast.literal_eval(msg)
