@@ -42,7 +42,7 @@ sensor = {}
 def timeoutCallback(data, responsePub):
   if data:
     responsePub.publish(Bool(True))
-    input("Press ENTER to continue")
+    sleep(10)
     responsePub.publish(Bool(False))
 
 
