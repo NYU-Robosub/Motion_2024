@@ -125,16 +125,17 @@ def gyroCallback(data, args):
     angles.append(float(data[i]))
   sensor["angles"] = angles
 
-  # if we are not doing roll ourself adjust the pitch and roll to stablize 
-  if not sensor.get("pitch", False) and abs(angles[0]) > 1:
-    sensor["pitch"] = True
-    PIDpitch(sensor, -angles[0] , thrusterPub)
-    sensor["pitch"] = False
-
-  if not sensor.get("roll", False) and abs(angles[1]) > 1:
-    sensor["roll"] = True
+  if not sensor.get("roll_pitch", False) and abs(angles[1]) > 1:
+    sensor["roll_pitch"] = True
     PIDpitch(sensor, -angles[1] , thrusterPub)
-    sensor["roll"] = False
+    sensor["roll_pitch"] = False
+
+  # if we are not doing roll ourself adjust the pitch and roll to stablize 
+  if not sensor.get("roll_pitch", False) and abs(angles[0]) > 1:
+    sensor["roll_pitch"] = True
+    PIDpitch(sensor, -angles[0] , thrusterPub)
+    sensor["roll_pitch"] = False
+
 
 
 def distanceCallback(data, sensor):
@@ -342,7 +343,7 @@ def moveTillGone(object, sensor, thrusterPub, cvDict):
 
 
 def PID(Kp, Ki, Kd, e, time_prev, e_prev, integral):
-    cur_time = cur_time()
+    cur_time = time()
 
     # PID calculations
     P = Kp*e
