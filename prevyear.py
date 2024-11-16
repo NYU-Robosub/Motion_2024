@@ -12,7 +12,7 @@ import rospy
 from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray
 from math import *
 from util import *
-from time import sleep
+from rospy import sleep
 
 rospy.init_node('qualification', anonymous=True)
 

@@ -27,7 +27,7 @@ Original file is located at
 
 # Computer vision: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
 import rospy
-from time import sleep
+from rospy import sleep
 from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray
 from util import cvCallback, depthCallback, gyroCallback, cv, turn, changeDepth, searchGate, move, moveTillGone, distanceCallback, pressureCallback
 
@@ -129,9 +129,9 @@ def aroundMarker():
 
 def main():
   print("Manual testing data: 1 minutes")
-  rospy.sleep(60)
+  sleep(60)
   print("Qualification Start")
-  rospy.sleep(5)
+  sleep(5)
   print(sensor)
   changeDepth(0.3, sensor, thrusterPub)
   searchGate("center", sensor, thrusterPub)
