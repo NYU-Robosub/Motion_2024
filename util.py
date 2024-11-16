@@ -97,14 +97,14 @@ def move(direction, sensor, thrusterPub, distance=0.2):
 def depthCallback(data, sensor):
   # Set the distance from the bottom of the pool in meter
   print("Depth updated")
-  sensor["depth"] = float(data)
+  sensor["depth"] = float(data.data)
 
 
 
 def pressureCallback(data, sensor):
   # Set the distance from the surface of the water in meter
   print("Pressure updated")
-  sensor["pressure"] = float(data)
+  sensor["pressure"] = float(data.data)
   
 
 def gyroCallback(data, sensor, thrusterPub):
@@ -143,7 +143,7 @@ def distanceCallback(data, sensor):
 def temperatureCallback(data, sensor, thrusterPub):
   print(f"Temperature updated: {sensor['temperature']}")
   # Callback function for the temperature sensor subscriber
-  sensor['temperature'] = float(data)
+  sensor['temperature'] = float(data.data)
   if data > TEMP_T:
     print("Critical temperature dected")
     endRun(sensor, thrusterPub)
