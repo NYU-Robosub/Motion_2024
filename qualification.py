@@ -98,6 +98,7 @@ def aroundMarker():
 # Keep going forward until marker is not visible
 # Turn right
   print("Around marker begins")
+  sleep(5)
   while True:
     width = alignMarker(0.5)
     if width > 0.2:
@@ -129,6 +130,8 @@ def aroundMarker():
   print("Around marker ends")
 
 def main():
+  print("Manual testing data: 5 minutes")
+  sleep(300)
   print("Qualification Start")
   sleep(5)
   changeDepth(0.3, sensor, thrusterPub)
