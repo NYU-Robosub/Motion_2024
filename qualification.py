@@ -58,7 +58,7 @@ gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callb
 distanceSub = rospy.Subscriber("displacement_sensor", Float64MultiArray, distanceCallback, callback_args=sensor)
 
 # Contain the class number for each object
-CV_dictionary = {"pole":0}
+CV_dictionary = {"pole":0, "marker": 1}
 
 
 def alignMarker(axis):
