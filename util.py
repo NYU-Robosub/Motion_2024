@@ -127,7 +127,7 @@ def gyroCallback(data, args):
 
   if not sensor.get("roll_pitch", False) and abs(angles[1]) > 1:
     sensor["roll_pitch"] = True
-    PIDpitch(sensor, -angles[1] , thrusterPub)
+    PIDroll(sensor, -angles[1] , thrusterPub)
     sensor["roll_pitch"] = False
 
   # if we are not doing roll ourself adjust the pitch and roll to stablize 
@@ -373,15 +373,18 @@ def PIDxy(sensor, target, thrusterPub):
     e_prev = e
     # speed is m/s^2
     message = []
+    pubMsg = Int32MultiArray()
     if speed < 0.001 and abs(e_prev) < 0.1:
       message.append(0)
       message.append(0)
-      thrusterPub.publish(Int32MultiArray(message))
+      pubMsg.data = message
+      thrusterPub.publish(pubMsg)
       break
     else:
       message.append(0)
       message.append(round(speed))
-      thrusterPub.publish(Int32MultiArray(message))
+      pubMsg.data = message
+      thrusterPub.publish(pubMsg)
     print("PID xy")
     sleep(120)
 
@@ -399,15 +402,18 @@ def PIDturn(sensor, target, thrusterPub):
     e_prev = e
     # speed is degree/s^2
     message = []
+    pubMsg = Int32MultiArray()
     if speed < 0.001 and abs(e_prev) < 1:
       message.append(1)
       message.append(0)
-      thrusterPub.publish(Int32MultiArray(message))
+      pubMsg.data = message
+      thrusterPub.publish(pubMsg)
       break
     else:
       message.append(1)
       message.append(round(speed))
-      thrusterPub.publish(Int32MultiArray(message))
+      pubMsg.data = message
+      thrusterPub.publish(pubMsg)
     print("PID turn")
     sleep(120)
     
@@ -425,15 +431,18 @@ def PIDdepth(sensor, target, thrusterPub):
       e_prev = e
       # speed is degree/s^2
       message = []
+      pubMsg = Int32MultiArray()
       if speed < 0.001 and abs(e_prev) < 0.1:
         message.append(2)
         message.append(0)
-        thrusterPub.publish(Int32MultiArray(message))
+        pubMsg.data = message
+        thrusterPub.publish(pubMsg)
         break
       else:
         message.append(2)
         message.append(round(speed))
-        thrusterPub.publish(Int32MultiArray(message))
+        pubMsg.data = message
+        thrusterPub.publish(pubMsg)
       print("PID depth")
       sleep(120)
 
@@ -451,15 +460,18 @@ def PIDpitch(sensor, target, thrusterPub):
     e_prev = e
     # speed is degree/s^2
     message = []
+    pubMsg = Int32MultiArray()
     if speed < 0.001 and abs(e_prev) < 1:
       message.append(3) # 3 for pitch
       message.append(0)
-      thrusterPub.publish(Int32MultiArray(message))
+      pubMsg.data = message
+      thrusterPub.publish(pubMsg)
       break
     else:
       message.append(3)
       message.append(round(speed))
-      thrusterPub.publish(Int32MultiArray(message))
+      pubMsg.data = message
+      thrusterPub.publish(pubMsg)
     print("PID pitch")
     sleep(120)
 
@@ -476,15 +488,18 @@ def PIDroll(sensor, target, thrusterPub):
     e_prev = e
     # speed is degree/s^2
     message = []
+    pubMsg = Int32MultiArray()
     if speed < 0.001 and abs(e_prev) < 1:
       message.append(4) # 4 for roll
       message.append(0)
-      thrusterPub.publish(Int32MultiArray(message))
+      pubMsg.data = message
+      thrusterPub.publish(pubMsg)
       break
     else:
       message.append(4)
       message.append(round(speed))
-      thrusterPub.publish(Int32MultiArray(message))
+      pubMsg.data = message
+      thrusterPub.publish(pubMsg)
     print("PID roll")
     sleep(120)
 
