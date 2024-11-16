@@ -73,7 +73,7 @@ def move(direction, sensor, thrusterPub, distance=0.2):
   # Default distance to move is 0.2 m each time
   # 0.2 m correspond to 5 degrees when turning left and right
   # Turn 5 degree at a time
-  print("Moving %s by distance: %.2f meters", direction, distance)
+  print(f"Moving {direction} by distance: {distance} meters")
   message = []
   # 0 for forward and backward, 1 for turning, 2 for changing depth, 3 for pitch and 4 for roll
   if direction == "forward":
@@ -137,7 +137,7 @@ def touchCallback(data,sensor):
   sensor['touch'] = bool(data)
 
 def temperatureCallback(data, sensor, thrusterPub):
-  print("Temperature updated: %.2f", sensor['temperature'])
+  print(f"Temperature updated: {sensor['temperature']}")
   # Callback function for the temperature sensor subscriber
   sensor['temperature'] = float(data)
   if data > TEMP_T:
@@ -161,7 +161,7 @@ def endRun(sensor, thrusterPub):
   exit()
 
 def changeDepth(target, sensor, thrusterPub):
-  print("Changing depth to %.2f meters", target)
+  print(f"Changing depth to {target} meters")
   # Change the depth to target meters above the bottom of the pool. Depth from camera being used
   # If target is negative or 0, the target is meter below the top of the pool. Pressure sensor being used.
   #initial_depth = 0
@@ -181,7 +181,7 @@ def changeDepth(target, sensor, thrusterPub):
 
 def turn(degree, sensor, thrusterPub):
   # Turn degree clockwise. Does not support negative
-  print("Turning by %.2f degrees", degree)
+  print(f"Turning by {degree} degrees")
   initAngle = sensor.get("angles")[2]
   if degree > 180:
     move("left", sensor, thrusterPub, degree-180)
