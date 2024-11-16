@@ -15,7 +15,7 @@ from time import time, sleep
 
 
 # Threshold for temperature and moisture
-TEMP_T = 100
+TEMP_T = 45
 LEAK_T = 10
 
 # initial value for depth and pressure, added for changeDepth function
