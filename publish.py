@@ -2,7 +2,7 @@ import rospy
 import ast
 from time import sleep
 from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray, Bool
-from util import cvCallback, depthCallback, gyroCallback, cv, turn, changeDepth, searchGate, move, moveTillGone, touchCallback, distanceCallback
+from util import cvCallback, depthCallback, gyroCallback, cv, turn, changeDepth, searchGate, move, moveTillGone, distanceCallback
 
 
 if __name__ == '__main__':
