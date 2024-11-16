@@ -22,12 +22,12 @@ if __name__ == '__main__':
 
 
     while not rospy.is_shutdown():
-        topic = input("Topic: ")
+        topic = input("Topic: ").upper()
         msg = input("Message: ")
         if topic == "CV":
             msg = ast.literal_eval(msg)
             cvMsg = Float64MultiArray()
-            cvBottomMsg.data = msg
+            cvMsg.data = msg
             cvPub.publish(cvMsg)
         elif topic == "Depth":
             depthF = float(msg)
