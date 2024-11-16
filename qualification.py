@@ -132,6 +132,7 @@ def main():
   sleep(60)
   print("Qualification Start")
   sleep(5)
+  rospy.spinOnce()
   print(sensor)
   changeDepth(0.3, sensor, thrusterPub)
   searchGate("center", sensor, thrusterPub)
