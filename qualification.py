@@ -38,16 +38,6 @@ through_gate = 3.5
 
 sensor = {}
 
-
-def timeoutCallback(data, responsePub):
-  if data:
-    print("Stopped")
-    responsePub.publish(Bool(True))
-    sleep(100)
-    print("Continued")
-    responsePub.publish(Bool(False))
-
-
 responsePub = rospy.Publisher("timeout_response", Bool)
 timeoutSub = rospy.Subscriber("timeout", Bool, timeoutCallback, callback_args=responsePub)
 
