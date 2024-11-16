@@ -8,7 +8,6 @@ Original file is located at
 """
 
 
-import Serial
 import rospy
 from std_msgs.msg import Float64MultiArray, Float64, Bool, Int32MultiArray
 from math import *
@@ -284,3 +283,7 @@ def main():
   followThePath()
   buoy(targetClass)
   changeDepth(0, sensor, thrusterPub)
+
+
+if __name__ == "__main__":
+  main()
