@@ -36,6 +36,7 @@ def unflatten(data, length=5):
 
 
 def cvCallback(data, sensor):
+  print("CV result received")
   # sensor is the object to be modified
   # Computer vision: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
   sensor["CV_result"] = unflatten(data)
@@ -48,6 +49,7 @@ def cv(sensor):
 
 
 def cvBottomCallback(data, sensor):
+  print("CV bottom result received")
   sensor["CV_bottom"] = unflatten(data)
   
 
@@ -93,16 +95,19 @@ def move(direction, sensor, thrusterPub, distance=0.2):
 
 def depthCallback(data, sensor):
   # Set the distance from the bottom of the pool in meter
+  print("Depth updated")
   sensor["depth"] = float(data)
 
 
 
 def pressureCallback(data, sensor):
   # Set the distance from the surface of the water in meter
+  print("Pressure updated")
   sensor["pressure"] = float(data)
   
 
 def gyroCallback(data, sensor, thrusterPub):
+  print("Gyro updated")
   # The angles on x-axis, y-axis, and z-axis from gyrometer. Format is 360 degrees. angles[2] is suppose to be the horizontal angle 
   # angle[0] is angle with x-axis used for pitch 
   # angle[1] is angle with y-axis used for roll
@@ -130,11 +135,9 @@ def gyroCallback(data, sensor, thrusterPub):
 
 
 def distanceCallback(data, sensor):
+  print("Distance updated")
   sensor["distance"] = data
   
-
-def touchCallback(data,sensor):
-  sensor['touch'] = bool(data)
 
 def temperatureCallback(data, sensor, thrusterPub):
   print(f"Temperature updated: {sensor['temperature']}")
@@ -146,6 +149,7 @@ def temperatureCallback(data, sensor, thrusterPub):
 
 
 def leakCallback(data, sensor, thrusterPub):
+  print("Leak updated")
   sensor['leak'] = float(data.data)
   # Callback function for the leak sensor subscriber
   sensor['leak'] = data # data is float
