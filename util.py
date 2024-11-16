@@ -342,17 +342,17 @@ def moveTillGone(object, sensor, thrusterPub, cvDict):
 
 
 def PID(Kp, Ki, Kd, e, time_prev, e_prev, integral):
-    time = time()
+    cur_time = cur_time()
 
     # PID calculations
     P = Kp*e
-    integral = integral + Ki*e*(time - time_prev)
-    D = Kd*(e - e_prev)/(time - time_prev + 1e-6)
+    integral = integral + Ki*e*(cur_time - time_prev)
+    D = Kd*(e - e_prev)/(cur_time - time_prev + 1e-6)
 
     # calculate manipulated variable - MV
     MV = P + integral + D
 
-    return MV, time, integral
+    return MV, cur_time, integral
 
 
 def PIDxy(sensor, target, thrusterPub):
