@@ -402,7 +402,7 @@ def PIDturn(sensor, target, thrusterPub):
 
 def PIDdepth(sensor, target, thrusterPub):
     # Move up the target distance. target can be negative
-    start = sensor.get("depth")
+    start = sensor.get("depth", INIT_DEPTH)
     target = start + target
     time_prev = time()
     e_prev = 0
