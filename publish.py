@@ -26,7 +26,8 @@ if __name__ == '__main__':
         msg = input("Message: ")
         if topic == "CV":
             msg = ast.literal_eval(msg)
-            cvMsg = Float64MultiArray(msg)
+            cvMsg = Float64MultiArray()
+            cvBottomMsg.data = msg
             cvPub.publish(cvMsg)
         elif topic == "Depth":
             depthF = float(msg)
@@ -48,7 +49,8 @@ if __name__ == '__main__':
             distancePub.publish(distanceMsg)
         elif topic == "CV_bottom":
             msg = ast.literal_eval(msg)
-            cvBottomMsg = Float64MultiArray(msg)
+            cvBottomMsg = Float64MultiArray()
+            cvBottomMsg.data = msg
             cvBottomPub.publish(cvBottomMsg)
         elif topic == "pressure":
             pressureF = float(msg)
