@@ -28,7 +28,7 @@ Original file is located at
 # Computer vision: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
 import rospy
 from time import sleep
-from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray, Bool
+from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray
 from util import cvCallback, depthCallback, gyroCallback, cv, turn, changeDepth, searchGate, move, moveTillGone, distanceCallback, pressureCallback
 
 
