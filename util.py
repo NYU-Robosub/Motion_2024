@@ -107,7 +107,9 @@ def pressureCallback(data, sensor):
   sensor["pressure"] = float(data.data)
   
 
-def gyroCallback(data, sensor, thrusterPub):
+def gyroCallback(data, args):
+  sensor = args[0]
+  thrusterPub = args[1]
   print("Gyro updated")
   # The angles on x-axis, y-axis, and z-axis from gyrometer. Format is 360 degrees. angles[2] is suppose to be the horizontal angle 
   # angle[0] is angle with x-axis used for pitch 
@@ -140,7 +142,9 @@ def distanceCallback(data, sensor):
   sensor["distance"] = list(data.data)
   
 
-def temperatureCallback(data, sensor, thrusterPub):
+def temperatureCallback(data, args):
+  sensor = args[0]
+  thrusterPub = args[1]
   print(f"Temperature updated: {sensor['temperature']}")
   # Callback function for the temperature sensor subscriber
   sensor['temperature'] = float(data.data)
@@ -149,7 +153,9 @@ def temperatureCallback(data, sensor, thrusterPub):
     endRun(sensor, thrusterPub)
 
 
-def leakCallback(data, sensor, thrusterPub):
+def leakCallback(data, args):
+  sensor = args[0]
+  thrusterPub = args[1]
   print("Leak updated")
   sensor['leak'] = float(data.data)
   # Callback function for the leak sensor subscriber
