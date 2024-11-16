@@ -28,6 +28,8 @@ if __name__ == '__main__':
     initial_CV_bottom = Float64MultiArray()
     initial_CV_bottom.data = []
     initial_pressure = Float64(0)
+    rospy.sleep(1)
+    print("Sending initial values")
     cvPub.publish(initial_CV)
     depthPub.publish(initial_depth)
     gyroPub.publish(initial_gyro)

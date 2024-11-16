@@ -40,7 +40,7 @@ def cvCallback(data, sensor):
   print("CV result received")
   # sensor is the object to be modified
   # Computer vision: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
-  sensor["CV_result"] = unflatten(data)
+  sensor["CV_result"] = unflatten(list(data.data))
   
 
 
@@ -51,7 +51,7 @@ def cv(sensor):
 
 def cvBottomCallback(data, sensor):
   print("CV bottom result received")
-  sensor["CV_bottom"] = unflatten(data)
+  sensor["CV_bottom"] = unflatten(list(data.data))
   
 
 
@@ -117,7 +117,7 @@ def gyroCallback(data, sensor, thrusterPub):
   #We can get the current angle of the robot and adjust 
   # movement constantly to ensure the robot is always facing 
   # the correct direction during movement.
-
+  data = list(data.data)
   angles = []
   for i in range(len(data)):
     angles.append(float(data[i]))
@@ -137,7 +137,7 @@ def gyroCallback(data, sensor, thrusterPub):
 
 def distanceCallback(data, sensor):
   print("Distance updated")
-  sensor["distance"] = data
+  sensor["distance"] = list(data.data)
   
 
 def temperatureCallback(data, sensor, thrusterPub):
