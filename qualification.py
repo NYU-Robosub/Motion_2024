@@ -129,10 +129,9 @@ def aroundMarker():
 
 def main():
   print("Manual testing data: 1 minutes")
-  sleep(60)
+  rospy.sleep(60)
   print("Qualification Start")
-  sleep(5)
-  rospy.spinOnce()
+  rospy.sleep(5)
   print(sensor)
   changeDepth(0.3, sensor, thrusterPub)
   searchGate("center", sensor, thrusterPub)
