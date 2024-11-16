@@ -34,7 +34,7 @@ sensor={}
 
 # Subscribe to the CV output
 cvSub = rospy.Subscriber('CV', Float64MultiArray, cvCallback, callback_args=sensor)
-cvBottomSUb = rospy.Subscriber('CVbottom', Float64MultiArray, cvBottomCallback, callback_args=sensor)
+cvBottomSUb = rospy.Subscriber('CV_bottom', Float64MultiArray, cvBottomCallback, callback_args=sensor)
 
 thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
 # Get distance from bottom from bottom camera

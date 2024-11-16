@@ -29,7 +29,7 @@ Original file is located at
 import rospy
 from time import sleep
 from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray, Bool
-from util import cvCallback, depthCallback, gyroCallback, cv, turn, changeDepth, searchGate, move, moveTillGone, touchCallback, distanceCallback
+from util import cvCallback, depthCallback, gyroCallback, cv, turn, changeDepth, searchGate, move, moveTillGone, distanceCallback, pressureCallback
 
 
 rospy.init_node('qualification', anonymous=True)
@@ -44,9 +44,7 @@ thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
 
 #Subscribing to the depth sensor
 depthSub = rospy.Subscriber('depth_sensor', Float64, depthCallback, callback_args=sensor)
-
-# Subscribing to the touch sensor
-touchSub = rospy.Subscriber("touch_sensor", Bool, touchCallback, callback_args=sensor)
+pressureSub = rospy.Subscriber('pressure_sensor', Float64, pressureCallback, callback_args=sensor)
 
 # Subscribing to IMU to get angle
 gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))

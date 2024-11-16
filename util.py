@@ -92,11 +92,13 @@ def move(direction, sensor, thrusterPub, distance=0.2):
 
 
 def depthCallback(data, sensor):
+  # Set the distance from the bottom of the pool in meter
   sensor["depth"] = float(data)
 
 
 
 def pressureCallback(data, sensor):
+  # Set the distance from the surface of the water in meter
   sensor["pressure"] = float(data)
   
 
