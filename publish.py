@@ -29,30 +29,30 @@ if __name__ == '__main__':
             cvMsg = Float64MultiArray()
             cvMsg.data = msg
             cvPub.publish(cvMsg)
-        elif topic == "Depth":
+        elif topic == "DEPTH":
             depthF = float(msg)
             depthMsg = Float64(depthF)
             depthPub.publish(depthMsg)
-        elif topic == "Gyro":
+        elif topic == "GYRO":
             gyroF = float(msg)
             gyroMsg = Float64(gyroF)
             gyroPub.publish(gyroMsg)
-        elif topic == "Touch":
+        elif topic == "TOUCH":
             touchB = False
             if msg.upper() == "T":
                 touchB = True
             touchMsg = Bool(touchB)
             touchPub.publish(touchMsg)
-        elif topic == "Distance":
+        elif topic == "DISTANCE":
             distanceF = float(msg)
             distanceMsg = Float64(distanceF)
             distancePub.publish(distanceMsg)
-        elif topic == "CV_bottom":
+        elif topic == "CV_BOTTOM":
             msg = ast.literal_eval(msg)
             cvBottomMsg = Float64MultiArray()
             cvBottomMsg.data = msg
             cvBottomPub.publish(cvBottomMsg)
-        elif topic == "pressure":
+        elif topic == "PRESSURE":
             pressureF = float(msg)
             pressureMsg = Float64(pressureF)
             pressurePub.publish(pressureMsg)
