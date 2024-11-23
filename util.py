@@ -348,8 +348,11 @@ def PID(Kp, Ki, Kd, e, time_prev, e_prev, integral):
 
     # PID calculations
     P = Kp*e
-    integral = integral + Ki*e*(cur_time - time_prev)
-    D = Kd*(e - e_prev)/(cur_time - time_prev + 1e-6)
+    integral = integral
+    D = 0
+    if time_prev and e_prev:
+      integral = integral + Ki*e*(cur_time - time_prev)
+      D = Kd*(e - e_prev)/(cur_time - time_prev + 1e-6)
     print(f"P: {P}, I: {integral}, D: {D}")
     # calculate manipulated variable - MV
     MV = P + integral + D
