@@ -356,6 +356,7 @@ def PID(Kp, Ki, Kd, e, time_prev, e_prev, integral):
     print(f"P: {P}, I: {integral}, D: {D}")
     # calculate manipulated variable - MV
     MV = P + integral + D
+    MV = MV * 100
     return MV, cur_time, integral
 
 
