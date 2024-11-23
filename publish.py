@@ -71,6 +71,8 @@ if __name__ == '__main__':
             cvBottomMsg = Float64MultiArray()
             cvBottomMsg.data = msg
             cvBottomPub.publish(cvBottomMsg)
+        elif topic == "exit":
+            exit(0)
         else:
             print("Invalid topic")
 
