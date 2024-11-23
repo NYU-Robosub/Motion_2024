@@ -29,7 +29,7 @@ Original file is located at
 import rospy
 from rospy import sleep
 from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray
-from util import cvCallback, depthCallback, gyroCallback, cv, turn, changeDepth, searchGate, move, moveTillGone, distanceCallback, pressureCallback
+from util import cvCallback, depthCallback, gyroCallback, cv, turn, changeDepth, searchGate, move, moveTillGone, distanceCallback, pressureCallback, leakCallback, temperatureCallback
 
 
 rospy.init_node('qualification', anonymous=True)
@@ -48,6 +48,9 @@ pressureSub = rospy.Subscriber('pressure_sensor', Float64, pressureCallback, cal
 
 # Subscribing to IMU to get angle
 gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
+
+# Subscribing to leak sensor to get angle
+gyroSub = rospy.Subscriber('leak_sensor', Float64, leakCallback, callback_args=(sensor, thrusterPub))
 
 # Subscribe to IMU to get distance
 distanceSub = rospy.Subscriber("displacement_sensor", Float64MultiArray, distanceCallback, callback_args=sensor)

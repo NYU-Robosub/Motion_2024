@@ -16,6 +16,7 @@ if __name__ == '__main__':
     gyroPub = rospy.Publisher('gyro_sensor', Float64MultiArray)
     distancePub = rospy.Publisher('displacement_sensor', Float64MultiArray)
     pressurePub = rospy.Publisher("pressure_sensor", Float64)
+    leakPub = rospy.Publisher("leak_sensor", Float64)
 
     #prevyear
     cvBottomPub = rospy.Publisher('CV_bottom', Float64MultiArray)
@@ -71,6 +72,9 @@ if __name__ == '__main__':
             cvBottomMsg = Float64MultiArray()
             cvBottomMsg.data = msg
             cvBottomPub.publish(cvBottomMsg)
+        elif topic == "LEAK":
+            leakF = float(msg)
+            leakPub.publish(Float64(leakF))
         elif topic == "EXIT":
             exit(0)
         else:

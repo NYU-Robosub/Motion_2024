@@ -169,7 +169,13 @@ def leakCallback(data, args):
 def endRun(sensor, thrusterPub):
   # Make the robot move to the surface and end the program.
   print("Ending run")
-  changeDepth(0, sensor, thrusterPub)
+  while sensor.get("pressure") > 0.1:
+    pubMsg = Int32MultiArray()
+    pubMsg.data=[2, 400]
+    thrusterPub.publish(pubMsg)
+  pubMsg = Int32MultiArray()
+  pubMsg.data=[2, 0]
+  thrusterPub.publish(pubMsg)
   exit()
 
 def changeDepth(target, sensor, thrusterPub):
