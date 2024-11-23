@@ -44,7 +44,7 @@ if __name__ == '__main__':
             distancePub.publish(initial_distance)
             cvBottomPub.publish(initial_CV_bottom)
             pressurePub.publish(initial_pressure)
-        if topic == "CV":
+        elif topic == "CV":
             msg = ast.literal_eval(msg)
             cvMsg = Float64MultiArray()
             cvMsg.data = msg
