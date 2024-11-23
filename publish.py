@@ -25,7 +25,7 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
         topic = input("Topic: ").upper()
         msg = input("Message: ")
-        if topic == "setup":
+        if topic == "SETUP":
             initial_CV = Float64MultiArray()
             initial_CV.data = []
             initial_depth = Float64(DEPTH)
@@ -44,7 +44,7 @@ if __name__ == '__main__':
             distancePub.publish(initial_distance)
             cvBottomPub.publish(initial_CV_bottom)
             pressurePub.publish(initial_pressure)
-        if topic == "CV":
+        elif topic == "CV":
             msg = ast.literal_eval(msg)
             cvMsg = Float64MultiArray()
             cvMsg.data = msg
@@ -71,7 +71,7 @@ if __name__ == '__main__':
             cvBottomMsg = Float64MultiArray()
             cvBottomMsg.data = msg
             cvBottomPub.publish(cvBottomMsg)
-        elif topic == "exit":
+        elif topic == "EXIT":
             exit(0)
         else:
             print("Invalid topic")
