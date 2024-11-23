@@ -363,8 +363,8 @@ def PIDxy(sensor, target, thrusterPub):
   start_y = sensor.get("distance")[1]
   target_x = start_x + cos(sensor.get("angles")[2]) * target
   target_y = start_y + sin(sensor.get("angles")[2]) * target
-  time_prev = time()
-  e_prev = 0
+  time_prev = None
+  e_prev = None
   integral = 0
   while True:
     cur_x = sensor.get("distance")[0]
@@ -394,8 +394,8 @@ def PIDturn(sensor, target, thrusterPub):
   # turn the target angle, clockwise is positive
   start = sensor.get("angles")[2]
   target = start + target
-  time_prev = time()
-  e_prev = 0
+  time_prev = None
+  e_prev = None
   integral = 0
   while True:
     e = target - sensor.get("angles")[2]
@@ -423,8 +423,8 @@ def PIDdepth(sensor, target, thrusterPub):
     # Move up the target distance. target can be negative
     start = sensor.get("depth", INIT_DEPTH)
     target = start + target
-    time_prev = time()
-    e_prev = 0
+    time_prev = None
+    e_prev = None
     integral = 0
     while True:
       e = target - sensor.get("depth")
@@ -452,8 +452,8 @@ def PIDpitch(sensor, target, thrusterPub):
   # Move the target angle in pitch. Clockwise is positive
   start = sensor['angles'][0] # angle with x-axis
   target = start + target
-  time_prev = time()
-  e_prev = 0
+  time_prev = None
+  e_prev = None
   integral = 0
   while True:
     e = target - sensor.get("angles")[0] # error
@@ -480,8 +480,8 @@ def PIDroll(sensor, target, thrusterPub):
   # Move the target angle in roll. Clockwise is positive
   start = sensor['angles'][1] # angle with y-axis
   target = start + target
-  time_prev = time()
-  e_prev = 0
+  time_prev = None
+  e_prev = None
   integral = 0
   while True:
     e = target - sensor.get("angles")[1] # error
