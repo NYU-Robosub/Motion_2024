@@ -357,7 +357,6 @@ def PID(Kp, Ki, Kd, e, time_prev, e_prev, integral):
     print(f"P: {P}, I: {integral}, D: {D}")
     # calculate manipulated variable - MV
     MV = P + integral + D
-    MV = MV * 100
     return MV, cur_time, integral
 
 
@@ -374,12 +373,12 @@ def PIDxy(sensor, target, thrusterPub):
     cur_x = sensor.get("distance")[0]
     cur_y = sensor.get("distance")[1]
     e = ((target_x - cur_x)**2 + (target_y - cur_y)**2)**0.5
-    speed, time_prev, integral = PID(1, 0.01, 10, e, time_prev, e_prev, integral)
+    speed, time_prev, integral = PID(200, 0.1, 1000, e, time_prev, e_prev, integral)
     e_prev = e
     # speed is m/s^2
     message = []
     pubMsg = Int32MultiArray()
-    if abs(speed) < 0.001 and abs(e_prev) < 0.1:
+    if abs(speed) < 10 and abs(e_prev) < 0.1:
       message.append(0)
       message.append(0)
       pubMsg.data = message
@@ -403,12 +402,12 @@ def PIDturn(sensor, target, thrusterPub):
   integral = 0
   while True:
     e = target - sensor.get("angles")[2]
-    speed, time_prev, integral = PID(1, 0.01, 10, e, time_prev, e_prev, integral) #cur_distance not defined
+    speed, time_prev, integral = PID(200, 0.1, 1000, e, time_prev, e_prev, integral)
     e_prev = e
     # speed is degree/s^2
     message = []
     pubMsg = Int32MultiArray()
-    if abs(speed) < 0.001 and abs(e_prev) < 1:
+    if abs(speed) < 10 and abs(e_prev) < 1:
       message.append(1)
       message.append(0)
       pubMsg.data = message
@@ -432,12 +431,12 @@ def PIDdepth(sensor, target, thrusterPub):
     integral = 0
     while True:
       e = target - sensor.get("depth")
-      speed, time_prev, integral = PID(1, 0.01, 10, e, time_prev, e_prev, integral)
+      speed, time_prev, integral = PID(200, 0.1, 1000, e, time_prev, e_prev, integral)
       e_prev = e
       # speed is degree/s^2
       message = []
       pubMsg = Int32MultiArray()
-      if abs(speed) < 0.001 and abs(e_prev) < 0.1:
+      if abs(speed) < 10 and abs(e_prev) < 0.1:
         message.append(2)
         message.append(0)
         pubMsg.data = message
@@ -461,12 +460,12 @@ def PIDpitch(sensor, target, thrusterPub):
   integral = 0
   while True:
     e = target - sensor.get("angles")[0] # error
-    speed, time_prev, integral = PID(1, 0.01, 10, e, time_prev, e_prev, integral) #cur_distance not defined
+    speed, time_prev, integral = PID(200, 0.1, 1000, e, time_prev, e_prev, integral)
     e_prev = e
     # speed is degree/s^2
     message = []
     pubMsg = Int32MultiArray()
-    if abs(speed) < 0.001 and abs(e_prev) < 1:
+    if abs(speed) < 10 and abs(e_prev) < 1:
       message.append(3) # 3 for pitch
       message.append(0)
       pubMsg.data = message
@@ -489,12 +488,12 @@ def PIDroll(sensor, target, thrusterPub):
   integral = 0
   while True:
     e = target - sensor.get("angles")[1] # error
-    speed, time_prev, integral = PID(1, 0.01, 10, e, time_prev, e_prev, integral) #cur_distance not defined
+    speed, time_prev, integral = PID(200, 0.1, 1000, e, time_prev, e_prev, integral)
     e_prev = e
     # speed is degree/s^2
     message = []
     pubMsg = Int32MultiArray()
-    if abs(speed) < 0.001 and abs(e_prev) < 1:
+    if abs(speed) < 10 and abs(e_prev) < 1:
       message.append(4) # 4 for roll
       message.append(0)
       pubMsg.data = message
