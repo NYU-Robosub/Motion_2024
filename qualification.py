@@ -128,8 +128,8 @@ def aroundMarker():
   print("Around marker ends")
 
 def main():
-  print("Manual testing data: 1 minutes")
-  sleep(60)
+  print("Manual testing data: 15 seconds")
+  sleep(15)
   print("Qualification Start")
   sleep(5)
   print(sensor)

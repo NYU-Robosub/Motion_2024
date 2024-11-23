@@ -57,6 +57,7 @@ void goUpDown(const int value)
 
 void motorCallback(const std_msgs::Int32MultiArray& msg)
 {
+  msg.data[1] = msg.date[1] * 100
   if (msg.data[1] > forward_max)
   {
     msg.data[1] = forward_max
