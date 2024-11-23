@@ -11,6 +11,7 @@ from std_msgs.msg import Float64MultiArray, String, Float64, Bool, Int32MultiArr
 from math import *
 from time import time
 from rospy import sleep
+import copy
 
 
 # Threshold for temperature and moisture
@@ -46,7 +47,7 @@ def cvCallback(data, sensor):
 
 def cv(sensor):
   # Return the copy of computer vision data to avoid the risk of CV_result being modified while being processed
-  return sensor.get("CV_result").deepcopy()
+  return copy.deepcopy(sensor.get("CV_result"))
 
 
 def cvBottomCallback(data, sensor):
@@ -56,7 +57,7 @@ def cvBottomCallback(data, sensor):
 
 
 def cvBottom(sensor):
-  return sensor.get("CV_bottom").deepcopy()
+  return copy.deepcopy(sensor.get("CV_bottom"))
 
 
 def findObject(object, bboxes, cvDict):
