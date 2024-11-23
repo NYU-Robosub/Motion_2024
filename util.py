@@ -189,6 +189,7 @@ def changeDepth(target, sensor, thrusterPub):
         move("down", sensor, thrusterPub, abs(target) - sensor.get("pressure", INIT_PRESSURE))
       else:
         move("up", sensor, thrusterPub, sensor.get("pressure", INIT_PRESSURE) - abs(target))
+  print("Finished changing depth")
 
 
 def turn(degree, sensor, thrusterPub):
