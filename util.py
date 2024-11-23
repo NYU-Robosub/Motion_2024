@@ -149,8 +149,9 @@ def temperatureCallback(data, args):
   thrusterPub = args[1]
   print(f"Temperature updated: {sensor['temperature']}")
   # Callback function for the temperature sensor subscriber
-  sensor['temperature'] = float(data.data)
-  if data > TEMP_T:
+  temp_val = float(data.data)
+  sensor['temperature'] = temp_val
+  if temp_val > TEMP_T:
     print("Critical temperature dected")
     endRun(sensor, thrusterPub)
 
@@ -159,10 +160,11 @@ def leakCallback(data, args):
   sensor = args[0]
   thrusterPub = args[1]
   print("Leak updated")
-  sensor['leak'] = float(data.data)
+  leak_val = float(data.data)
+  sensor['leak'] = leak_val
   # Callback function for the leak sensor subscriber
   sensor['leak'] = data # data is float
-  if data > LEAK_T: # if data is greater than the threshold
+  if leak_val > LEAK_T: # if data is greater than the threshold
     print("Leak detected")
     endRun(sensor, thrusterPub)
 
