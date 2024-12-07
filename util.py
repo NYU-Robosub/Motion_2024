@@ -75,8 +75,10 @@ def move(direction, sensor, thrusterPub, distance=0.2):
   # Default distance to move is 0.2 m each time
   # 0.2 m correspond to 5 degrees when turning left and right
   # Turn 5 degree at a time
-  print(f"Moving {direction} by distance: {distance} meters")
-  message = []
+  if direction == "left" or direction == "right":
+    print(f"Turning {direction} by distance: {distance*25} degree")
+  else:
+    print(f"Moving {direction} by distance: {distance} meters")
   # 0 for forward and backward, 1 for turning, 2 for changing depth, 3 for pitch and 4 for roll
   sleep(120)
   return
@@ -314,6 +316,8 @@ def searchGate(target, sensor, thrusterPub, cvDict):
               turn((sensor.get("angles")[2] -targetAngle)%360, sensor, thrusterPub)
           print("Searching gate ends")
           return True
+    else:
+      prevPoleCenter = None
     # Turn until we find at least one pole on the gate
     move("right", sensor, thrusterPub)
 
