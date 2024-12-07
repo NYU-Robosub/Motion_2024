@@ -138,7 +138,7 @@ def main():
   print(sensor)
   changeDepth(0.3, sensor, thrusterPub)
   searchGate("center", sensor, thrusterPub, CV_dictionary)
-  moveTillGone("pole", sensor, thrusterPub)
+  moveTillGone("pole", sensor, thrusterPub, CV_dictionary)
   print("Getting close to gate")
   move("forward", sensor, thrusterPub, distance=through_gate)
   aroundMarker()
