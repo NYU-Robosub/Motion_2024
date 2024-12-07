@@ -257,7 +257,7 @@ def searchGate(target, sensor, thrusterPub, cvDict):
     centeredPole = None
 
     # Decide action based on the number of poles in the image
-    if poleCount == 1 and abs(curPoleCenter[0] - 0.5) < marginOfError:
+    if poleCount == 1 and abs(curPoleCenter[0] - 0.5) <= marginOfError:
       # If one pole is detected and that pole is in the center of the frame.
       print("One pole detected at the center of the frame")
       centeredPole =  curPoleCenter[0]
@@ -278,15 +278,19 @@ def searchGate(target, sensor, thrusterPub, cvDict):
           # No pole in the last frame, this is a new pole
           poleFound += 1
           print("New pole found, total pole found:", poleFound)
-        elif prevPoleCenter < centeredPole:
+          poleAngle[poleFound - 1] = sensor.get("angles")[2]
+        elif prevPoleCenter <= centeredPole:
           # The pole in previous frame is left of the pole in the current frame.
           # As the robot is moving right, the pole is a new pole
           poleFound += 1
-          print("New pole found, total pole found:", poleFound)
+          print("New pole found and is not a repeat, total pole found:", poleFound)
+          poleAngle[poleFound - 1] = sensor.get("angles")[2]
+        else:
+          print(f"Repeated pole: previous pole at {prevPoleCenter} and current pole at {centeredPole}")
 
         # Otherwise, the pole in previous frame is right of the pole in the current frame.
         # As the robot is moving right, the pole is the previous pole
-        poleAngle[poleFound - 1] = sensor.get("angles")[2]
+        
         prevPoleCenter = centeredPole
         if poleFound ==2:
           # Both pole has been found. Decide where is the gate based on the angles
