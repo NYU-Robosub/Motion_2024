@@ -210,7 +210,7 @@ def turn(degree, sensor, thrusterPub):
   print(f"Turning by {degree} degrees")
   initAngle = sensor.get("angles")[2]
   if degree > 180:
-    move("left", sensor, thrusterPub, degree-180)
+    move("left", sensor, thrusterPub, 360-degree)
   else:
     move("right", sensor, thrusterPub, degree)
   angleDiff = (sensor.get("angles")[2] - initAngle) % 360

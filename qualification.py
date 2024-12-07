@@ -71,11 +71,11 @@ def alignMarker(axis):
           # Return the width of the marker
           return (x2-x1)
         elif abs(axis - x1) < abs(x2 - axis):
-          move('right', sensor, thrusterPub)
+          move('right', sensor, thrusterPub, direction=5)
         else:
-          move('left', sensor, thrusterPub)
+          move('left', sensor, thrusterPub, direction=5)
     # Marker not detected by cv
-    move("right", sensor, thrusterPub)
+    move("right", sensor, thrusterPub, direction=5)
 
 
 
