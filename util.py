@@ -76,7 +76,7 @@ def move(direction, sensor, thrusterPub, distance=0.2):
   # 0.2 m correspond to 5 degrees when turning left and right
   # Turn 5 degree at a time
   if direction == "left" or direction == "right":
-    print(f"Turning {direction} by distance: {distance*25} degree")
+    print(f"Turning {direction} by distance: {distance} degree")
   else:
     print(f"Moving {direction} by distance: {distance} meters")
   # 0 for forward and backward, 1 for turning, 2 for changing depth, 3 for pitch and 4 for roll
@@ -87,9 +87,9 @@ def move(direction, sensor, thrusterPub, distance=0.2):
   elif direction == "backward":
     PIDxy(sensor, -distance, thrusterPub)
   elif direction == "left":
-    PIDturn(sensor, -distance*25, thrusterPub)
+    PIDturn(sensor, -distance, thrusterPub)
   elif direction == "right":
-    PIDturn(sensor, distance*25, thrusterPub)
+    PIDturn(sensor, distance, thrusterPub)
   elif direction == "up":
     PIDdepth(sensor, distance, thrusterPub)
   elif direction == "down":
@@ -291,6 +291,7 @@ def searchGate(target, sensor, thrusterPub, cvDict):
         if poleFound ==2:
           # Both pole has been found. Decide where is the gate based on the angles
           angleDifference = (poleAngle[1] - poleAngle[0]) % 360
+          targetAngle = None
           # Add angle difference to the pole
           if angleDifference > 180:
             # The difference in angle of pole 2 and pole 1 is larger than 180
@@ -298,28 +299,23 @@ def searchGate(target, sensor, thrusterPub, cvDict):
             print("The angle difference is: ", angleDifference, "behind the gate")
             if target == "center":
               targetAngle = ((360 - angleDifference) / 2 + poleAngle[1]) % 360
-              print("Target is at the center, turning: ", (sensor.get("angles")[2] -targetAngle)%360, "degrees")
-              turn((sensor.get("angles")[2] -targetAngle)%360, sensor, thrusterPub)
             elif target == "left":
               targetAngle = ((360 - angleDifference) / 4 + poleAngle[1]) % 360
-              print("Target is at the left, turning: ", (sensor.get("angles")[2] -targetAngle)%360, "degrees")
-              turn((sensor.get("angles")[2] -targetAngle)%360, sensor, thrusterPub)
           else:
             print("The angle difference is: ", angleDifference, ", facing the gate")
             if target == "center":
               targetAngle = (angleDifference / 2 + poleAngle[0]) % 360
-              print("Target is at the center, turning: ", (sensor.get("angles")[2] -targetAngle)%360, "degrees")
-              turn((sensor.get("angles")[2] -targetAngle)%360, sensor, thrusterPub)
             elif target == "left":
               targetAngle = (angleDifference / 4 + poleAngle[0]) % 360
-              print("Target is at the left, turning: ", (sensor.get("angles")[2] -targetAngle)%360, "degrees")
-              turn((sensor.get("angles")[2] -targetAngle)%360, sensor, thrusterPub)
+          turning_angle = (targetAngle - sensor.get("angles")[2])%360
+          print(f"Target angle is {targetAngle} degree. Turning clockwise {turning_angle} degree")
+          turn(turning_angle, sensor, thrusterPub)
           print("Searching gate ends")
           return True
     else:
       prevPoleCenter = None
     # Turn until we find at least one pole on the gate
-    move("right", sensor, thrusterPub)
+    move("right", sensor, thrusterPub, distance=5)
 
 
 def alignObj(obj, sensor, thrusterPub, cvDict, axis=0.5):
@@ -342,7 +338,7 @@ def alignObj(obj, sensor, thrusterPub, cvDict, axis=0.5):
           move('left', sensor, thrusterPub)
     # Marker not detected by cv
     print("Marker not detected by cv, moving to the right")
-    move("right", sensor, thrusterPub) #fix
+    move("right", sensor, thrusterPub, distance=5) #fix
 
 
 def moveTillGone(object, sensor, thrusterPub, cvDict):
