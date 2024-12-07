@@ -80,7 +80,7 @@ def move(direction, sensor, thrusterPub, distance=0.2):
   else:
     print(f"Moving {direction} by distance: {distance} meters")
   # 0 for forward and backward, 1 for turning, 2 for changing depth, 3 for pitch and 4 for roll
-  sleep(120)
+  sleep(60)
   return
   if direction == "forward":
     PIDxy(sensor, distance, thrusterPub)
@@ -259,7 +259,7 @@ def searchGate(target, sensor, thrusterPub, cvDict):
     # Decide action based on the number of poles in the image
     if poleCount == 1 and abs(curPoleCenter[0] - 0.5) < marginOfError:
       # If one pole is detected and that pole is in the center of the frame.
-      print("Pole 1 detected")
+      print("One pole detected at the center of the frame")
       centeredPole =  curPoleCenter[0]
     elif poleCount == 2:
       print("Both poles detected in the same frame")
