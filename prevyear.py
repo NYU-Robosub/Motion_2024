@@ -16,7 +16,6 @@ from rospy import sleep
 
 rospy.init_node('qualification', anonymous=True)
 
-
 # The distance needed to move through the gate after the flag are out of sight in m
 through_gate = 2
 # Width of the gate in m
@@ -25,6 +24,8 @@ gate_width = 3
 step = 0.2
 # Contain the class number for each object
 cvDict = {"pole":0}
+# Flag for whether to pass through the gate with style 
+style = True
 
 # CV_result: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
 # angle: The angles on x-axis, y-axis, and z-axis from gyrometer. Format is 360 degrees. angles[2] is suppose to be the horizontal angle
@@ -276,8 +277,38 @@ def main():
     targetClass = "class2"
     alignObj("class2img1", sensor, thrusterPub, cvDict)
   moveTillGone(targetClass+"img1", sensor, thrusterPub)
-  for i in range(ceil(through_gate/step)):
-    move("forward", sensor, thrusterPub)
+
+  if style:
+    start_angle = sensor["angles"].copy()
+    pubMsg = Int32MultiArray()
+    message = []
+    message.append(0)
+    message.append(300)
+    pubMsg.data = message
+    thrusterPub.publish(pubMsg)
+    sleep(0.5)
+    pubMsg.data[0] = 0
+    pubMsg.data[1] = 0
+    thrusterPub.publish(pubMsg)
+    sensor["roll_pitch"] = True
+    PIDroll(sensor, 180, thrusterPub)
+    pitch_diff = sensor["angles"][1]
+    if abs(pitch_diff) > 1:
+      PIDpitch(sensor, -pitch_diff, thrusterPub)
+    yaw_diff = start_angle[2] - sensor["angles"][2]
+    if abs(yaw_diff) > 5:
+      PIDturn(sensor, yaw_diff, thrusterPub)
+    pubMsg.data[0] = 0
+    pubMsg.data[1] = 300
+    thrusterPub.publish(pubMsg)
+    sleep(0.5)
+    pubMsg.data[0] = 0
+    pubMsg.data[1] = 0
+    thrusterPub.publish(pubMsg)
+    PIDroll(sensor, 180, thrusterPub)
+    sensor["roll_pitch"] = False
+  else:
+    move("forward", sensor, thrusterPub, through_gate)
   followThePath()
   buoy(targetClass)
   changeDepth(0, sensor, thrusterPub)

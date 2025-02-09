@@ -402,7 +402,6 @@ def PIDxy(sensor, target, thrusterPub):
       pubMsg.data = message
       thrusterPub.publish(pubMsg)
     print("PID xy")
-    sleep(30)
 
 
 def PIDturn(sensor, target, thrusterPub):
@@ -431,7 +430,6 @@ def PIDturn(sensor, target, thrusterPub):
       pubMsg.data = message
       thrusterPub.publish(pubMsg)
     print("PID turn")
-    sleep(30)
     
 
 def PIDdepth(sensor, target, thrusterPub):
@@ -460,7 +458,6 @@ def PIDdepth(sensor, target, thrusterPub):
         pubMsg.data = message
         thrusterPub.publish(pubMsg)
       print("PID depth")
-      sleep(30)
 
 
 def PIDpitch(sensor, target, thrusterPub):
@@ -489,7 +486,7 @@ def PIDpitch(sensor, target, thrusterPub):
       pubMsg.data = message
       thrusterPub.publish(pubMsg)
     print("PID pitch")
-    sleep(30)
+
 
 def PIDroll(sensor, target, thrusterPub):
   # Move the target angle in roll. Clockwise is positive
@@ -517,8 +514,3 @@ def PIDroll(sensor, target, thrusterPub):
       pubMsg.data = message
       thrusterPub.publish(pubMsg)
     print("PID roll")
-    sleep(30)
-
-
-
-
