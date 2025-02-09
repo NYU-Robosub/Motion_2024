@@ -80,8 +80,6 @@ def move(direction, sensor, thrusterPub, distance=0.2):
   else:
     print(f"Moving {direction} by distance: {distance} meters")
   # 0 for forward and backward, 1 for turning, 2 for changing depth, 3 for pitch and 4 for roll
-  sleep(60)
-  return
   if direction == "forward":
     PIDxy(sensor, distance, thrusterPub)
   elif direction == "backward":
