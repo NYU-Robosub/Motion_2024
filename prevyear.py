@@ -9,10 +9,10 @@ Original file is located at
 
 
 import rospy
-from std_msgs.msg import Float64MultiArray, Float64, Bool, Int32MultiArray
+from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray
 from math import *
 from util import *
-from time import sleep
+from rospy import sleep
 
 rospy.init_node('qualification', anonymous=True)
 
@@ -34,15 +34,13 @@ sensor={}
 
 # Subscribe to the CV output
 cvSub = rospy.Subscriber('CV', Float64MultiArray, cvCallback, callback_args=sensor)
-cvBottomSUb = rospy.Subscriber('CVbottom', Float64MultiArray, cvBottomCallback, callback_args=sensor)
+cvBottomSUb = rospy.Subscriber('CV_bottom', Float64MultiArray, cvBottomCallback, callback_args=sensor)
 
 thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
 # Get distance from bottom from bottom camera
 depthSub = rospy.Subscriber('depth_sensor', Float64, depthCallback, callback_args=sensor)
 # Get angle from IMU
 gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
-# From touch sensor
-touchSub = rospy.Subscriber("touch_sensor", Bool, touchCallback, callback_args=sensor)
 # Get distance from surface from pressure sensor
 pressureSub = rospy.Subscriber("pressure_sensor", Float64, pressureCallback, callback_args=sensor)
 # Get distance travelled from IMU

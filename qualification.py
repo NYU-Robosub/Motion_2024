@@ -26,11 +26,10 @@ Original file is located at
 # 9) Surface the sub!
 
 # Computer vision: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
-import Serial
 import rospy
-from time import sleep
-from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray, Bool
-from util import cvCallback, depthCallback, gyroCallback, cv, turn, changeDepth, searchGate, move, moveTillGone, touchCallback, distanceCallback
+from rospy import sleep
+from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray
+from util import cvCallback, depthCallback, gyroCallback, cv, turn, changeDepth, searchGate, move, moveTillGone, distanceCallback, pressureCallback, leakCallback, temperatureCallback
 
 
 rospy.init_node('qualification', anonymous=True)
@@ -39,25 +38,26 @@ through_gate = 3.5
 
 sensor = {}
 
-
 # Subscribe to the CV output
 cvSub = rospy.Subscriber('CV', Float64MultiArray, cvCallback, callback_args=sensor)
 thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
 
 #Subscribing to the depth sensor
 depthSub = rospy.Subscriber('depth_sensor', Float64, depthCallback, callback_args=sensor)
-
-# Subscribing to the touch sensor
-touchSub = rospy.Subscriber("touch_sensor", Bool, touchCallback, callback_args=sensor)
+pressureSub = rospy.Subscriber('pressure_sensor', Float64, pressureCallback, callback_args=sensor)
 
 # Subscribing to IMU to get angle
 gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
+
+# Subscribing to leak sensor to get angle
+gyroSub = rospy.Subscriber('leak_sensor', Float64, leakCallback, callback_args=(sensor, thrusterPub))
 
 # Subscribe to IMU to get distance
 distanceSub = rospy.Subscriber("displacement_sensor", Float64MultiArray, distanceCallback, callback_args=sensor)
 
 # Contain the class number for each object
-CV_dictionary = {"pole":0}
+CV_dictionary = {"pole":0, "marker": 1}
+
 
 def alignMarker(axis):
   # Ensure marker is at the axis at the specific x-coordinate.
@@ -71,11 +71,11 @@ def alignMarker(axis):
           # Return the width of the marker
           return (x2-x1)
         elif abs(axis - x1) < abs(x2 - axis):
-          move('right', sensor, thrusterPub)
+          move('right', sensor, thrusterPub, direction=5)
         else:
-          move('left', sensor, thrusterPub)
+          move('left', sensor, thrusterPub, direction=5)
     # Marker not detected by cv
-    move("right", sensor, thrusterPub)
+    move("right", sensor, thrusterPub, direction=5)
 
 
 
@@ -99,6 +99,7 @@ def aroundMarker():
 # Keep going forward until marker is not visible
 # Turn right
   print("Around marker begins")
+  sleep(5)
   while True:
     width = alignMarker(0.5)
     if width > 0.2:
@@ -130,16 +131,22 @@ def aroundMarker():
   print("Around marker ends")
 
 def main():
+  print("Manual testing data: 15 seconds")
+  sleep(15)
   print("Qualification Start")
   sleep(5)
+  print(sensor)
   changeDepth(0.3, sensor, thrusterPub)
-  searchGate("center", sensor, thrusterPub)
-  moveTillGone("pole", sensor, thrusterPub)
+  searchGate("center", sensor, thrusterPub, CV_dictionary)
+  moveTillGone("pole", sensor, thrusterPub, CV_dictionary)
   print("Getting close to gate")
   move("forward", sensor, thrusterPub, distance=through_gate)
   aroundMarker()
-  searchGate("center", sensor, thrusterPub)
+  searchGate("center", sensor, thrusterPub, CV_dictionary)
   moveTillGone("pole", sensor, thrusterPub)
   for i in range(through_gate):
     move("forward", sensor, thrusterPub)
 
+
+if __name__ == "__main__":
+  main()

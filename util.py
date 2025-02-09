@@ -7,11 +7,11 @@ Original file is located at
     https://colab.research.google.com/drive/1Z6j1h4NaKWoPxip77ZwgNpgCsN1AVjFH
 """
 
-import Serial
-import rospy
 from std_msgs.msg import Float64MultiArray, String, Float64, Bool, Int32MultiArray
 from math import *
-from time import time, sleep
+from time import time
+from rospy import sleep
+import copy
 
 
 # Threshold for temperature and moisture
@@ -38,24 +38,26 @@ def unflatten(data, length=5):
 
 
 def cvCallback(data, sensor):
+  print("CV result received")
   # sensor is the object to be modified
   # Computer vision: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
-  sensor["CV_result"] = unflatten(data)
+  sensor["CV_result"] = unflatten(list(data.data))
   
 
 
 def cv(sensor):
   # Return the copy of computer vision data to avoid the risk of CV_result being modified while being processed
-  return sensor.get("CV_result").deepcopy()
+  return copy.deepcopy(sensor.get("CV_result"))
 
 
 def cvBottomCallback(data, sensor):
-  sensor["CV_bottom"] = unflatten(data)
+  print("CV bottom result received")
+  sensor["CV_bottom"] = unflatten(list(data.data))
   
 
 
 def cvBottom(sensor):
-  return sensor.get("CV_bottom").deepcopy()
+  return copy.deepcopy(sensor.get("CV_bottom"))
 
 
 def findObject(object, bboxes, cvDict):
@@ -73,17 +75,21 @@ def move(direction, sensor, thrusterPub, distance=0.2):
   # Default distance to move is 0.2 m each time
   # 0.2 m correspond to 5 degrees when turning left and right
   # Turn 5 degree at a time
-  print(f"Moving {direction} by distance: {distance} meters")
-  message = []
+  if direction == "left" or direction == "right":
+    print(f"Turning {direction} by distance: {distance} degree")
+  else:
+    print(f"Moving {direction} by distance: {distance} meters")
   # 0 for forward and backward, 1 for turning, 2 for changing depth, 3 for pitch and 4 for roll
+  sleep(60)
+  return
   if direction == "forward":
     PIDxy(sensor, distance, thrusterPub)
   elif direction == "backward":
     PIDxy(sensor, -distance, thrusterPub)
   elif direction == "left":
-    PIDturn(sensor, -distance*25, thrusterPub)
+    PIDturn(sensor, -distance, thrusterPub)
   elif direction == "right":
-    PIDturn(sensor, distance*25, thrusterPub)
+    PIDturn(sensor, distance, thrusterPub)
   elif direction == "up":
     PIDdepth(sensor, distance, thrusterPub)
   elif direction == "down":
@@ -94,15 +100,22 @@ def move(direction, sensor, thrusterPub, distance=0.2):
 
 
 def depthCallback(data, sensor):
-  sensor["depth"] = float(data)
+  # Set the distance from the bottom of the pool in meter
+  print("Depth updated")
+  sensor["depth"] = float(data.data)
 
 
 
 def pressureCallback(data, sensor):
-  sensor["pressure"] = float(data)
+  # Set the distance from the surface of the water in meter
+  print("Pressure updated")
+  sensor["pressure"] = float(data.data)
   
 
-def gyroCallback(data, sensor, thrusterPub):
+def gyroCallback(data, args):
+  sensor = args[0]
+  thrusterPub = args[1]
+  print("Gyro updated")
   # The angles on x-axis, y-axis, and z-axis from gyrometer. Format is 360 degrees. angles[2] is suppose to be the horizontal angle 
   # angle[0] is angle with x-axis used for pitch 
   # angle[1] is angle with y-axis used for roll
@@ -111,45 +124,51 @@ def gyroCallback(data, sensor, thrusterPub):
   #We can get the current angle of the robot and adjust 
   # movement constantly to ensure the robot is always facing 
   # the correct direction during movement.
-
+  data = list(data.data)
   angles = []
   for i in range(len(data)):
     angles.append(float(data[i]))
   sensor["angles"] = angles
 
-  # if we are not doing roll ourself adjust the pitch and roll to stablize 
-  if not sensor.get("pitch", False) and abs(angles[0]) > 1:
-    sensor["pitch"] = True
-    PIDpitch(sensor, -angles[0] , thrusterPub)
-    sensor["pitch"] = False
+  if not sensor.get("roll_pitch", False) and abs(angles[1]) > 1:
+    sensor["roll_pitch"] = True
+    PIDroll(sensor, -angles[1] , thrusterPub)
+    sensor["roll_pitch"] = False
 
-  if not sensor.get("roll", False) and abs(angles[1]) > 1:
-    sensor["roll"] = True
-    PIDpitch(sensor, -angles[1] , thrusterPub)
-    sensor["roll"] = False
+  # if we are not doing roll ourself adjust the pitch and roll to stablize 
+  if not sensor.get("roll_pitch", False) and abs(angles[0]) > 1:
+    sensor["roll_pitch"] = True
+    PIDpitch(sensor, -angles[0] , thrusterPub)
+    sensor["roll_pitch"] = False
+
 
 
 def distanceCallback(data, sensor):
-  sensor["distance"] = data
+  print("Distance updated")
+  sensor["distance"] = list(data.data)
   
 
-def touchCallback(data,sensor):
-  sensor['touch'] = bool(data)
-
-def temperatureCallback(data, sensor, thrusterPub):
+def temperatureCallback(data, args):
+  sensor = args[0]
+  thrusterPub = args[1]
   print(f"Temperature updated: {sensor['temperature']}")
   # Callback function for the temperature sensor subscriber
-  sensor['temperature'] = float(data)
-  if data > TEMP_T:
+  temp_val = float(data.data)
+  sensor['temperature'] = temp_val
+  if temp_val > TEMP_T:
     print("Critical temperature dected")
     endRun(sensor, thrusterPub)
 
 
-def leakCallback(data, sensor, thrusterPub):
-  sensor['leak'] = float(data.data)
+def leakCallback(data, args):
+  sensor = args[0]
+  thrusterPub = args[1]
+  print("Leak updated")
+  leak_val = float(data.data)
+  sensor['leak'] = leak_val
   # Callback function for the leak sensor subscriber
   sensor['leak'] = data # data is float
-  if data > LEAK_T: # if data is greater than the threshold
+  if leak_val > LEAK_T: # if data is greater than the threshold
     print("Leak detected")
     endRun(sensor, thrusterPub)
 
@@ -157,7 +176,13 @@ def leakCallback(data, sensor, thrusterPub):
 def endRun(sensor, thrusterPub):
   # Make the robot move to the surface and end the program.
   print("Ending run")
-  changeDepth(0, sensor, thrusterPub)
+  while sensor.get("pressure") > 0.1:
+    pubMsg = Int32MultiArray()
+    pubMsg.data=[2, 400]
+    thrusterPub.publish(pubMsg)
+  pubMsg = Int32MultiArray()
+  pubMsg.data=[2, 0]
+  thrusterPub.publish(pubMsg)
   exit()
 
 def changeDepth(target, sensor, thrusterPub):
@@ -177,6 +202,7 @@ def changeDepth(target, sensor, thrusterPub):
         move("down", sensor, thrusterPub, abs(target) - sensor.get("pressure", INIT_PRESSURE))
       else:
         move("up", sensor, thrusterPub, sensor.get("pressure", INIT_PRESSURE) - abs(target))
+  print("Finished changing depth")
 
 
 def turn(degree, sensor, thrusterPub):
@@ -184,7 +210,7 @@ def turn(degree, sensor, thrusterPub):
   print(f"Turning by {degree} degrees")
   initAngle = sensor.get("angles")[2]
   if degree > 180:
-    move("left", sensor, thrusterPub, degree-180)
+    move("left", sensor, thrusterPub, 360-degree)
   else:
     move("right", sensor, thrusterPub, degree)
   angleDiff = (sensor.get("angles")[2] - initAngle) % 360
@@ -231,9 +257,9 @@ def searchGate(target, sensor, thrusterPub, cvDict):
     centeredPole = None
 
     # Decide action based on the number of poles in the image
-    if poleCount == 1 and abs(curPoleCenter[0] - 0.5) < marginOfError:
+    if poleCount == 1 and abs(curPoleCenter[0] - 0.5) <= marginOfError:
       # If one pole is detected and that pole is in the center of the frame.
-      print("Pole 1 detected")
+      print("One pole detected at the center of the frame")
       centeredPole =  curPoleCenter[0]
     elif poleCount == 2:
       print("Both poles detected in the same frame")
@@ -252,19 +278,24 @@ def searchGate(target, sensor, thrusterPub, cvDict):
           # No pole in the last frame, this is a new pole
           poleFound += 1
           print("New pole found, total pole found:", poleFound)
-        elif prevPoleCenter < centeredPole:
+          poleAngle[poleFound - 1] = sensor.get("angles")[2]
+        elif prevPoleCenter <= centeredPole:
           # The pole in previous frame is left of the pole in the current frame.
           # As the robot is moving right, the pole is a new pole
           poleFound += 1
-          print("New pole found, total pole found:", poleFound)
+          print("New pole found and is not a repeat, total pole found:", poleFound)
+          poleAngle[poleFound - 1] = sensor.get("angles")[2]
+        else:
+          print(f"Repeated pole: previous pole at {prevPoleCenter} and current pole at {centeredPole}")
 
         # Otherwise, the pole in previous frame is right of the pole in the current frame.
         # As the robot is moving right, the pole is the previous pole
-        poleAngle[poleFound - 1] = sensor.get("angles")[2]
+        
         prevPoleCenter = centeredPole
         if poleFound ==2:
           # Both pole has been found. Decide where is the gate based on the angles
           angleDifference = (poleAngle[1] - poleAngle[0]) % 360
+          targetAngle = None
           # Add angle difference to the pole
           if angleDifference > 180:
             # The difference in angle of pole 2 and pole 1 is larger than 180
@@ -272,26 +303,23 @@ def searchGate(target, sensor, thrusterPub, cvDict):
             print("The angle difference is: ", angleDifference, "behind the gate")
             if target == "center":
               targetAngle = ((360 - angleDifference) / 2 + poleAngle[1]) % 360
-              print("Target is at the center, turning: ", (sensor.get("angles")[2] -targetAngle)%360, "degrees")
-              turn((sensor.get("angles")[2] -targetAngle)%360, sensor, thrusterPub)
             elif target == "left":
               targetAngle = ((360 - angleDifference) / 4 + poleAngle[1]) % 360
-              print("Target is at the left, turning: ", (sensor.get("angles")[2] -targetAngle)%360, "degrees")
-              turn((sensor.get("angles")[2] -targetAngle)%360, sensor, thrusterPub)
           else:
             print("The angle difference is: ", angleDifference, ", facing the gate")
             if target == "center":
               targetAngle = (angleDifference / 2 + poleAngle[0]) % 360
-              print("Target is at the center, turning: ", (sensor.get("angles")[2] -targetAngle)%360, "degrees")
-              turn((sensor.get("angles")[2] -targetAngle)%360, sensor, thrusterPub)
             elif target == "left":
               targetAngle = (angleDifference / 4 + poleAngle[0]) % 360
-              print("Target is at the left, turning: ", (sensor.get("angles")[2] -targetAngle)%360, "degrees")
-              turn((sensor.get("angles")[2] -targetAngle)%360, sensor, thrusterPub)
+          turning_angle = (targetAngle - sensor.get("angles")[2])%360
+          print(f"Target angle is {targetAngle} degree. Turning clockwise {turning_angle} degree")
+          turn(turning_angle, sensor, thrusterPub)
           print("Searching gate ends")
           return True
+    else:
+      prevPoleCenter = None
     # Turn until we find at least one pole on the gate
-    move("right", sensor, thrusterPub)
+    move("right", sensor, thrusterPub, distance=5)
 
 
 def alignObj(obj, sensor, thrusterPub, cvDict, axis=0.5):
@@ -314,7 +342,7 @@ def alignObj(obj, sensor, thrusterPub, cvDict, axis=0.5):
           move('left', sensor, thrusterPub)
     # Marker not detected by cv
     print("Marker not detected by cv, moving to the right")
-    move("right", sensor, thrusterPub) #fix
+    move("right", sensor, thrusterPub, distance=5) #fix
 
 
 def moveTillGone(object, sensor, thrusterPub, cvDict):
@@ -331,17 +359,19 @@ def moveTillGone(object, sensor, thrusterPub, cvDict):
 
 
 def PID(Kp, Ki, Kd, e, time_prev, e_prev, integral):
-    time = time()
+    cur_time = time()
 
     # PID calculations
     P = Kp*e
-    integral = integral + Ki*e*(time - time_prev)
-    D = Kd*(e - e_prev)/(time - time_prev + 1e-6)
-
+    integral = integral
+    D = 0
+    if time_prev and e_prev:
+      integral = integral + Ki*e*(cur_time - time_prev)
+      D = Kd*(e - e_prev)/(cur_time - time_prev + 1e-6)
+    print(f"P: {P}, I: {integral}, D: {D}")
     # calculate manipulated variable - MV
     MV = P + integral + D
-
-    return MV, time, integral
+    return MV, cur_time, integral
 
 
 def PIDxy(sensor, target, thrusterPub):
@@ -350,125 +380,146 @@ def PIDxy(sensor, target, thrusterPub):
   start_y = sensor.get("distance")[1]
   target_x = start_x + cos(sensor.get("angles")[2]) * target
   target_y = start_y + sin(sensor.get("angles")[2]) * target
-  time_prev = time()
-  e_prev = 0
+  time_prev = None
+  e_prev = None
   integral = 0
   while True:
     cur_x = sensor.get("distance")[0]
     cur_y = sensor.get("distance")[1]
     e = ((target_x - cur_x)**2 + (target_y - cur_y)**2)**0.5
-    speed, time_prev, integral = PID(1, 0.5, 0.1, e, time_prev, e_prev, integral)
+    speed, time_prev, integral = PID(200, 0.1, 1000, e, time_prev, e_prev, integral)
     e_prev = e
     # speed is m/s^2
     message = []
-    if speed < 0.001 and abs(e_prev) < 0.1:
+    pubMsg = Int32MultiArray()
+    if abs(speed) < 10 and abs(e_prev) < 0.1:
       message.append(0)
       message.append(0)
-      thrusterPub.publish(Int32MultiArray(message))
+      pubMsg.data = message
+      thrusterPub.publish(pubMsg)
       break
     else:
       message.append(0)
       message.append(round(speed))
-      thrusterPub.publish(Int32MultiArray(message))
-    sleep(0.001)
+      pubMsg.data = message
+      thrusterPub.publish(pubMsg)
+    print("PID xy")
+    sleep(30)
 
 
 def PIDturn(sensor, target, thrusterPub):
   # turn the target angle, clockwise is positive
   start = sensor.get("angles")[2]
   target = start + target
-  time_prev = time()
-  e_prev = 0
+  time_prev = None
+  e_prev = None
   integral = 0
   while True:
     e = target - sensor.get("angles")[2]
-    speed, time_prev, integral = PID(1, 0.5, 0.1, e, time_prev, e_prev, integral) #cur_distance not defined
+    speed, time_prev, integral = PID(200, 0.1, 1000, e, time_prev, e_prev, integral)
     e_prev = e
     # speed is degree/s^2
     message = []
-    if speed < 0.001 and abs(e_prev) < 1:
+    pubMsg = Int32MultiArray()
+    if abs(speed) < 10 and abs(e_prev) < 1:
       message.append(1)
       message.append(0)
-      thrusterPub.publish(Int32MultiArray(message))
+      pubMsg.data = message
+      thrusterPub.publish(pubMsg)
       break
     else:
       message.append(1)
       message.append(round(speed))
-      thrusterPub.publish(Int32MultiArray(message))
-    sleep(0.001)
+      pubMsg.data = message
+      thrusterPub.publish(pubMsg)
+    print("PID turn")
+    sleep(30)
+    
 
 def PIDdepth(sensor, target, thrusterPub):
     # Move up the target distance. target can be negative
-    start = sensor.get("depth")
+    start = sensor.get("depth", INIT_DEPTH)
     target = start + target
-    time_prev = time()
-    e_prev = 0
+    time_prev = None
+    e_prev = None
     integral = 0
     while True:
       e = target - sensor.get("depth")
-      speed, time_prev, integral = PID(1, 0.5, 0.1, e, time_prev, e_prev, integral)
+      speed, time_prev, integral = PID(200, 0.1, 1000, e, time_prev, e_prev, integral)
       e_prev = e
       # speed is degree/s^2
       message = []
-      if speed < 0.001 and abs(e_prev) < 0.1:
+      pubMsg = Int32MultiArray()
+      if abs(speed) < 10 and abs(e_prev) < 0.1:
         message.append(2)
         message.append(0)
-        thrusterPub.publish(Int32MultiArray(message))
+        pubMsg.data = message
+        thrusterPub.publish(pubMsg)
         break
       else:
         message.append(2)
         message.append(round(speed))
-        thrusterPub.publish(Int32MultiArray(message))
-      sleep(0.001)
+        pubMsg.data = message
+        thrusterPub.publish(pubMsg)
+      print("PID depth")
+      sleep(30)
 
 
 def PIDpitch(sensor, target, thrusterPub):
   # Move the target angle in pitch. Clockwise is positive
   start = sensor['angles'][0] # angle with x-axis
   target = start + target
-  time_prev = time()
-  e_prev = 0
+  time_prev = None
+  e_prev = None
   integral = 0
   while True:
     e = target - sensor.get("angles")[0] # error
-    speed, time_prev, integral = PID(1, 0.5, 0.1, e, time_prev, e_prev, integral) #cur_distance not defined
+    speed, time_prev, integral = PID(200, 0.1, 1000, e, time_prev, e_prev, integral)
     e_prev = e
     # speed is degree/s^2
     message = []
-    if speed < 0.001 and abs(e_prev) < 1:
+    pubMsg = Int32MultiArray()
+    if abs(speed) < 10 and abs(e_prev) < 1:
       message.append(3) # 3 for pitch
       message.append(0)
-      thrusterPub.publish(Int32MultiArray(message))
+      pubMsg.data = message
+      thrusterPub.publish(pubMsg)
       break
     else:
       message.append(3)
       message.append(round(speed))
-      thrusterPub.publish(Int32MultiArray(message))
-    sleep(0.001)
+      pubMsg.data = message
+      thrusterPub.publish(pubMsg)
+    print("PID pitch")
+    sleep(30)
 
 def PIDroll(sensor, target, thrusterPub):
   # Move the target angle in roll. Clockwise is positive
   start = sensor['angles'][1] # angle with y-axis
   target = start + target
-  time_prev = time()
-  e_prev = 0
+  time_prev = None
+  e_prev = None
   integral = 0
   while True:
     e = target - sensor.get("angles")[1] # error
-    speed, time_prev, integral = PID(1, 0.5, 0.1, e, time_prev, e_prev, integral) #cur_distance not defined
+    speed, time_prev, integral = PID(200, 0.1, 1000, e, time_prev, e_prev, integral)
     e_prev = e
     # speed is degree/s^2
     message = []
-    if speed < 0.001 and abs(e_prev) < 1:
+    pubMsg = Int32MultiArray()
+    if abs(speed) < 10 and abs(e_prev) < 1:
       message.append(4) # 4 for roll
       message.append(0)
-      thrusterPub.publish(Int32MultiArray(message))
+      pubMsg.data = message
+      thrusterPub.publish(pubMsg)
       break
     else:
       message.append(4)
       message.append(round(speed))
-      thrusterPub.publish(Int32MultiArray(message))
-    sleep(0.001)
+      pubMsg.data = message
+      thrusterPub.publish(pubMsg)
+    print("PID roll")
+    sleep(30)
 
 
 
