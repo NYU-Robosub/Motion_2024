@@ -9,26 +9,23 @@ Original file is located at
 Download module from https://github.com/LORD-MicroStrain/MSCL/blob/master/HowToUseMSCL.md
 """
 
-import mscl
-import rospy
-from std_msgs.msg import Float64MultiArray
+from win64_mscl import mscl
+# import rospy
+# from std_msgs.msg import Float64MultiArray
 import math
 
 
 TEST = True
 
-port = "COM3"
+port = "COM4"
 baud = 115200
 
+print()
 #create the connection object with port and baud rate
 connection = mscl.Connection.Serial(port, baud)
 
 #create the InertialNode, passing in the connection
 node = mscl.InertialNode(connection)
-
-rospy.init_node('IMU_pub', anonymous=True)
-distancePub = rospy.Publisher('displacement_sensor', Float64MultiArray, queue_size=10)
-gyroPub = rospy.Publisher('gyro_sensor', Float64MultiArray, queue_size=10)
 
 if TEST:
   success = node.ping()
@@ -36,6 +33,7 @@ if TEST:
   print(success)
   print(activeChs)
 
+exit()
 
 imuChs = mscl.MipChannels()
 # Add channel for change in velocity, unit is g*s
@@ -46,6 +44,10 @@ imuChs.append(mscl.MipChannel(mscl.MipTypes.CH_FIELD_SENSOR_DELTA_THETA_VEC, msc
 node.setActiveChannelFields(mscl.MipTypes.CLASS_AHRS_IMU, imuChs)
 
 node.enableDataStream(mscl.MipTypes.CLASS_AHRS_IMU)
+
+rospy.init_node('IMU_pub', anonymous=True)
+distancePub = rospy.Publisher('displacement_sensor', Float64MultiArray, queue_size=10)
+gyroPub = rospy.Publisher('gyro_sensor', Float64MultiArray, queue_size=10)
 
 # Initial angle, distance, and velocity. Each element represent axis X, Y, Z.
 # Unit is degree
