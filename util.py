@@ -12,6 +12,7 @@ from math import *
 from time import time
 from rospy import sleep
 import copy
+import numpy as np
 
 
 # Threshold for temperature and moisture
@@ -22,8 +23,14 @@ LEAK_T = 10
 INIT_DEPTH = 1
 INIT_PRESSURE = 0
 
+# constants for image size
+IMG_WIDTH = 640
+IMG_HEIGHT = 480
+
 def unflatten(data, length=5):
   # Convert the CV data to a list of list
+  # Parameter: length is the number of elements in the inner array
+  
   if len(data) % length != 0:
     print("unflatten - Invalid data length in CV result")
     return []
@@ -55,6 +62,13 @@ def cvBottomCallback(data, sensor):
   sensor["CV_bottom"] = unflatten(list(data.data))
   
 
+def depthMapFrontCallback(data, sensor):
+  print("Depth map front received")
+  sensor["depth_map_front"] = unflatten(list(data.data), length=IMG_WIDTH)
+
+
+def depthMapFront(sensor):
+  return copy.deepcopy(sensor.get("depth_map_front"))
 
 def cvBottom(sensor):
   return copy.deepcopy(sensor.get("CV_bottom"))
@@ -63,11 +77,11 @@ def cvBottom(sensor):
 def findObject(object, bboxes, cvDict):
   # Look for the object in the list of bounding boxes
   # bboxes is a list of bounding boxes.
-  found = False
+  bounding_box = []
   for i in bboxes:
     if i[4] == cvDict[object]:
-      return i
-  return False
+      bounding_box.append(i)
+  return bounding_box
 
 
 def move(direction, sensor, thrusterPub, distance=0.2):
@@ -342,6 +356,38 @@ def alignObj(obj, sensor, thrusterPub, cvDict, axis=0.5):
     print("Marker not detected by cv, moving to the right")
     move("right", sensor, thrusterPub, distance=5) #fix
 
+def getDistance(object, sensor, cvDict):
+  # Get the distance from the object to the camera
+  # object is the string representing the object
+  # sensor is the dictionary containing the sensor data
+  bounding_box = findObject(object, cv(sensor), cvDict)
+  if len(bounding_box) == 0:
+    print("Object not found")
+    return []
+  else:
+    depth_map_front = depthMapFront(sensor)
+    distance = []
+    for bb in bounding_box:
+      x1, x2, y1, y2, _ = bb
+
+      # converting 0-1 coordinate into pixel values
+      x1 = x1 * IMG_WIDTH
+      x2 = x2 * IMG_WIDTH
+      y1 = y1 * IMG_HEIGHT
+      y2 = y2 * IMG_HEIGHT
+
+      new_x1 = round(x1 + (x2 - x1) / 4)
+      new_x2 = round(x2 - (x2 - x1) / 4)
+
+      new_y1 = round(y1 + (y2 - y1) / 4)
+      new_y2 = round(y2 - (y2 - y1) / 4)
+
+      depth_map_front = np.array(depth_map_front)
+      reduced_depth_map_front = depth_map_front[new_y1:new_y2 , new_x1:new_x2]
+
+      # Get the average depth of the object
+      distance.append(float(np.mean(reduced_depth_map_front)))
+    return distance
 
 def moveTillGone(object, sensor, thrusterPub, cvDict):
   print("Move till gone begins")
