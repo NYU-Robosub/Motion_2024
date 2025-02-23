@@ -12,6 +12,7 @@ from math import *
 from time import time
 from rospy import sleep
 import copy
+import numpy as np
 
 
 # Threshold for temperature and moisture
@@ -97,12 +98,26 @@ def move(direction, sensor, thrusterPub, distance=0.2):
     return
 
 
-def depthCallback(data, sensor):
+def depthCallback(data, sensor, depthmap):
   # Set the distance from the bottom of the pool in meter
   print("Depth updated")
-  sensor["depth"] = float(data.data)
+  #2d array
+  sensor["depth"] = getDepth(unflatten(depthmap))
 
+def getDepth(depthmap):
+    dmap = np.array(depthmap)
+    row, col = dmap.shape
 
+    percent = 0.25
+
+    srow = round(row / 2 - row*percent)
+    erow = round(row / 2 + row*percent)
+    scol = round(col / 2 - col*percent)
+    ecol = round(col / 2 + col*percent)
+
+    cent_matrix = dmap[srow:erow, scol:ecol]
+
+    return cent_matrix.mean() #distance in float
 
 def pressureCallback(data, sensor):
   # Set the distance from the surface of the water in meter
