@@ -17,7 +17,7 @@ from rospy import sleep
 rospy.init_node('qualification', anonymous=True)
 
 # The distance needed to move through the gate after the flag are out of sight in m
-through_gate = 2
+through_gate = 1
 # Width of the gate in m
 gate_width = 3
 # Move step size
@@ -111,8 +111,8 @@ def alignPath(path):
           turn(270, sensor, thrusterPub)
           bboxes = cvBottom(sensor)
           path = findObject("path", bboxes, cvDict)
-      x_center = (path[0] + path[1])/2
-      y_center = (path[2] + path[3])/2
+      x_center = (path[0][0] + path[0][1])/2
+      y_center = (path[0][2] + path[0][3])/2
       print(f"Updated x_center: {x_center}, y_center: {y_center}")
     directPath(path)
 
@@ -173,7 +173,7 @@ def followThePath():
       if path:
         # If path is found, turn to point away from the gate and align the gate.
         turn (90)
-        alignPath(path)
+        alignPath(path[0])
         return
     turn(180, sensor, thrusterPub)
     # Turn 180 degrees, move right from the point out of the gate for double the gate's width while search for the gate
@@ -184,7 +184,7 @@ def followThePath():
       if path:
         turn(270, sensor, thrusterPub)
         # If path is found, turn to point away from the gate and align the gate.
-        alignPath(path)
+        alignPath(path[0])
         return
     print("Path not found, moving backward and retrying.")
     move("backward", sensor, thrusterPub, gate_width * 2)
@@ -256,12 +256,44 @@ def buoy(classNum):
   # Align targetObj to the center of the frame both horizontally and vertically.
   alignVertical(targetObj)
   alignObj(targetObj, sensor, thrusterPub, cvDict)
+  distance_to_obj = getDistance(targetObj, sensor, cvDict)
   # Move forward until the buoy is hit.
-  while not sensor.get("touch"):
-    move("forward", sensor, thrusterPub)  
-  print("Buoy is successfully hit.")
+  move("forward", sensor, thrusterPub, distance_to_obj[0]+0.3)
+  print("Buoy hit, task completed.")
 
 
+def style_through_gate(sensor, thrusterPub):
+  # Move through the gate with style
+  start_angle = sensor["angles"].copy()
+  pubMsg = Int32MultiArray()
+  message = []
+  message.append(0)
+  message.append(300)
+  pubMsg.data = message
+  thrusterPub.publish(pubMsg)
+  sleep(0.5)
+  pubMsg.data[0] = 0
+  pubMsg.data[1] = 0
+  thrusterPub.publish(pubMsg)
+  sensor["roll_pitch"] = True
+  PIDroll(sensor, 180, thrusterPub)
+  pitch_diff = sensor["angles"][1]
+  if abs(pitch_diff) > 1:
+    PIDpitch(sensor, -pitch_diff, thrusterPub)
+  yaw_diff = start_angle[2] - sensor["angles"][2]
+  if abs(yaw_diff) > 5:
+    PIDturn(sensor, yaw_diff, thrusterPub)
+  pubMsg.data[0] = 0
+  pubMsg.data[1] = 300
+  thrusterPub.publish(pubMsg)
+  sleep(0.5)
+  pubMsg.data[0] = 0
+  pubMsg.data[1] = 0
+  thrusterPub.publish(pubMsg)
+  PIDroll(sensor, 180, thrusterPub)
+  sensor["roll_pitch"] = False
+  
+  print('Style through gate completed')
 
 def main():
   sleep(5)
@@ -276,39 +308,25 @@ def main():
   else:
     targetClass = "class2"
     alignObj("class2img1", sensor, thrusterPub, cvDict)
-  moveTillGone(targetClass+"img1", sensor, thrusterPub)
 
-  if style:
-    start_angle = sensor["angles"].copy()
-    pubMsg = Int32MultiArray()
-    message = []
-    message.append(0)
-    message.append(300)
-    pubMsg.data = message
-    thrusterPub.publish(pubMsg)
-    sleep(0.5)
-    pubMsg.data[0] = 0
-    pubMsg.data[1] = 0
-    thrusterPub.publish(pubMsg)
-    sensor["roll_pitch"] = True
-    PIDroll(sensor, 180, thrusterPub)
-    pitch_diff = sensor["angles"][1]
-    if abs(pitch_diff) > 1:
-      PIDpitch(sensor, -pitch_diff, thrusterPub)
-    yaw_diff = start_angle[2] - sensor["angles"][2]
-    if abs(yaw_diff) > 5:
-      PIDturn(sensor, yaw_diff, thrusterPub)
-    pubMsg.data[0] = 0
-    pubMsg.data[1] = 300
-    thrusterPub.publish(pubMsg)
-    sleep(0.5)
-    pubMsg.data[0] = 0
-    pubMsg.data[1] = 0
-    thrusterPub.publish(pubMsg)
-    PIDroll(sensor, 180, thrusterPub)
-    sensor["roll_pitch"] = False
+  # Move till gone using the distance from the cv sensor
+  distances = getDistance(targetClass+"img1", sensor, cvDict)
+  if len(distances) == 0:
+    print("Move till gone suceeded.")
+    if style:
+      style_through_gate(sensor, thrusterPub)
+    else:
+      move("forward", sensor, thrusterPub, through_gate)
   else:
-    move("forward", sensor, thrusterPub, through_gate)
+    move_distance = distances[0]
+    if len(distances) > 1:
+      move_distance = min(distances)
+    if style:
+      move("forward", sensor, thrusterPub, move_distance - through_gate)
+      style_through_gate(sensor, thrusterPub)
+    else:
+      move("forward", sensor, thrusterPub, move_distance)
+
   followThePath()
   buoy(targetClass)
   changeDepth(0, sensor, thrusterPub)
