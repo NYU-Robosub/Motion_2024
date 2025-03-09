@@ -139,7 +139,7 @@ def aroundMarker():
 
   turn(90, sensor, thrusterPub)
   captured = objectCaptured("marker")
-  while captured < 0.7:
+  while captured < 0.7 and captured != -1:
     turn(270, sensor, thrusterPub)
     move("forward", sensor, thrusterPub)
     turn(90, sensor, thrusterPub)
