@@ -29,12 +29,13 @@ Original file is located at
 import rospy
 from rospy import sleep
 from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray
-from util import cvCallback, depthCallback, gyroCallback, cv, turn, changeDepth, searchGate, move, moveTillGone, distanceCallback, pressureCallback, leakCallback, temperatureCallback
+from util import cvCallback, depthCallback, gyroCallback, cv, turn, changeDepth, searchGate, move, moveTillGone, distanceCallback, pressureCallback, leakCallback, temperatureCallback, getDistance
+
 
 
 rospy.init_node('qualification', anonymous=True)
 # The number of move forward needed to move through the gate after gate poles are out of sight.
-through_gate = 3.5
+through_gate = 0.5
 
 sensor = {}
 
@@ -106,7 +107,12 @@ def aroundMarker():
       break
     move("forward", sensor, thrusterPub)
   alignMarker(0.8) 
-  distanceMoved = moveTillGone("marker", sensor, thrusterPub)
+
+  # move till gone for the marker
+  distanceMoved = getDistance("marker", sensor, CV_dictionary)
+  if len(distanceMoved) > 0:
+    move("forward", sensor, thrusterPub, distance=distanceMoved[0])
+
   turn(90, sensor, thrusterPub)
   captured = objectCaptured("marker")
   # Move forward until the marker is right of the 0.7 axis when sub is turned toward the marker.
@@ -118,7 +124,12 @@ def aroundMarker():
     distanceMoved += 0.2
     turn(90, sensor, thrusterPub)
     captured = objectCaptured("marker")
-  moveTillGone("marker", sensor, thrusterPub)
+
+  # move till gone for the marker
+  distanceMoved = getDistance("marker", sensor, CV_dictionary)
+  if len(distanceMoved) > 0:
+    move("forward", sensor, thrusterPub, distance=distanceMoved[0])
+
   turn(90, sensor, thrusterPub)
   captured = objectCaptured("marker")
   while captured < 0.7:
@@ -130,6 +141,7 @@ def aroundMarker():
   move("forward", sensor, thrusterPub, distance=distanceMoved)
   print("Around marker ends")
 
+
 def main():
   print("Manual testing data: 15 seconds")
   sleep(15)
@@ -138,15 +150,23 @@ def main():
   print(sensor)
   changeDepth(0.3, sensor, thrusterPub)
   searchGate("center", sensor, thrusterPub, CV_dictionary)
-  moveTillGone("pole", sensor, thrusterPub, CV_dictionary)
-  print("Getting close to gate")
-  move("forward", sensor, thrusterPub, distance=through_gate)
-  aroundMarker()
-  searchGate("center", sensor, thrusterPub, CV_dictionary)
-  moveTillGone("pole", sensor, thrusterPub)
-  for i in range(through_gate):
-    move("forward", sensor, thrusterPub)
+  
+  # move through the gate 
+  distanceMoved = getDistance("pole", sensor, CV_dictionary)
+  if len(distanceMoved) > 0:
+    move("forward", sensor, thrusterPub, distance=min(distanceMoved) + through_gate)
+  print("passed the gate")
 
+  aroundMarker()
+
+  searchGate("center", sensor, thrusterPub, CV_dictionary)
+
+  # move through the gate 
+  distanceMoved = getDistance("pole", sensor, CV_dictionary)
+  if len(distanceMoved) > 0:
+    move("forward", sensor, thrusterPub, distance=min(distanceMoved) + through_gate)
+
+  print("Finished the qualification task.") 
 
 if __name__ == "__main__":
   main()
