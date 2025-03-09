@@ -4,16 +4,16 @@
 #                   ***General Outline     ***
 # 1) Submerge down to 0.3 meters above the floor
 # 2) Turn until we find at least one pole on the gate and record the angle.
-#   2a) Rotate until we see the secont pole, store the angle. 
+#   2a) Rotate until we see the second pole, store the angle. 
 #   2b) Use the two angles to compute the angle for directly facing the gate.
 # 3) Move forward until the marker is within the CV detection
-#   3a) Turn left until marker is right of the 0.7 axis in image
-#   3b) Move forward until marker disappears in CV
+#   3a) Turn left until marker is at the 0.8 axis in image
+#   3b) Move forward for the marker's distance from camera
 #   3c) Turn right 90 degrees and check marker's location in image.
-#   3d) If marker is in the right portion of the image, move forward.
+#   3d) If marker is in the right portion of the image, record the distance moved in step 3, and move forward.
 # 4) Repeat step 3b to 3d
-# 5) Once the gate is within view, break out of turning loop and move forward
-# 6) Re-execute the preliminary gate code/function
+# 5) Move the same distance as step 3.
+# 6) Re-execute the gate search function
 # 7) Pass through gate
 # 8) Move forward until 0.5 meters away from the wall
 # 9) Surface the sub!
@@ -118,7 +118,7 @@ def aroundMarker():
   captured = objectCaptured("marker")
   # Move forward until the marker is right of the 0.7 axis when sub is turned toward the marker.
   # This ensures the submarine
-  while captured < 0.7:
+  while captured < 0.7 and captured != -1:
     # Turn left 90, move forward, turn right 90, check position of marker
     turn(270, sensor, thrusterPub)
     move("forward", sensor, thrusterPub)
@@ -126,10 +126,15 @@ def aroundMarker():
     turn(90, sensor, thrusterPub)
     captured = objectCaptured("marker")
 
-  # move till gone for the marker
-  distanceMoved = getDistance("marker", sensor, CV_dictionary)
+  # move past the marker
+  alignMarker(0.8) 
+  distance_from_marker = getDistance("marker", sensor, CV_dictionary)
   if len(distanceMoved) > 0:
-    move("forward", sensor, thrusterPub, distance=distanceMoved[0])
+    move("forward", sensor, thrusterPub, distance=distance_from_marker[0])
+  else:
+    print("Error: Cannot get distance from marker after aligning marker to 0.8")
+    changeDepth(0, sensor, thrusterPub)
+    exit()
 
   turn(90, sensor, thrusterPub)
   captured = objectCaptured("marker")
