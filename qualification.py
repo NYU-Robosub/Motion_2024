@@ -127,7 +127,8 @@ def aroundMarker():
     captured = objectCaptured("marker")
 
   # move past the marker
-  alignMarker(0.8) 
+  if captured == -1:
+    alignMarker(0.8) 
   distance_from_marker = getDistance("marker", sensor, CV_dictionary)
   if len(distanceMoved) > 0:
     move("forward", sensor, thrusterPub, distance=distance_from_marker[0])
