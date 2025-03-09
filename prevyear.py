@@ -167,7 +167,7 @@ def followThePath():
   changeDepth(1.5, sensor, thrusterPub)
   while True:
     turn(270, sensor, thrusterPub)
-    # Move left from the point out of the gate for the gate's width while search for the gate
+    # Move left from the point out of the gate for the gate's width while search for the path
     for i in range(ceil(gate_width / step)):
       bboxes = cvBottom(sensor)
       path = findObject("path", bboxes, cvDict)
@@ -176,8 +176,9 @@ def followThePath():
         turn (90)
         alignPath(path[0])
         return
+      move("forward", sensor, thrusterPub, distance=step)
     turn(180, sensor, thrusterPub)
-    # Turn 180 degrees, move right from the point out of the gate for double the gate's width while search for the gate
+    # Turn 180 degrees, move right from the point out of the gate for double the gate's width while search for the path
     # This is to cover the distance we moved left
     for i in range(ceil((gate_width * 2) / step)):
       bboxes = cvBottom(sensor)
@@ -187,6 +188,7 @@ def followThePath():
         # If path is found, turn to point away from the gate and align the gate.
         alignPath(path[0])
         return
+      move("forward", sensor, thrusterPub, distance=step)
     print("Path not found, moving backward and retrying.")
     move("backward", sensor, thrusterPub, gate_width * 2)
     turn(270, sensor, thrusterPub)
