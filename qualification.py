@@ -156,22 +156,18 @@ def main():
   sleep(5)
   print(sensor)
   changeDepth(0.3, sensor, thrusterPub)
-  searchGate("center", sensor, thrusterPub, CV_dictionary)
+  distance_from_pole = searchGate("center", sensor, thrusterPub, CV_dictionary)
   
   # move through the gate 
-  distanceMoved = getDistance("pole", sensor, CV_dictionary)
-  if len(distanceMoved) > 0:
-    move("forward", sensor, thrusterPub, distance=min(distanceMoved) + through_gate)
+  move("forward", sensor, thrusterPub, distance=min(distance_from_pole) + through_gate)
   print("passed the gate")
 
   aroundMarker()
 
-  searchGate("center", sensor, thrusterPub, CV_dictionary)
+  distance_from_pole=searchGate("center", sensor, thrusterPub, CV_dictionary)
 
   # move through the gate 
-  distanceMoved = getDistance("pole", sensor, CV_dictionary)
-  if len(distanceMoved) > 0:
-    move("forward", sensor, thrusterPub, distance=min(distanceMoved) + through_gate)
+  move("forward", sensor, thrusterPub, distance=min(distance_from_pole) + through_gate)
 
   print("Finished the qualification task.") 
 
