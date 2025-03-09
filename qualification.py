@@ -7,7 +7,7 @@
 #   2a) Rotate until we see the secont pole, store the angle. 
 #   2b) Use the two angles to compute the angle for directly facing the gate.
 # 3) Move forward until the marker is within the CV detection
-#   3a) Turn left until marker is > 75% in image
+#   3a) Turn left until marker is right of the 0.7 axis in image
 #   3b) Move forward until marker disappears in CV
 #   3c) Turn right 90 degrees and check marker's location in image.
 #   3d) If marker is in the right portion of the image, move forward.
@@ -66,11 +66,11 @@ def alignMarker(axis):
           # Return the width of the marker
           return (x2-x1)
         elif abs(axis - x1) < abs(x2 - axis):
-          move('right', sensor, thrusterPub, direction=5)
+          move('right', sensor, thrusterPub, distance=3)
         else:
-          move('left', sensor, thrusterPub, direction=5)
+          move('left', sensor, thrusterPub, distance=3)
     # Marker not detected by cv
-    move("right", sensor, thrusterPub, direction=5)
+    move("right", sensor, thrusterPub, distance=5)
 
 
 
@@ -95,17 +95,24 @@ def aroundMarker():
 # Turn right
   print("Around marker begins")
   sleep(5)
-  while True:
-    width = alignMarker(0.5)
-    if width > 0.2:
-      break
-    move("forward", sensor, thrusterPub)
+  alignMarker(0.5)
+  distance_from_marker = getDistance("marker", sensor, CV_dictionary)
+  if len(distance_from_marker) > 0:
+    move("forward", sensor, thrusterPub, distance=distance_from_marker[0]-1)
+  else:
+    print("Error: Cannot get distance from marker after aligning marker")
+    changeDepth(0, sensor, thrusterPub)
+    exit()
   alignMarker(0.8) 
 
   # move till gone for the marker
   distanceMoved = getDistance("marker", sensor, CV_dictionary)
   if len(distanceMoved) > 0:
     move("forward", sensor, thrusterPub, distance=distanceMoved[0])
+  else:
+    print("Error: Cannot get distance from marker after aligning marker to 0.8")
+    changeDepth(0, sensor, thrusterPub)
+    exit()
 
   turn(90, sensor, thrusterPub)
   captured = objectCaptured("marker")
