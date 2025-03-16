@@ -356,13 +356,16 @@ def searchGate(target, sensor, thrusterPub, cvDict):
 
 
 def gateAngleCorrection(poleDistances, angleFromLeftPole, normalizedAngleDifference, gatewidth):
-  # Find the angle from the left pole
+  # Find the angle relative to the left pole
   pole1Angle = np.arcsin(np.sin(normalizedAngleDifference)/gatewidth * poleDistances[1])
-  # Find the angle 
   angleFromGate = angleFromLeftPole + pole1Angle
+  # Find the angle needs to be corrected after the robot passed through the gate 
+  # such that the robot facing direction will perpendicular to both poles
   angleCorrection = (90 - angleFromGate) % 360
 
+  # Get the horizontal distance from the left pole
   distanceFromLeftPole = (normalizedAngleDifference/angleFromLeftPole) * gatewidth
+  # Find the slant/vertical distance to move to pass the gate
   distanceToMove = distanceFromLeftPole/np.sin(angleFromLeftPole) * np.sin(pole1Angle)
   return angleCorrection, distanceToMove
 
@@ -600,5 +603,3 @@ def PIDroll(sensor, target, thrusterPub):
     print("PID roll")
 
 
-#
-def getPoleAngle():
