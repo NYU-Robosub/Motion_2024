@@ -22,7 +22,7 @@
 import rospy
 from rospy import sleep
 from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray
-from util import cvCallback, depthCallback, gyroCallback, cv, turn, changeDepth, searchGate, move, distanceCallback, pressureCallback, leakCallback, temperatureCallback, getDistance
+from util import *
 
 
 
@@ -156,18 +156,19 @@ def main():
   sleep(5)
   print(sensor)
   changeDepth(0.3, sensor, thrusterPub)
-  distance_from_pole = searchGate("center", sensor, thrusterPub, CV_dictionary)
-  
+  distance_from_pole, angle_from_left, angle_difference = searchGate("center", sensor, thrusterPub, CV_dictionary)
+  correction_angle, distance_to_move = gateAngleCorrection(distance_from_pole, angle_from_left, angle_difference)
   # move through the gate 
-  move("forward", sensor, thrusterPub, distance=min(distance_from_pole) + through_gate)
+  move("forward", sensor, thrusterPub, distance=distance_to_move + through_gate)
   print("passed the gate")
+  turn(correction_angle)
 
   aroundMarker()
 
-  distance_from_pole=searchGate("center", sensor, thrusterPub, CV_dictionary)
-
+  distance_from_pole, angle_from_left, angle_difference = searchGate("center", sensor, thrusterPub, CV_dictionary)
+  correction_angle, distance_to_move = gateAngleCorrection(distance_from_pole, angle_from_left, angle_difference)
   # move through the gate 
-  move("forward", sensor, thrusterPub, distance=min(distance_from_pole) + through_gate)
+  move("forward", sensor, thrusterPub, distance=distance_to_move + through_gate)
 
   print("Finished the qualification task.") 
 

@@ -80,8 +80,6 @@ def findObject(object, bboxes, cvDict):
 def move(direction, sensor, thrusterPub, distance=0.2):
   # direction can be "forward", "backward", "left", "right", "up", "down"
   # Default distance to move is 0.2 m each time
-  # 0.2 m correspond to 5 degrees when turning left and right
-  # Turn 5 degree at a time
   if direction == "left" or direction == "right":
     print(f"Turning {direction} by distance: {distance} degree")
   else:
@@ -229,7 +227,7 @@ def turn(degree, sensor, thrusterPub):
   print(f"Turning by {degree} degrees")
   initAngle = sensor.get("angles")[2]
   if degree > 180:
-    move("left", sensor, thrusterPub, 360-degree)
+    move("left", sensor, thrusterPub, (360-degree))
   else:
     move("right", sensor, thrusterPub, degree)
   angleDiff = (sensor.get("angles")[2] - initAngle) % 360
@@ -370,6 +368,7 @@ def gateAngleCorrection(poleDistances, angleFromLeftPole, normalizedAngleDiffere
 def alignObj(obj, sensor, thrusterPub, cvDict, axis=0.5):
   print("Begin aligning to ", obj)
   # ALign horizontally to ensure the specified object is at a specific part of the camera frame.
+  angleMoved = 0
   while (True):
     for i in cv(sensor):
       # Detected the marker
@@ -382,12 +381,16 @@ def alignObj(obj, sensor, thrusterPub, cvDict, axis=0.5):
           print("Align object ends")
           return (x2-x1)
         elif abs(axis - x1) < abs(x2 - axis):
-          move('right', sensor, thrusterPub)
+          move('right', sensor, thrusterPub, distance=1)
+          angleMoved += 1
         else:
-          move('left', sensor, thrusterPub)
+          move('left', sensor, thrusterPub, distance=1)
+          angleMoved -= 1
     # Marker not detected by cv
     print("Marker not detected by cv, moving to the right")
-    move("right", sensor, thrusterPub, distance=5) #fix
+    move("right", sensor, thrusterPub, distance=5)
+    angleMoved+=5
+    return angleMoved%360
 
 def getDistance(object, sensor, cvDict):
   # Get the distance from the object to the camera

@@ -292,17 +292,18 @@ def style_through_gate(sensor, thrusterPub):
 def main():
   sleep(5)
   changeDepth(0.3, sensor, thrusterPub)
-  searchGate("left", sensor, thrusterPub, cvDict)
+  poleDistances, angleFromLeftPole, angleDifference = searchGate("left", sensor, thrusterPub, cvDict)
   targetClass = None # The string for which class we are targeting.
   while not findObject("class1img1", cv(sensor), cvDict) and not findObject("class2img1", cv(sensor), cvDict):
     move("forward", sensor, thrusterPub)
   if findObject("class1img1", cv(sensor), cvDict):
     targetClass = "class1"
-    alignObj("class1img1", sensor, thrusterPub, cvDict)
+    angleMoved = alignObj("class1img1", sensor, thrusterPub, cvDict)
   else:
     targetClass = "class2"
-    alignObj("class2img1", sensor, thrusterPub, cvDict)
+    angleMoved = alignObj("class2img1", sensor, thrusterPub, cvDict)
 
+  angleCorrection, _ = gateAngleCorrection(poleDistances, (angleFromLeftPole+angleMoved)%360, angleDifference, gate_width)
   # Move till gone using the distance from the cv sensor
   distances = getDistance(targetClass+"img1", sensor, cvDict)
   if len(distances) == 0:
@@ -320,7 +321,7 @@ def main():
       style_through_gate(sensor, thrusterPub)
     else:
       move("forward", sensor, thrusterPub, move_distance)
-
+  turn(angleCorrection)
   followThePath()
   buoy(targetClass)
   changeDepth(0, sensor, thrusterPub)
