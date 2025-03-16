@@ -265,12 +265,14 @@ def searchGate(target, sensor, thrusterPub, cvDict):
     poleCount = 0
     # curPoleCenter records the x-coordinate of the center of the poles detected.
     curPoleCenter = []
+    polebb = []
     for bbox in bboxes:
       if bbox[4] == cvDict['pole']:
         poleCount += 1
         print("Total of", poleCount, "poles detected")
         # Add the x-coordinate of the middle of the pole that is detected.
         curPoleCenter.append((bbox[0] + bbox[1])/2)
+        polebb.append(bbox)
         print("Current pole center:", curPoleCenter)
 
     # The pole at the center of the frame
@@ -297,14 +299,16 @@ def searchGate(target, sensor, thrusterPub, cvDict):
         if not prevPoleCenter:
           # No pole in the last frame, this is a new pole
           poleFound += 1
-          poleDistances.extend(getDistance("pole", sensor, cvDict))
+          depth_map_front = depthMapFront(sensor)
+          poleDistances.append(getBBdistance(polebb, depth_map_front))
           print("New pole found, total pole found:", poleFound)
           poleAngle[poleFound - 1] = sensor.get("angles")[2]
         elif prevPoleCenter <= centeredPole:
           # The pole in previous frame is left of the pole in the current frame.
           # As the robot is moving right, the pole is a new pole
           poleFound += 1
-          poleDistances.extend(getDistance("pole", sensor, cvDict))
+          depth_map_front = depthMapFront(sensor)
+          poleDistances.append(getBBdistance(polebb, depth_map_front))
           print("New pole found and is not a repeat, total pole found:", poleFound)
           poleAngle[poleFound - 1] = sensor.get("angles")[2]
         else:
@@ -318,30 +322,47 @@ def searchGate(target, sensor, thrusterPub, cvDict):
           # Both pole has been found. Decide where is the gate based on the angles
           angleDifference = (poleAngle[1] - poleAngle[0]) % 360
           targetAngle = None
+          normalizedAngleDifference = angleDifference
           # Add angle difference to the pole
           if angleDifference > 180:
             # The difference in angle of pole 2 and pole 1 is larger than 180
             # The gate must be behind the curve of rotation.
+            normalizedAngleDifference = 360-angleDifference
             print("The angle difference is: ", angleDifference, "behind the gate")
             if target == "center":
-              targetAngle = ((360 - angleDifference) / 2 + poleAngle[1]) % 360
+              angleFromLeftPole = (360-angleDifference)/2
+              targetAngle = (angleFromLeftPole + poleAngle[1]) % 360
             elif target == "left":
-              targetAngle = ((360 - angleDifference) / 4 + poleAngle[1]) % 360
+              angleFromLeftPole = (360-angleDifference)/4
+              targetAngle = (angleFromLeftPole + poleAngle[1]) % 360
+            poleDistances[0], poleDistances[1] = poleDistances[1], poleDistances[0]
           else:
             print("The angle difference is: ", angleDifference, ", facing the gate")
             if target == "center":
-              targetAngle = (angleDifference / 2 + poleAngle[0]) % 360
+              angleFromLeftPole = angleDifference/2
+              targetAngle = (angleFromLeftPole + poleAngle[0]) % 360
             elif target == "left":
-              targetAngle = (angleDifference / 4 + poleAngle[0]) % 360
+              angleFromLeftPole = angleDifference/4
+              targetAngle = (angleFromLeftPole + poleAngle[0]) % 360
           turning_angle = (targetAngle - sensor.get("angles")[2])%360
           print(f"Target angle is {targetAngle} degree. Turning clockwise {turning_angle} degree")
           turn(turning_angle, sensor, thrusterPub)
           print("Searching gate ends")
-          return poleDistances
+          return poleDistances, angleFromLeftPole, normalizedAngleDifference
     else:
       prevPoleCenter = None
     # Turn until we find at least one pole on the gate
     move("right", sensor, thrusterPub, distance=5)
+
+
+def gateAngleCorrection(poleDistances, angleFromLeftPole, normalizedAngleDifference, gatewidth):
+  pole1Angle = np.arcsin(np.sin(normalizedAngleDifference)/gatewidth * poleDistances[1])
+  angleFromGate = angleFromLeftPole + pole1Angle
+  angleCorrection = (90 - angleFromGate) % 360
+
+  distanceFromLeftPole = (normalizedAngleDifference/angleFromLeftPole) * gatewidth
+  distanceToMove = distanceFromLeftPole/np.sin(angleFromLeftPole) * np.sin(pole1Angle)
+  return angleCorrection, distanceToMove
 
 
 def alignObj(obj, sensor, thrusterPub, cvDict, axis=0.5):
@@ -378,26 +399,31 @@ def getDistance(object, sensor, cvDict):
     depth_map_front = depthMapFront(sensor)
     distance = []
     for bb in bounding_box:
-      x1, x2, y1, y2, _ = bb
-
-      # converting 0-1 coordinate into pixel values
-      x1 = x1 * IMG_WIDTH
-      x2 = x2 * IMG_WIDTH
-      y1 = y1 * IMG_HEIGHT
-      y2 = y2 * IMG_HEIGHT
-
-      new_x1 = round(x1 + (x2 - x1) / 4)
-      new_x2 = round(x2 - (x2 - x1) / 4)
-
-      new_y1 = round(y1 + (y2 - y1) / 4)
-      new_y2 = round(y2 - (y2 - y1) / 4)
-
-      depth_map_front = np.array(depth_map_front)
-      reduced_depth_map_front = depth_map_front[new_y1:new_y2 , new_x1:new_x2]
-
       # Get the average depth of the object
-      distance.append(float(np.mean(reduced_depth_map_front)))
+     distance.append(getBBdistance(bb, depth_map_front))
     return distance
+
+
+def getBBdistance(bb, depth_map_front):
+  #get the average distance from the center of the bounding box
+  x1, x2, y1, y2, _ = bb
+
+  # converting 0-1 coordinate into pixel values
+  x1 = x1 * IMG_WIDTH
+  x2 = x2 * IMG_WIDTH
+  y1 = y1 * IMG_HEIGHT
+  y2 = y2 * IMG_HEIGHT
+
+  new_x1 = round(x1 + (x2 - x1) / 4)
+  new_x2 = round(x2 - (x2 - x1) / 4)
+
+  new_y1 = round(y1 + (y2 - y1) / 4)
+  new_y2 = round(y2 - (y2 - y1) / 4)
+
+  depth_map_front = np.array(depth_map_front)
+  reduced_depth_map_front = depth_map_front[new_y1:new_y2 , new_x1:new_x2]
+  return float(np.mean(reduced_depth_map_front))
+
 
 def moveTillGone(object, sensor, thrusterPub, cvDict):
   print("Move till gone begins")
@@ -570,3 +596,7 @@ def PIDroll(sensor, target, thrusterPub):
       pubMsg.data = message
       thrusterPub.publish(pubMsg)
     print("PID roll")
+
+
+#
+def getPoleAngle():
