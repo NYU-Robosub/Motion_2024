@@ -356,7 +356,9 @@ def searchGate(target, sensor, thrusterPub, cvDict):
 
 
 def gateAngleCorrection(poleDistances, angleFromLeftPole, normalizedAngleDifference, gatewidth):
+  # Find the angle from the left pole
   pole1Angle = np.arcsin(np.sin(normalizedAngleDifference)/gatewidth * poleDistances[1])
+  # Find the angle 
   angleFromGate = angleFromLeftPole + pole1Angle
   angleCorrection = (90 - angleFromGate) % 360
 
