@@ -70,11 +70,11 @@ def cvBottom(sensor):
 def findObject(object, bboxes, cvDict):
   # Look for the object in the list of bounding boxes
   # bboxes is a list of bounding boxes.
-  bounding_box = []
+  bounding_boxes = []
   for i in bboxes:
     if i[4] == cvDict[object]:
-      bounding_box.append(i)
-  return bounding_box
+      bounding_boxes.append(i)
+  return bounding_boxes
 
 
 def move(direction, sensor, thrusterPub, distance=0.2):
@@ -354,7 +354,8 @@ def searchGate(target, sensor, thrusterPub, cvDict):
 
 
 def gateAngleCorrection(poleDistances, angleFromLeftPole, normalizedAngleDifference, gatewidth):
-  # Find the angle relative to the left pole
+  # angleFromLeftPole is the difference between the current angle and the angle when facing left pole.
+  # Find the angle between the line joining current position to left pole and the gate using sine rule.
   pole1Angle = np.arcsin(np.sin(normalizedAngleDifference)/gatewidth * poleDistances[1])
   angleFromGate = angleFromLeftPole + pole1Angle
   # Find the angle needs to be corrected after the robot passed through the gate 
@@ -363,7 +364,7 @@ def gateAngleCorrection(poleDistances, angleFromLeftPole, normalizedAngleDiffere
 
   # Get the horizontal distance from the left pole
   distanceFromLeftPole = (normalizedAngleDifference/angleFromLeftPole) * gatewidth
-  # Find the slant/vertical distance to move to pass the gate
+  # Find the slant distance to move to pass the gate
   distanceToMove = distanceFromLeftPole/np.sin(angleFromLeftPole) * np.sin(pole1Angle)
   return angleCorrection, distanceToMove
 

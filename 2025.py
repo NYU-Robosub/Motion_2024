@@ -223,37 +223,92 @@ def alignVertical(obj):
         print("Cannot find object")
         return False
 
-def buoy(classNum):
-  # Hit the object corresponding to classNum on the buoy
-  # classNum is a string indicating the class to hit.
+def slalom(sensor, thrusterPub, cvDict):
+  # Task 2 of 2025 competition
+  # Pass through a series of gates.
+  class PoleInfo():
+    def __init__(self, angle, distance):
+      self.angle = angle
+      self.distance = distance
 
-  print("Starting the task to hit buoy.")
-  # Change the depth to the depth of the buoy.
-  changeDepth(0.9, sensor, thrusterPub)
-  # Move until buoy is within sight.
-  while not findObject("buoy", cv(sensor), cvDict):
-    move("forward", sensor, thrusterPub)
-  # Align buoy to the center of the frame both horizontally and vertically.
-  alignVertical("buoy")
-  alignObj("buoy", sensor, thrusterPub, cvDict)
-  # Move until one of the two images of the correct class is within frame.
-  bboxes = cv(sensor)
-  while not findObject(classNum+"img2", bboxes, cvDict) and not findObject(classNum+"img2", bboxes, cvDict):
-    move("forward", sensor, thrusterPub)
-    bboxes = cv(sensor)
-  # Assign one image of the correct class that is within the frame to be targetObj.
-  targetObj = None
-  if findObject(classNum+"img2", cv(sensor), cvDict):
-    targetObj = classNum+"img2"
-  else:
-    targetObj = classNum+"img3"
-  # Align targetObj to the center of the frame both horizontally and vertically.
-  alignVertical(targetObj)
-  alignObj(targetObj, sensor, thrusterPub, cvDict)
-  distance_to_obj = getDistance(targetObj, sensor, cvDict)
-  # Move forward until the buoy is hit.
-  move("forward", sensor, thrusterPub, distance_to_obj[0]+0.3)
-  print("Buoy hit, task completed.")
+  class PoleCollection():
+    def __init__(self):
+      self.poles = []
+      self.closest = None
+    
+    def add_pole(self, pole:PoleInfo):
+      pole.append(pole)
+      if self.closest is None:
+        self.closest = pole
+      elif pole.distance < self.closest.distance:
+        self.closest = pole
+    
+    def remove_closest(self):
+      self.poles.remove(self.closest)
+      self.closest = self.poles[0]
+      for pole in self.poles:
+        if pole.distance < self.closest.distance:
+          self.closest = pole
+
+  print("Navigate the channel begins")
+  poleTot = 3
+  clockwiseRot = 90
+  antiClockwiseRot = 90
+  marginOfError = 0.05
+  step = 5
+  gate_width = 2
+
+  for i in range(poleTot):
+    leftPoles = PoleCollection()
+    rightPoles = PoleCollection()
+    turn(360-clockwiseRot, sensor, thrusterPub)
+    for i in range((antiClockwiseRot+clockwiseRot)//step):
+      bboxes = cv(sensor)
+      depth_map_front = depthMapFront(sensor)
+      whitePipes = findObject("whitePipe", bboxes, cvDict)
+      redPipes = findObject("redPipe", bboxes, cvDict)
+      for bbox in whitePipes:
+        if abs((bbox[0] + bbox[1])/2 -0.5) < marginOfError:
+          newPole = PoleInfo(sensor.get("angles")[2], getBBdistance(bbox, depth_map_front))
+          leftPoles.add_pole(newPole)
+      for bbox in redPipes:
+        if abs((bbox[0] + bbox[1])/2 -0.5) < marginOfError:
+          newPole = PoleInfo(sensor.get("angles")[2], getBBdistance(bbox, depth_map_front))
+          rightPoles.add_pole(newPole) 
+      turn(step, sensor, thrusterPub)
+    
+    leftPole = leftPoles.closest
+    rightPole = rightPoles.closest
+
+    # Both poles has been found. Decide where is the gate based on the angles
+    angleDifference = (rightPole.angle - leftPole.angle) % 360
+
+    while angleDifference > 180:
+      print("Angle difference larger than 180, one pole is selected wrong")
+      if leftPole.distance < rightPole.distance:
+        rightPoles.remove_closest()
+        rightPole = rightPoles.closest
+      else:
+        leftPoles.remove_closest()
+        leftPole = leftPoles.closest
+      angleDifference = (rightPole.angle - leftPole.angle) % 360
+    
+    targetAngle = None
+    # Add angle difference to the pole
+    print("The angle difference is: ", angleDifference)
+    angleFromLeftPole = angleDifference/2
+    targetAngle = (angleFromLeftPole + leftPole.angle) % 360
+    turning_angle = (targetAngle - sensor.get("angles")[2])%360
+    print(f"Target angle is {targetAngle} degree. Turning clockwise {turning_angle} degree")
+    turn(turning_angle, sensor, thrusterPub)
+    print(f"Pointing to the center of set {i+1} poles")
+
+    angleCorrection, distanceToMove = gateAngleCorrection([leftPole.distance, rightPole.distance], angleFromLeftPole, angleDifference, gate_width)
+    move("forward", sensor, thrusterPub, distance=distanceToMove)
+    turn(angleCorrection)
+    move("forward", sensor, thrusterPub, distance=0.5)
+
+
 
 
 def style_through_gate(sensor, thrusterPub):
@@ -298,16 +353,16 @@ def main():
     move("forward", sensor, thrusterPub)
   if findObject("class1img1", cv(sensor), cvDict):
     targetClass = "class1"
-    angleMoved = alignObj("class1img1", sensor, thrusterPub, cvDict)
+    # angleMoved = alignObj("class1img1", sensor, thrusterPub, cvDict)
   else:
     targetClass = "class2"
-    angleMoved = alignObj("class2img1", sensor, thrusterPub, cvDict)
+    # angleMoved = alignObj("class2img1", sensor, thrusterPub, cvDict)
 
-  angleCorrection, _ = gateAngleCorrection(poleDistances, (angleFromLeftPole+angleMoved)%360, angleDifference, gate_width)
+  angleCorrection, _ = gateAngleCorrection(poleDistances, angleFromLeftPole, angleDifference, gate_width)
   # Move till gone using the distance from the cv sensor
   distances = getDistance(targetClass+"img1", sensor, cvDict)
   if len(distances) == 0:
-    print("Move till gone suceeded.")
+    print("Already close to gate such that image cannot be captured")
     if style:
       style_through_gate(sensor, thrusterPub)
     else:
@@ -323,7 +378,7 @@ def main():
       move("forward", sensor, thrusterPub, move_distance)
   turn(angleCorrection)
   followThePath()
-  buoy(targetClass)
+  slalom(sensor, thrusterPub, cvDict)
   changeDepth(0, sensor, thrusterPub)
 
 
