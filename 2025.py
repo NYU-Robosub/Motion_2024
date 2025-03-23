@@ -351,15 +351,22 @@ def main():
   changeDepth(0.3, sensor, thrusterPub)
   poleDistances, angleFromLeftPole, angleDifference = searchGate("left", sensor, thrusterPub, cvDict)
   targetClass = None # The string for which class we are targeting.
-  while not findObject("class1img1", cv(sensor), cvDict) and not findObject("class2img1", cv(sensor), cvDict):
+  while True:
+    class1 = findObject("class1img1", cv(sensor), cvDict)
+    class2 = findObject("class2img1", cv(sensor), cvDict)
+    if len(class1) > 0:
+      class1Center = abs((class1[0][0] + class1[0][1])/2 - 0.5)
+      if class1Center < 0.2:
+        targetClass = "class1"
+    if len(class2) > 0:
+      class2Center = abs((class2[0][0] + class2[0][1])/2 - 0.5)
+      if class2Center < 0.2:
+        if targetClass is None or class1Center > class1Center:
+          targetClass = "class2"
+          
+    if targetClass is not None:
+      break
     move("forward", sensor, thrusterPub)
-  
-  if findObject("class1img1", cv(sensor), cvDict):
-    targetClass = "class1"
-    # angleMoved = alignObj("class1img1", sensor, thrusterPub, cvDict)
-  else:
-    targetClass = "class2"
-    # angleMoved = alignObj("class2img1", sensor, thrusterPub, cvDict)
 
   angleCorrection, _ = gateAngleCorrection(poleDistances, angleFromLeftPole, angleDifference, gate_width)
   # Move till gone using the distance from the cv sensor
