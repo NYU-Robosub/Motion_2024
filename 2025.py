@@ -304,9 +304,11 @@ def slalom(sensor, thrusterPub, cvDict):
     print(f"Pointing to the center of set {i+1} poles")
 
     angleCorrection, distanceToMove = gateAngleCorrection([leftPole.distance, rightPole.distance], angleFromLeftPole, angleDifference, gate_width)
+    changeDepth(0.3, sensor, thrusterPub)
     move("forward", sensor, thrusterPub, distance=distanceToMove)
     turn(angleCorrection)
     move("forward", sensor, thrusterPub, distance=0.5)
+    changeDepth(-1, sensor, thrusterPub)
 
 
 
@@ -351,6 +353,7 @@ def main():
   targetClass = None # The string for which class we are targeting.
   while not findObject("class1img1", cv(sensor), cvDict) and not findObject("class2img1", cv(sensor), cvDict):
     move("forward", sensor, thrusterPub)
+  
   if findObject("class1img1", cv(sensor), cvDict):
     targetClass = "class1"
     # angleMoved = alignObj("class1img1", sensor, thrusterPub, cvDict)
