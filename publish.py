@@ -12,7 +12,7 @@ if __name__ == '__main__':
     rospy.init_node('publish')
 
     cvPub = rospy.Publisher('CV', Float64MultiArray)
-    depthPub = rospy.Publisher('depth_sensor', Float64)
+    depthPub = rospy.Publisher('depth_sensor', Float64MultiArray)
     gyroPub = rospy.Publisher('gyro_sensor', Float64MultiArray)
     distancePub = rospy.Publisher('displacement_sensor', Float64MultiArray)
     pressurePub = rospy.Publisher("pressure_sensor", Float64)

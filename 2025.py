@@ -30,7 +30,7 @@ cvBottomSUb = rospy.Subscriber('CV_bottom', Float64MultiArray, cvBottomCallback,
 
 thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
 # Get distance from bottom from bottom camera
-depthSub = rospy.Subscriber('depth_sensor', Float64, depthCallback, callback_args=sensor)
+depthSub = rospy.Subscriber('depth_sensor', Float64MultiArray, depthCallback, callback_args=sensor)
 
 # Get angle from IMU
 gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
