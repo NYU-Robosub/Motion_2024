@@ -54,7 +54,7 @@ if __name__ == '__main__':
             depthF = float(msg)
             pressureF = DEPTH - depthF
             pressureMsg = Float64(pressureF)
-            depthMsg = Float64(depthF)
+            depthMsg = Float64MultiArray(640*480*[depthF])
             depthPub.publish(depthMsg)
             pressurePub.publish(pressureMsg)
         elif topic == "GYRO":
