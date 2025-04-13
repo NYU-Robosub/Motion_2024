@@ -8,14 +8,18 @@ byte trusterPinFL= 9;
 byte trusterPinFR = 10;
 byte trusterPinBL= 11;
 byte trusterPinBR = 12;
-byte trusterPinVL = 13;
-byte trusterPinVR = 14;
+byte trusterPinVFL = 13;
+byte trusterPinVFR = 14;
+byte trusterPinVBL = 15;
+byte trusterPinVBR = 16;
 Servo trusterFL;
 Servo trusterFR;
 Servo trusterBL;
 Servo trusterBR;
-Servo trusterVL;
-Servo trusterVR;
+Servo trusterVFL;
+Servo trusterVFR;
+Servo trusterVBL;
+Servo trusterVBR;
 // Signal value for truster to move forward or backward
 int forward_max = 200; 
 int backward_max = -200;
@@ -51,8 +55,10 @@ void goBackward(const int value)
 
 void goUpDown(const int value)
 {
-  trusterVL.writeMicroseconds(noMove + value);
-  trusterVR.writeMicroseconds(noMove+ value);
+  trusterVFL.writeMicroseconds(noMove + value);
+  trusterVBR.writeMicroseconds(noMove+ value);
+  trusterVBL.writeMicroseconds(noMove - value);
+  trusterVFR.writeMicroseconds(noMove - value);
 }
 
 void motorCallback(const std_msgs::Int32MultiArray& msg)
@@ -112,16 +118,20 @@ void setup() {
   trusterFR.attach(trusterPinFR);
   trusterBL.attach(trusterPinBL);
   trusterBR.attach(trusterPinBR);
-  trusterVL.attach(trusterPinVL);
-  trusterVR.attach(trusterPinVR);
+  trusterVFL.attach(trusterPinVFL);
+  trusterVFR.attach(trusterPinVFR);
+  trusterVBL.attach(trusterPinVBL);
+  trusterVBR.attach(trusterPinVBR);
 
   // send "stop" signal to ESC to initialize it
   trusterFL.writeMicroseconds(1500);
   trusterFR.writeMicroseconds(1500);
   trusterBL.writeMicroseconds(1500);
   trusterBR.writeMicroseconds(1500);
-  trusterVL.writeMicroseconds(1500);
-  trusterVR.writeMicroseconds(1500);
+  trusterVFL.writeMicroseconds(1500);
+  trusterVFR.writeMicroseconds(1500);
+  trusterVBL.writeMicroseconds(1500);
+  trusterVBR.writeMicroseconds(1500);
   delay(7000); // delay to allow the ESC to recognize the stopped signal
   node_handle.initNode();
   node_handle.subscribe(motor_subscriber);
