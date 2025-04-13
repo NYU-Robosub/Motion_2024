@@ -61,6 +61,22 @@ void goUpDown(const int value)
   trusterVFR.writeMicroseconds(noMove - value);
 }
 
+void pitch(const int value)
+{
+  trusterVFL.writeMicroseconds(noMove + value);
+  trusterVBR.writeMicroseconds(noMove - value);
+  trusterVBL.writeMicroseconds(noMove - value);
+  trusterVFR.writeMicroseconds(noMove + value);
+}
+
+void roll(const int value)
+{
+  trusterVFL.writeMicroseconds(noMove + value);
+  trusterVBR.writeMicroseconds(noMove - value);
+  trusterVBL.writeMicroseconds(noMove + value);
+  trusterVFR.writeMicroseconds(noMove - value);
+}
+
 void motorCallback(const std_msgs::Int32MultiArray& msg)
 {
   if (msg.data[1] > forward_max)
@@ -107,6 +123,15 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
   {
     goUpDown(msg.data[1])
   }
+  else if (msg.data[0] == 3)
+  {
+    pitch(msg.data[1])
+  }
+  else if (msg.data[0] == 4)
+  {
+    roll(msg.data[1])
+  }
+  
 }
 
 ros::NodeHandle node_handle;
