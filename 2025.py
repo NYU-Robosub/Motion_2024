@@ -347,7 +347,6 @@ def style_through_gate(sensor, thrusterPub):
   print('Style through gate completed')
 
 def main():
-  sleep(5)
   changeDepth(0.3, sensor, thrusterPub)
   poleDistances, angleFromLeftPole, angleDifference = searchGate("left", sensor, thrusterPub, cvDict)
   targetClass = None # The string for which class we are targeting.
@@ -393,4 +392,7 @@ def main():
 
 
 if __name__ == "__main__":
+  
+  wait_time = input("Start the program in x seconds: ")
+  sleep(int(wait_time))
   main()
