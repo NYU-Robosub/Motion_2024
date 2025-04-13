@@ -29,7 +29,7 @@ if __name__ == '__main__':
         if topic == "SETUP":
             initial_CV = Float64MultiArray()
             initial_CV.data = []
-            initial_depth = Float64(DEPTH)
+            initial_depth = Float64MultiArray(640*480*[DEPTH])
             initial_gyro = Float64MultiArray()
             initial_gyro.data = [0, 0, 0]
             initial_distance = Float64MultiArray()
