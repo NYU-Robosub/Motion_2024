@@ -106,7 +106,7 @@ def depthCallback(data, sensor):
   # Set the distance from the bottom of the pool in meter
   print("Depth updated")
   #2d array
-  sensor["depth"] = getDepth(list(data.data), length=IMG_WIDTH)
+  sensor["depth"] = getDepth(unflatten(list(data.data), length=IMG_WIDTH))
 
 def getDepth(depthmap):
     dmap = np.array(depthmap)
