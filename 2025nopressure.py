@@ -224,6 +224,7 @@ def alignVertical(obj):
         print("Cannot find object")
         return False
 
+
 def slalom(sensor, thrusterPub, cvDict):
   # Task 2 of 2025 competition
   # Pass through a series of gates.
@@ -260,38 +261,43 @@ def slalom(sensor, thrusterPub, cvDict):
   gate_width = 2
 
   for i in range(poleTot):
-    leftPoles = PoleCollection()
-    rightPoles = PoleCollection()
+    whitePipes = PoleCollection()
+    redPipes = PoleCollection()
+    # Turn left by 180 - clockwiseRot (90 degrees)
     turn(360-clockwiseRot, sensor, thrusterPub)
+    # Rotate by clockwiseRot + antiClockwiseRot, with step (5) degree each time 
     for i in range((antiClockwiseRot+clockwiseRot)//step):
+      # At each step, do a cv check and find all white and red pipes. 
+      # Save their angle and distance
       bboxes = cv(sensor)
       depth_map_front = depthMapFront(sensor)
-      whitePipes = findObject("whitePipe", bboxes, cvDict)
-      redPipes = findObject("redPipe", bboxes, cvDict)
-      for bbox in whitePipes:
+      whitePipeBbs = findObject("whitePipe", bboxes, cvDict)
+      redPipeBbs = findObject("redPipe", bboxes, cvDict)
+      for bbox in whitePipeBbs:
+        # Only save pipe if they are in the center, so we can store their angle.
         if abs((bbox[0] + bbox[1])/2 -0.5) < marginOfError:
           newPole = PoleInfo(sensor.get("angles")[2], getBBdistance(bbox, depth_map_front))
-          leftPoles.add_pole(newPole)
-      for bbox in redPipes:
+          whitePipes.add_pole(newPole)
+      for bbox in redPipeBbs:
         if abs((bbox[0] + bbox[1])/2 -0.5) < marginOfError:
           newPole = PoleInfo(sensor.get("angles")[2], getBBdistance(bbox, depth_map_front))
-          rightPoles.add_pole(newPole) 
+          redPipes.add_pole(newPole) 
       turn(step, sensor, thrusterPub)
+    # So all pipe in the 180 degree in front of robot are captured
     
-    leftPole = leftPoles.closest
-    rightPole = rightPoles.closest
+    # We want to pass through the left side of the pipes, 
+    # so white pipe is on the left and red pip on the right.
+    leftPole = whitePipes.closest
+    rightPole = redPipes.closest
 
     # Both poles has been found. Decide where is the gate based on the angles
     angleDifference = (rightPole.angle - leftPole.angle) % 360
 
     while angleDifference > 180:
+      # This means the white pipe is right of the red pipe, but we want to pass through the left side of the pipes.
       print("Angle difference larger than 180, one pole is selected wrong")
-      if leftPole.distance < rightPole.distance:
-        rightPoles.remove_closest()
-        rightPole = rightPoles.closest
-      else:
-        leftPoles.remove_closest()
-        leftPole = leftPoles.closest
+      whitePipes.remove_closest()
+      leftPole = whitePipes.closest
       angleDifference = (rightPole.angle - leftPole.angle) % 360
     
     targetAngle = None
@@ -305,13 +311,10 @@ def slalom(sensor, thrusterPub, cvDict):
     print(f"Pointing to the center of set {i+1} poles")
 
     angleCorrection, distanceToMove = gateAngleCorrection([leftPole.distance, rightPole.distance], angleFromLeftPole, angleDifference, gate_width)
-    changeDepth(0.3, sensor, thrusterPub)
     move("forward", sensor, thrusterPub, distance=distanceToMove)
     turn(angleCorrection)
     move("forward", sensor, thrusterPub, distance=0.5)
     changeDepth(1, sensor, thrusterPub)
-
-
 
 
 def style_through_gate(sensor, thrusterPub):
@@ -389,6 +392,20 @@ def main():
       move("forward", sensor, thrusterPub, move_distance)
   turn(angleCorrection)
   followThePath()
+  # Travel to task 2
+  for i in range(20):
+    bboxes = cv(sensor)
+    depth_map_front = depthMapFront(sensor)
+    redPipeBbs = findObject("redPipe", bboxes, cvDict)
+    closest = None
+    for bb in redPipeBbs:
+      distance = getBBdistance(bb, depth_map_front)
+      if closest is None or distance < closest:
+        closest = distance
+    if closest < 1.8:
+      break
+    else:
+      move("forward", sensor, thrusterPub, 0.3)
   slalom(sensor, thrusterPub, cvDict)
   surfacing(sensor, thrusterPub)
 

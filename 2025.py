@@ -35,7 +35,7 @@ depthSub = rospy.Subscriber('depth_sensor', Float64MultiArray, depthCallback, ca
 # Get angle from IMU
 gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
 # Get distance from surface from pressure sensor
-#pressureSub = rospy.Subscriber("pressure_sensor", Float64, pressureCallback, callback_args=sensor)
+pressureSub = rospy.Subscriber("pressure_sensor", Float64, pressureCallback, callback_args=sensor)
 # Get distance travelled from IMU
 distanceSub = rospy.Subscriber("displacement_sensor", Float64MultiArray, distanceCallback, callback_args=sensor)
 
@@ -315,8 +315,6 @@ def slalom(sensor, thrusterPub, cvDict):
     changeDepth(1, sensor, thrusterPub)
 
 
-
-
 def style_through_gate(sensor, thrusterPub):
   # Move through the gate with style
   start_angle = sensor["angles"].copy()
@@ -391,7 +389,7 @@ def main():
       move("forward", sensor, thrusterPub, move_distance)
   turn(angleCorrection)
   followThePath()
-  # TODO: Add code for travel to task 2 
+  # Travel to task 2
   for i in range(20):
     bboxes = cv(sensor)
     depth_map_front = depthMapFront(sensor)
