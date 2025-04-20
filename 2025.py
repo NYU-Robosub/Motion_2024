@@ -3,7 +3,7 @@ import rospy
 from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray
 from math import *
 from util import *
-from rospy import sleep
+from time import sleep
 
 rospy.init_node('qualification', anonymous=True)
 
@@ -401,10 +401,10 @@ def main():
       distance = getBBdistance(bb, depth_map_front)
       if closest is None or distance < closest:
         closest = distance
-    if closest < 2:
+    if closest < 1.8:
       break
     else:
-      move("forward", sensor, thrusterPub, 0.5)
+      move("forward", sensor, thrusterPub, 0.3)
 
   slalom(sensor, thrusterPub, cvDict)
   changeDepth(0, sensor, thrusterPub)
