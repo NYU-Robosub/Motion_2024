@@ -17,11 +17,13 @@ step = 0.2
 cvDict = {"pole":0}
 # Flag for whether to pass through the gate with style 
 style = True
+# Assumed pool depth in m
+POOL_DEPTH = 5
 
 # CV_result: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
 # angle: The angles on x-axis, y-axis, and z-axis from gyrometer. Format is 360 degrees. angles[2] is suppose to be the horizontal angle
 # depth: The distance from the bottom of the pool in meters
-# pressure: The distance from water surface in meters.
+
 sensor={}
 
 # Subscribe to the CV output
@@ -34,8 +36,7 @@ depthSub = rospy.Subscriber('depth_sensor', Float64, depthCallback, callback_arg
 
 # Get angle from IMU
 gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
-# Get distance from surface from pressure sensor
-pressureSub = rospy.Subscriber("pressure_sensor", Float64, pressureCallback, callback_args=sensor)
+
 # Get distance travelled from IMU
 distanceSub = rospy.Subscriber("displacement_sensor", Float64MultiArray, distanceCallback, callback_args=sensor)
 
@@ -214,8 +215,8 @@ def alignVertical(obj):
       if sensor.get("depth") > 0.2 and not reachedBottom:
         # Have not reached bottom of pool before, so search by going down.
         move("down", sensor, thrusterPub)
-      elif sensor.get("pressure") > 0.3:
-        # Have reached bottom of pool, so search by going up.
+      elif sensor.get("depth") < POOL_DEPTH:
+        # depth is now smaller than 0.2, so it reached bottom
         reachedBottom = True
         move("up", sensor, thrusterPub)
       else:

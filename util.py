@@ -13,12 +13,15 @@ TEMP_T = 45
 LEAK_T = 10
 
 # initial value for depth and pressure, added for changeDepth function
-INIT_DEPTH = 1
-INIT_PRESSURE = 0
+#INIT_DEPTH = 1
+#INIT_PRESSURE = 0
 
 # constants for image size
 IMG_WIDTH = 640
 IMG_HEIGHT = 480
+
+# Assumed pool depth in m
+POOL_DEPTH = 5 
 
 def unflatten(data, length=5):
   # Convert the CV data to a list of list
@@ -122,12 +125,12 @@ def getDepth(depthmap):
     cent_matrix = dmap[srow:erow, scol:ecol]
 
     return cent_matrix.mean() #distance in float
-
+'''
 def pressureCallback(data, sensor):
   # Set the distance from the surface of the water in meter
   print("Pressure updated")
   sensor["pressure"] = float(data.data)
-  
+'''
 
 def gyroCallback(data, args):
   sensor = args[0]
@@ -193,7 +196,8 @@ def leakCallback(data, args):
 def endRun(sensor, thrusterPub):
   # Make the robot move to the surface and end the program.
   print("Ending run")
-  while sensor.get("pressure") > 0.1:
+  while sensor.get("depth") < POOL_DEPTH:
+    move("up", sensor, thrusterPub)  
     pubMsg = Int32MultiArray()
     pubMsg.data=[2, 400]
     thrusterPub.publish(pubMsg)
@@ -204,21 +208,16 @@ def endRun(sensor, thrusterPub):
 
 def changeDepth(target, sensor, thrusterPub):
   print(f"Changing depth to {target} meters")
+  cur_depth = sensor.get("depth")
   # Change the depth to target meters above the bottom of the pool. Depth from camera being used
-  # If target is negative or 0, the target is meter below the top of the pool. Pressure sensor being used.
   #initial_depth = 0
-  if target > 0:
-    while abs(sensor.get("depth", INIT_DEPTH ) - target) > 0.1:
-      if sensor.get("depth", INIT_DEPTH) > target:
-        move("down", sensor, thrusterPub, sensor.get("depth", INIT_DEPTH) - target)
-      else:
-        move("up", sensor, thrusterPub, target - sensor.get("depth", INIT_DEPTH))
-  else:
-    while abs(sensor.get("pressure", INIT_PRESSURE)-abs(target)) > 0.1:
-      if sensor.get("pressure", INIT_PRESSURE) < abs(target):
-        move("down", sensor, thrusterPub, abs(target) - sensor.get("pressure", INIT_PRESSURE))
-      else:
-        move("up", sensor, thrusterPub, sensor.get("pressure", INIT_PRESSURE) - abs(target))
+  if target > POOL_DEPTH or target < 0:
+    print("Invalid target, out of range")
+    return -1
+  if sensor.get("depth") > target:
+    move("down", sensor, thrusterPub, sensor.get("depth") - target) 
+  elif sensor.get("depth") < target:
+    move("up", sensor, thrusterPub, target - sensor.get("depth")) 
   print("Finished changing depth")
 
 
@@ -525,7 +524,7 @@ def PIDturn(sensor, target, thrusterPub):
 
 def PIDdepth(sensor, target, thrusterPub):
     # Move up the target distance. target can be negative
-    start = sensor.get("depth", INIT_DEPTH)
+    start = sensor.get("depth")
     target = start + target
     time_prev = None
     e_prev = None

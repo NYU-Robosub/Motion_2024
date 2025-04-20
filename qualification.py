@@ -38,7 +38,7 @@ thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
 
 #Subscribing to the depth sensor
 depthSub = rospy.Subscriber('depth_sensor', Float64, depthCallback, callback_args=sensor)
-pressureSub = rospy.Subscriber('pressure_sensor', Float64, pressureCallback, callback_args=sensor)
+#pressureSub = rospy.Subscriber('pressure_sensor', Float64, pressureCallback, callback_args=sensor)
 
 # Subscribing to IMU to get angle
 gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
