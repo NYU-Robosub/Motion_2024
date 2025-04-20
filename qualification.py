@@ -38,7 +38,7 @@ thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
 
 #Subscribing to the depth sensor
 depthSub = rospy.Subscriber('depth_sensor', Float64, depthCallback, callback_args=sensor)
-pressureSub = rospy.Subscriber('pressure_sensor', Float64, pressureCallback, callback_args=sensor)
+#pressureSub = rospy.Subscriber('pressure_sensor', Float64, pressureCallback, callback_args=sensor)
 
 # Subscribing to IMU to get angle
 gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
@@ -101,7 +101,7 @@ def aroundMarker():
     move("forward", sensor, thrusterPub, distance=distance_from_marker[0]-1)
   else:
     print("Error: Cannot get distance from marker after aligning marker")
-    changeDepth(0, sensor, thrusterPub)
+    surfacing(sensor, thrusterPub)
     exit()
   alignMarker(0.8) 
 
@@ -111,7 +111,7 @@ def aroundMarker():
     move("forward", sensor, thrusterPub, distance=distanceMoved[0])
   else:
     print("Error: Cannot get distance from marker after aligning marker to 0.8")
-    changeDepth(0, sensor, thrusterPub)
+    surfacing(sensor, thrusterPub)
     exit()
 
   turn(90, sensor, thrusterPub)
@@ -134,7 +134,7 @@ def aroundMarker():
     move("forward", sensor, thrusterPub, distance=distance_from_marker[0])
   else:
     print("Error: Cannot get distance from marker after aligning marker to 0.8")
-    changeDepth(0, sensor, thrusterPub)
+    surfacing(sensor, thrusterPub)
     exit()
 
   turn(90, sensor, thrusterPub)
@@ -169,8 +169,8 @@ def main():
   correction_angle, distance_to_move = gateAngleCorrection(distance_from_pole, angle_from_left, angle_difference)
   # move through the gate 
   move("forward", sensor, thrusterPub, distance=distance_to_move + through_gate)
-
   print("Finished the qualification task.") 
+  surfacing(sensor, thrusterPub)
 
 if __name__ == "__main__":
   main()
