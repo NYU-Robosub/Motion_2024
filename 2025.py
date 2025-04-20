@@ -309,11 +309,10 @@ def slalom(sensor, thrusterPub, cvDict):
     print(f"Pointing to the center of set {i+1} poles")
 
     angleCorrection, distanceToMove = gateAngleCorrection([leftPole.distance, rightPole.distance], angleFromLeftPole, angleDifference, gate_width)
-    changeDepth(0.3, sensor, thrusterPub)
     move("forward", sensor, thrusterPub, distance=distanceToMove)
     turn(angleCorrection)
     move("forward", sensor, thrusterPub, distance=0.5)
-    changeDepth(-1, sensor, thrusterPub)
+    changeDepth(1, sensor, thrusterPub)
 
 
 
@@ -393,12 +392,25 @@ def main():
   turn(angleCorrection)
   followThePath()
   # TODO: Add code for travel to task 2 
+  for i in range(20):
+    bboxes = cv(sensor)
+    depth_map_front = depthMapFront(sensor)
+    redPipeBbs = findObject("redPipe", bboxes, cvDict)
+    closest = None
+    for bb in redPipeBbs:
+      distance = getBBdistance(bb, depth_map_front)
+      if closest is None or distance < closest:
+        closest = distance
+    if closest < 2:
+      break
+    else:
+      move("forward", sensor, thrusterPub, 0.5)
+
   slalom(sensor, thrusterPub, cvDict)
   changeDepth(0, sensor, thrusterPub)
 
 
 if __name__ == "__main__":
-  
   wait_time = input("Start the program in x seconds: ")
   sleep(int(wait_time))
   main()
