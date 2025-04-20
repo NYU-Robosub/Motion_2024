@@ -332,7 +332,7 @@ def main():
 
   followThePath()
   buoy(targetClass)
-  changeDepth(0, sensor, thrusterPub)
+  surfacing(sensor, thrusterPub)
 
 
 if __name__ == "__main__":

@@ -220,6 +220,27 @@ def changeDepth(target, sensor, thrusterPub):
     move("up", sensor, thrusterPub, target - sensor.get("depth")) 
   print("Finished changing depth")
 
+def surfacing(sensor, thrusterPub):
+
+  print("Surfacing begin")
+  tolerance = 0.1 # 10 cm tolerance
+  prev_depth = sensor.get("depth")
+  attempts = 0
+
+  while attempts < 15: # Max attemp 15
+    move("up", sensor, thrusterPub, 0.3) #move up 30 cm
+    time.sleep(0.5)
+
+    new_depth = sensor.get("depth")
+    #if the change in distance is within tolerance, the robot surfaced
+    if abs(new_depth - prev_depth) < tolerance:  
+      print(f"Surfaced at depth: {new_depth}")
+      return True
+    prev_depth = new_depth
+    attempts += 1
+  print("Failed to surface within the allowed attempts.")
+  return False
+
 
 def turn(degree, sensor, thrusterPub):
   # Turn degree clockwise. Does not support negative

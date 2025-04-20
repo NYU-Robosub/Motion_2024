@@ -309,7 +309,7 @@ def slalom(sensor, thrusterPub, cvDict):
     move("forward", sensor, thrusterPub, distance=distanceToMove)
     turn(angleCorrection)
     move("forward", sensor, thrusterPub, distance=0.5)
-    changeDepth(-1, sensor, thrusterPub)
+    changeDepth(1, sensor, thrusterPub)
 
 
 
@@ -390,7 +390,7 @@ def main():
   turn(angleCorrection)
   followThePath()
   slalom(sensor, thrusterPub, cvDict)
-  changeDepth(0, sensor, thrusterPub)
+  surfacing(sensor, thrusterPub)
 
 
 if __name__ == "__main__":
