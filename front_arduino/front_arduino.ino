@@ -71,7 +71,7 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
   }
   else if (msg.data[0] == 0)
   {
-    if (msg.data[1] =< 0)
+    if (msg.data[1] <= 0)
     {
       goBackward(abs(msg.data[1]));
     }
