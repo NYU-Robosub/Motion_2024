@@ -104,11 +104,13 @@ def move(direction, sensor, thrusterPub, distance=0.2):
     return
 
 
-def depthCallback(data, sensor):
+def depthCallback(depth_msg, sensor):
   # Set the distance from the bottom of the pool in meter
   print("Depth updated")
-  #2d array
-  sensor["depth"] = getDepth(unflatten(list(data.data), length=IMG_WIDTH))
+
+  depth_matrix = np.array(depth_msg.data).reshape((720, 1280)) #height, width  
+
+  sensor["depth"] = getDepth(depth_matrix)
 
 def getDepth(depthmap):
     dmap = np.array(depthmap)

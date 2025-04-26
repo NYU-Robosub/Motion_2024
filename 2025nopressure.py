@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import rospy
-from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray, Bool
+from std_msgs.msg import Float64MultiArray, Float32MultiArray, Int32MultiArray, Bool
 from math import *
 from util import *
 from rospy import sleep
@@ -32,7 +32,7 @@ cvBottomSUb = rospy.Subscriber('CV_bottom', Float64MultiArray, cvBottomCallback,
 
 thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
 # Get distance from bottom from bottom camera
-depthSub = rospy.Subscriber('depth_sensor', Float64, depthCallback, callback_args=sensor)
+depthSub = rospy.Subscriber('depth_sensor', Float32MultiArray, depthCallback, callback_args=sensor)
 
 # Get angle from IMU
 gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
@@ -414,4 +414,5 @@ def main():
 
 
 if __name__ == "__main__":
+  
   main()
