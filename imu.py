@@ -10,17 +10,20 @@ Download module from https://github.com/LORD-MicroStrain/MSCL/blob/master/HowToU
 """
 
 from win64_mscl import mscl
-# import rospy
-# from std_msgs.msg import Float64MultiArray
+import rospy
+from std_msgs.msg import Float64MultiArray
 import math
+import argparse
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--Test", action="store_true")
+args = parser.parse_args()
 
-TEST = True
+TEST = args.Test
 
 port = "COM4"
 baud = 115200
 
-print()
 #create the connection object with port and baud rate
 connection = mscl.Connection.Serial(port, baud)
 
@@ -33,7 +36,6 @@ if TEST:
   print(success)
   print(activeChs)
 
-exit()
 
 imuChs = mscl.MipChannels()
 # Add channel for change in velocity, unit is g*s

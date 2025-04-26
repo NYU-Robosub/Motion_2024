@@ -55,26 +55,26 @@ void goBackward(const int value)
 
 void goUpDown(const int value)
 {
-  trusterVFL.writeMicroseconds(noMove + value);
-  trusterVBR.writeMicroseconds(noMove+ value);
-  trusterVBL.writeMicroseconds(noMove - value);
-  trusterVFR.writeMicroseconds(noMove - value);
+  trusterVFL.writeMicroseconds(noMove - value);
+  trusterVBR.writeMicroseconds(noMove - value);
+  trusterVBL.writeMicroseconds(noMove + value);
+  trusterVFR.writeMicroseconds(noMove + value);
 }
 
 void pitch(const int value)
 {
-  trusterVFL.writeMicroseconds(noMove + value);
-  trusterVBR.writeMicroseconds(noMove - value);
-  trusterVBL.writeMicroseconds(noMove - value);
-  trusterVFR.writeMicroseconds(noMove + value);
+  trusterVFL.writeMicroseconds(noMove - value);
+  trusterVBR.writeMicroseconds(noMove + value);
+  trusterVBL.writeMicroseconds(noMove + value);
+  trusterVFR.writeMicroseconds(noMove - value);
 }
 
 void roll(const int value)
 {
-  trusterVFL.writeMicroseconds(noMove + value);
-  trusterVBR.writeMicroseconds(noMove - value);
-  trusterVBL.writeMicroseconds(noMove + value);
-  trusterVFR.writeMicroseconds(noMove - value);
+  trusterVFL.writeMicroseconds(noMove - value);
+  trusterVBR.writeMicroseconds(noMove + value);
+  trusterVBL.writeMicroseconds(noMove - value);
+  trusterVFR.writeMicroseconds(noMove + value);
 }
 
 void motorCallback(const std_msgs::Int32MultiArray& msg)
@@ -87,7 +87,18 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
   {
     msg.data[1] = backward_max
   }
-  if (msg.data[0] == 1)
+  if (msg.data[0] == 0)
+  {
+    if (msg.data[1] >= 0)
+    {
+      goForward(msg.data[1]);
+    }
+    if (msg.data[1] <= 0)
+    {
+      goBackward(abs(msg.data[1]))
+    }
+  }
+  else if (msg.data[0] == 1)
   {
     if (msg.data[1] > 0)
     {
@@ -101,22 +112,6 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
     {
       turnLeft(0);
       turnRight(0);
-    }
-  }
-  else if (msg.data[0] == 0)
-  {
-    if (msg.data[1] > 0)
-    {
-      goForward(msg.data[1]);
-    }
-    else if (msg.data[1] < 0)
-    {
-      goBackward(abs(msg.data[1]))
-    }
-    else
-    {
-      goBackward(0);
-      goForward(0);
     }
   }
   else if (msg.data[0] == 2)
@@ -158,6 +153,12 @@ void setup() {
   trusterVBL.writeMicroseconds(1500);
   trusterVBR.writeMicroseconds(1500);
   delay(7000); // delay to allow the ESC to recognize the stopped signal
+  Serial.begin(9600);
   node_handle.initNode();
   node_handle.subscribe(motor_subscriber);
+}
+
+void loop() {
+  node_handle.spinOnce();
+  delay(1);
 }

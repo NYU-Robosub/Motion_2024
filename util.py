@@ -10,7 +10,6 @@ import numpy as np
 
 # Threshold for temperature and moisture
 TEMP_T = 45
-LEAK_T = 10
 
 # initial value for depth and pressure, added for changeDepth function
 #INIT_DEPTH = 1
@@ -184,11 +183,11 @@ def leakCallback(data, args):
   sensor = args[0]
   thrusterPub = args[1]
   print("Leak updated")
-  leak_val = float(data.data)
+  leak_val = bool(data.data)
   sensor['leak'] = leak_val
   # Callback function for the leak sensor subscriber
   sensor['leak'] = data # data is float
-  if leak_val > LEAK_T: # if data is greater than the threshold
+  if leak_val: # if data is greater than the threshold
     print("Leak detected")
     endRun(sensor, thrusterPub)
 

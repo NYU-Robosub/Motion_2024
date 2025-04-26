@@ -21,7 +21,7 @@
 # Computer vision: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
 import rospy
 from rospy import sleep
-from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray
+from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray, Bool
 from util import *
 
 
@@ -44,7 +44,7 @@ depthSub = rospy.Subscriber('depth_sensor', Float64, depthCallback, callback_arg
 gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
 
 # Subscribing to leak sensor and temperature sensor for emergency exit.
-leakSub = rospy.Subscriber('leak_sensor', Float64, leakCallback, callback_args=(sensor, thrusterPub))
+leakSub = rospy.Subscriber('leak_sensor', Bool, leakCallback, callback_args=(sensor, thrusterPub))
 temperatureSub = rospy.Subscriber('temperature_sensor', Float64, temperatureCallback, callback_args=(sensor, thrusterPub))
 
 # Subscribe to IMU to get distance

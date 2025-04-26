@@ -13,7 +13,7 @@ distanceSub = rospy.Subscriber("displacement_sensor", Float64MultiArray, distanc
 depthSub = rospy.Subscriber('depth_sensor', Float64MultiArray, depthCallback, callback_args=sensor)
 
 while True:
-    direction = input("Type f for moving forward, b for moving backward, u for moving up, d for moving down, l for turning left, or r for turning right. Typing anything else will terminate the program.\n")
+    direction = input("Type f for moving forward, b for moving backward, u for moving up, d for moving down, l for turning left, r for turning right, s for stoping all thrusters. Typing anything else will terminate the program.\n")
     distance = input("Enter the distance or angle: ")
     direction = direction.upper()
     if direction == "F":
@@ -28,5 +28,11 @@ while True:
         move("left", sensor, thrusterPub, distance)
     elif direction == "R":
         move("right", sensor, thrusterPub, distance)
+    elif direction == "S":
+        pubMsg = Int32MultiArray()
+        pubMsg.data=[0, 0]
+        thrusterPub.publish(pubMsg)
+        pubMsg.data=[2, 0]
+        thrusterPub.publish(pubMsg)
     else:
         break
