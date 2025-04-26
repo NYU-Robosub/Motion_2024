@@ -47,11 +47,11 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
 {
   if (msg.data[1] > forward_max)
   {
-    msg.data[1] = forward_max
+    msg.data[1] = forward_max;
   }
   if (msg.data[1] < backward_max)
   {
-    msg.data[1] = backward_max
+    msg.data[1] = backward_max;
   }
   if (msg.data[0] == 1)
   {
@@ -61,7 +61,7 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
     }
     else if (msg.data[1] < 0)
     {
-      turnLeft(abs(msg.data[1]))
+      turnLeft(abs(msg.data[1]));
     }
     else
     {
@@ -73,7 +73,7 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
   {
     if (msg.data[1] =< 0)
     {
-      goBackward(abs(msg.data[1]))
+      goBackward(abs(msg.data[1]));
     }
   }
 }
@@ -82,7 +82,7 @@ ros::NodeHandle nh;
 std_msgs::Bool leak_val;
 bool leak;
 
-ros::Publisher leak("leak_sensor", &leak_val);
+ros::Publisher leak_pub("leak_sensor", &leak_val);
 ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("thruster", &motorCallback);
 
 
@@ -103,14 +103,14 @@ void setup() {
   delay(7000); // delay to allow the ESC to recognize the stopped signal
   
   // Turn on light
-  analogWrite(light1_pin, brightness)
-  analogWrite(light2_pin, brightness)
+  analogWrite(light1_pin, brightness);
+  analogWrite(light2_pin, brightness);
 
   // Set up ROS node
   Serial.begin(9600);
 
   nh.initNode();
-  nh.advertise(leak);
+  nh.advertise(leak_pub);
   nh.subscribe(motor_subscriber);
 }
 
@@ -120,7 +120,7 @@ void loop() {
   leak_val.data = leak;
   
   
-  leak.publish(&leak_val);
+  leak_pub.publish(&leak_val);
   // depth.publish(&depth_val);
   nh.spinOnce();
   delay(10);
