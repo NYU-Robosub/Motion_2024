@@ -116,8 +116,8 @@ void setup() {
 
 void loop() {
   //Measure force from sensor
-  leak = digitalRead(leak_pin)
-  leak_val.data = leak
+  leak = digitalRead(leak_pin);
+  leak_val.data = leak;
   
   
   leak.publish(&leak_val);
