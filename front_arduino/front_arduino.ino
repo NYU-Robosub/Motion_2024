@@ -90,7 +90,7 @@ bool leak;
 int temperature;
 
 ros::Publisher leak_pub("leak_sensor", &leak_val);
-ros::Publisher temperature_pub("temperature_sensor", &temp_val)
+ros::Publisher temperature_pub("temperature_sensor", &temp_val);
 ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("thruster", &motorCallback);
 
 
