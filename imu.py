@@ -10,6 +10,8 @@ Download module from https://github.com/LORD-MicroStrain/MSCL/blob/master/HowToU
 """
 
 # from win64_mscl import mscl
+import sys
+sys.path.append('./linux_mscl/')
 from linux_mscl import mscl
 import rospy
 from std_msgs.msg import Float64MultiArray
