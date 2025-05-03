@@ -119,7 +119,7 @@ void setup() {
 
   nh.initNode();
   nh.advertise(leak_pub);
-  nh.advertise(temperature_pub)
+  nh.advertise(temperature_pub);
   nh.subscribe(motor_subscriber);
 }
 
