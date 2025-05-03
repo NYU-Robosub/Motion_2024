@@ -10,7 +10,7 @@ if _swig_python_version_info < (2, 7, 0):
 
 # Import the low-level C/C++ module
 if __package__ or "." in __name__:
-    from linux_mscl import _mscl
+    from . import _mscl
 else:
     import _mscl
 
