@@ -8,13 +8,15 @@ from sys import version_info as _swig_python_version_info
 if _swig_python_version_info < (2, 7, 0):
     raise RuntimeError("Python 2.7 or later required")
 
-# Import the low-level C/C++ module
-# if __package__ or "." in __name__:
-#     from . import _mscl
-# else:
-#     import _mscl
+import os
+cwd = os.getcwd()
 
-import _mscl
+# Import the low-level C/C++ module
+if __package__ or "." in __name__:
+    from . import _mscl
+else:
+    import _mscl
+
 
 try:
     import builtins as __builtin__
