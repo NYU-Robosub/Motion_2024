@@ -42,6 +42,7 @@ distanceSub = rospy.Subscriber("displacement_sensor", Float64MultiArray, distanc
 
 # Leak sensor
 leakSub = rospy.Subscriber('leak_sensor', Bool, leakCallback, callback_args=(sensor, thrusterPub))
+temperatureSub = rospy.Subscriber('temperature_sensor', Float64, temperatureCallback, callback_args=(sensor, thrusterPub))
 
 def alignPath(path):
   # First place the path at the center of the image.

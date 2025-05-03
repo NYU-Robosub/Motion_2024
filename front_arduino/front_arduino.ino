@@ -4,13 +4,18 @@
 #include <std_msgs/Bool.h>
 #include <Servo.h>
 #include <std_msgs/Int32MultiArray.h>
+#include <std_msgs/Float64.h>
+#include <DHT11.h>
+
 byte leak_pin = 1;
+byte temperature_pin = 2
 byte light1_pin = 6;
 byte light2_pin = 9;
 byte trusterPinBL= 10;
 byte trusterPinBR = 11;
 Servo trusterBL;
 Servo trusterBR;
+DHT11 dht11(temperature_pin);
 
 // Signal value for truster to move forward or backward
 int forward_max = 200; 
@@ -80,9 +85,12 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
 
 ros::NodeHandle nh;
 std_msgs::Bool leak_val;
+std_msgs::Float64 temp_val;
 bool leak;
+int temperature;
 
 ros::Publisher leak_pub("leak_sensor", &leak_val);
+ros::Publisher temperature_pub("temperature_sensor", &temp_val)
 ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("thruster", &motorCallback);
 
 
@@ -111,6 +119,7 @@ void setup() {
 
   nh.initNode();
   nh.advertise(leak_pub);
+  nh.advertise(temperature_pub)
   nh.subscribe(motor_subscriber);
 }
 
@@ -118,10 +127,11 @@ void loop() {
   //Measure force from sensor
   leak = digitalRead(leak_pin);
   leak_val.data = leak;
-  
+  temperature = dht11.readTemperature();
+  temp_val.data = temperature;
   
   leak_pub.publish(&leak_val);
-  // depth.publish(&depth_val);
+  temperature_pub.publish(&temp_val);
   nh.spinOnce();
   delay(10);
 }
