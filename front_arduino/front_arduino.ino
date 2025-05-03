@@ -8,7 +8,7 @@
 #include <DHT11.h>
 
 byte leak_pin = 1;
-byte temperature_pin = 2
+byte temperature_pin = 2;
 byte light1_pin = 6;
 byte light2_pin = 9;
 byte trusterPinBL= 10;
