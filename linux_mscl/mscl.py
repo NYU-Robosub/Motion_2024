@@ -10,6 +10,7 @@ if _swig_python_version_info < (2, 7, 0):
 
 import os
 cwd = os.getcwd()
+print(cwd)
 
 # Import the low-level C/C++ module
 if __package__ or "." in __name__:
