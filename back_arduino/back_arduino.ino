@@ -73,11 +73,11 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
 {
   if (msg.data[1] > forward_max)
   {
-    msg.data[1] = forward_max
+    msg.data[1] = forward_max;
   }
   if (msg.data[1] < backward_max)
   {
-    msg.data[1] = backward_max
+    msg.data[1] = backward_max;
   }
   if (msg.data[0] == 0)
   {
@@ -94,7 +94,7 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
     }
     else if (msg.data[1] < 0)
     {
-      turnLeft(abs(msg.data[1]))
+      turnLeft(abs(msg.data[1]));
     }
     else
     {
@@ -104,15 +104,15 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
   }
   else if (msg.data[0] == 2)
   {
-    goUpDown(msg.data[1])
+    goUpDown(msg.data[1]);
   }
   else if (msg.data[0] == 3)
   {
-    pitch(msg.data[1])
+    pitch(msg.data[1]);
   }
   else if (msg.data[0] == 4)
   {
-    roll(msg.data[1])
+    roll(msg.data[1]);
   }
   
 }
