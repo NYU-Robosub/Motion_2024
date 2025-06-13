@@ -11,10 +11,10 @@ Download module from https://github.com/LORD-MicroStrain/MSCL/blob/master/HowToU
 
 # from win64_mscl import mscl
 import mscl
-import rospy
-from std_msgs.msg import Float64MultiArray
+# import rospy
+# from std_msgs.msg import Float64MultiArray
 import math
-import argparseg
+# import argparseg
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--Test", action="store_true")
@@ -48,9 +48,9 @@ node.setActiveChannelFields(mscl.MipTypes.CLASS_AHRS_IMU, imuChs)
 
 node.enableDataStream(mscl.MipTypes.CLASS_AHRS_IMU)
 
-rospy.init_node('IMU_pub', anonymous=True)
-distancePub = rospy.Publisher('displacement_sensor', Float64MultiArray, queue_size=10)
-gyroPub = rospy.Publisher('gyro_sensor', Float64MultiArray, queue_size=10)
+# rospy.init_node('IMU_pub', anonymous=True)
+# distancePub = rospy.Publisher('displacement_sensor', Float64MultiArray, queue_size=10)
+# gyroPub = rospy.Publisher('gyro_sensor', Float64MultiArray, queue_size=10)
 
 # Initial angle, distance, and velocity. Each element represent axis X, Y, Z.
 # Unit is degree
@@ -117,10 +117,10 @@ while True:
 
 
 
-        if not rospy.is_shutdown():
-          angleMsg = Float64MultiArray()
-          angleMsg.data = angles
-          distanceMsg = Float64MultiArray()
-          distanceMsg.data = displacements
-          gyroPub.publish(angleMsg)
-          distancePub.publish(distanceMsg)
+        # if not rospy.is_shutdown():
+        #   angleMsg = Float64MultiArray()
+        #   angleMsg.data = angles
+        #   distanceMsg = Float64MultiArray()
+        #   distanceMsg.data = displacements
+        #   gyroPub.publish(angleMsg)
+        #   distancePub.publish(distanceMsg)
