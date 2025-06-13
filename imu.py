@@ -18,11 +18,12 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--Test", action="store_true")
+parser.add_argument("--port")
 args = parser.parse_args()
 
 TEST = args.Test
 
-port = "COM4"
+port = args.port
 baud = 115200
 
 #create the connection object with port and baud rate
