@@ -24,6 +24,7 @@ args = parser.parse_args()
 TEST = args.Test
 
 port = args.port
+print(f"Port: {port}")
 baud = 115200
 
 #create the connection object with port and baud rate
