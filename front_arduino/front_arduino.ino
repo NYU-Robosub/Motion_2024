@@ -6,6 +6,7 @@
 #include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Float64.h>
 #include <DHT11.h>
+#include <MPU6050.h>
 
 byte leak_pin = 1;
 byte temperature_pin = 2;
@@ -16,6 +17,21 @@ byte trusterPinBR = 11;
 Servo trusterBL;
 Servo trusterBR;
 DHT11 dht11(temperature_pin);
+MPU6050 mpu;
+
+// Timer
+unsigned long timer = 0;
+float timeStep = 0.01;
+
+// Pitch, Roll and Yaw values
+float pitch = 0;
+float roll = 0;
+float yaw = 0;
+
+// Displacement values
+float x_disp = 0;
+float y_disp = 0;
+float z_disp = 0;
 
 // Signal value for truster to move forward or backward
 int forward_max = 200; 
@@ -86,11 +102,16 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
 ros::NodeHandle nh;
 std_msgs::Bool leak_val;
 std_msgs::Float64 temp_val;
+std_msg::Float64MultiArray gyro_val;
+std_msg::Float64MultiArray displacement_val;
+
 bool leak;
 int temperature;
 
 ros::Publisher leak_pub("leak_sensor", &leak_val);
 ros::Publisher temperature_pub("temperature_sensor", &temp_val);
+ros::Publisher gyro_pub("gyro_sensor", &gyro_val);
+ros::Publisher displacement_pub("displacement_sensor", &displacement_val)
 ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("thruster", &motorCallback);
 
 
@@ -121,17 +142,49 @@ void setup() {
   nh.advertise(leak_pub);
   nh.advertise(temperature_pub);
   nh.subscribe(motor_subscriber);
+
+  while(!mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G))
+  {
+    Serial.println("Could not find a valid MPU6050 sensor, check wiring!");
+    delay(500);
+  }
+  mpu.calibrateGyro();
+  mpu.setThreshold(0);
+
+  // Set accelerometer offsets
+  // mpu.setAccelOffsetX();
+  // mpu.setAccelOffsetY();
+  // mpu.setAccelOffsetZ();
 }
 
 void loop() {
-  //Measure force from sensor
+  timer = millis();
+
+  //Measure from sensor
   leak = digitalRead(leak_pin);
   leak_val.data = leak;
   temperature = dht11.readTemperature();
   temp_val.data = temperature;
+  Vector normGyro = mpu.readNormalizeGyro();
+  Vector normAccel = mpu.readNormalizeAccel();
+
+  // Calculate Pitch, Roll and Yaw
+  pitch = pitch + normGyro.YAxis * timeStep;
+  roll = roll + normGyro.XAxis * timeStep;
+  yaw = yaw + normGyro.ZAxis * timeStep;
+  gyro_val.data = [pitch, roll, yaw];
+
+  // Calculate displacement
+  x_disp = x_disp + normAccel.XAxis * timestep;
+  y_disp = y_disp + normAccel.YAxis * timestep;
+  z_disp = z_disp + normAccel.ZAxis * timestep;
+  displacement_val.data = [x_disp, y_disp, z_disp];
   
   leak_pub.publish(&leak_val);
   temperature_pub.publish(&temp_val);
+  gyro_pub.publish(&gyro_val);
+  displacement_pub.publish(&displacement_val);
+
   nh.spinOnce();
-  delay(10);
+  delay((timeStep*1000) - (millis() - timer));
 }
