@@ -25,9 +25,9 @@ MPU6050 mpu(Wire);
 int timer = 0;
 
 // Displacement values
-float x_disp = 0;
-float y_disp = 0;
-float z_disp = 0;
+float x_disp;
+float y_disp;
+float z_disp;
 
 // Signal value for truster to move forward or backward
 // int forward_max = 200; 
