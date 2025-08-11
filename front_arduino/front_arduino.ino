@@ -1,8 +1,8 @@
 // Arduino code for the front arduino
 #include <ros.h>
 #include <std_msgs/Bool.h>
-#include <Servo.h>
-#include <std_msgs/Int32MultiArray.h>
+// #include <Servo.h>
+// #include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/Float32.h>
 #include <DHT11.h>
@@ -12,12 +12,12 @@ byte leak_pin = 1;
 byte temperature_pin = 2;
 byte light1_pin = 6;
 byte light2_pin = 9;
-byte trusterPinBL= 10;
-byte trusterPinBR = 11;
+// byte trusterPinBL= 10;
+// byte trusterPinBR = 11;
 byte imu_SDA = 8;
 byte imu_SCL = 9;
-Servo trusterBL;
-Servo trusterBR;
+// Servo trusterBL;
+// Servo trusterBR;
 DHT11 dht11(temperature_pin);
 MPU6050 mpu;
 
@@ -36,9 +36,9 @@ float y_disp = 0;
 float z_disp = 0;
 
 // Signal value for truster to move forward or backward
-int forward_max = 200; 
-int backward_max = -200;
-int noMove = 1500;
+// int forward_max = 200; 
+// int backward_max = -200;
+// int noMove = 1500;
 
 // Light analog value
 int brightness = 1600;
@@ -111,7 +111,7 @@ ros::Publisher leak_pub("l", &leak_val);
 ros::Publisher temperature_pub("t", &temp_val);
 ros::Publisher gyro_pub("g", &gyro_val);
 ros::Publisher displacement_pub("d", &displacement_val);
-ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("t", &motorCallback);
+// ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("t", &motorCallback);
 
 
 void setup() {
@@ -123,10 +123,10 @@ void setup() {
   pinMode(light2_pin, OUTPUT);
 
   // Setup thrusters
-  trusterBL.attach(trusterPinBL);
-  trusterBR.attach(trusterPinBR);
-  trusterBL.writeMicroseconds(1500);
-  trusterBR.writeMicroseconds(1500);
+  // trusterBL.attach(trusterPinBL);
+  // trusterBR.attach(trusterPinBR);
+  // trusterBL.writeMicroseconds(1500);
+  // trusterBR.writeMicroseconds(1500);
 
   delay(7000); // delay to allow the ESC to recognize the stopped signal
   
@@ -142,7 +142,7 @@ void setup() {
   nh.advertise(temperature_pub);
   nh.advertise(gyro_pub);
   nh.advertise(displacement_pub);
-  nh.subscribe(motor_subscriber);
+  // nh.subscribe(motor_subscriber);
 
   while(!mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G))
   {
