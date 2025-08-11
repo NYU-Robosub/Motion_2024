@@ -23,7 +23,6 @@ MPU6050 mpu;
 
 // Timer
 int timer = 0;
-float timeStep = 0.01;
 
 // Pitch, Roll and Yaw values
 float pitch = 0;
@@ -158,6 +157,7 @@ void setup() {
 }
 
 void loop() {
+  float timeStep = 0.01;
   timer = millis();
 
   //Measure from sensor
