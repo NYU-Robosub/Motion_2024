@@ -1,5 +1,4 @@
 // Arduino code for the front arduino
-
 #include <ros.h>
 #include <std_msgs/Bool.h>
 #include <Servo.h>
@@ -9,16 +8,10 @@
 #include <DHT11.h>
 #include <MPU6050.h>
 
-byte leak_pin = 1;
-byte temperature_pin = 2;
-byte light1_pin = 6;
-byte light2_pin = 9;
-byte trusterPinBL= 10;
-byte trusterPinBR = 11;
-byte imu_SDA = 8;
-byte imu_SCL = 9;
+
 Servo trusterBL;
 Servo trusterBR;
+byte temperature_pin = 2;
 DHT11 dht11(temperature_pin);
 MPU6050 mpu;
 
@@ -108,9 +101,6 @@ std_msgs::Float32 temp_val;
 std_msgs::Float32MultiArray gyro_val;
 std_msgs::Float32MultiArray displacement_val;
 
-bool leak;
-int temperature;
-
 ros::Publisher leak_pub("leak_sensor", &leak_val);
 ros::Publisher temperature_pub("temperature_sensor", &temp_val);
 ros::Publisher gyro_pub("gyro_sensor", &gyro_val);
@@ -120,6 +110,15 @@ ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("thruster", &motorCa
 
 void setup() {
   // put your setup code here, to run once:
+
+  // Pins
+  byte leak_pin = 1;
+  byte light1_pin = 6;
+  byte light2_pin = 9;
+  byte trusterPinBL= 10;
+  byte trusterPinBR = 11;
+  byte imu_SDA = 8;
+  byte imu_SCL = 9;
 
   // Setup pins
   pinMode(leak_pin, INPUT);
@@ -166,6 +165,8 @@ void loop() {
   timer = millis();
 
   //Measure from sensor
+  bool leak;
+  int temperature;
   leak = digitalRead(leak_pin);
   leak_val.data = leak;
   temperature = dht11.readTemperature();
