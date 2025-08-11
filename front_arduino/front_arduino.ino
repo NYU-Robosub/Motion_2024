@@ -106,7 +106,7 @@ ros::Publisher displacement_pub('d', &displacement_val);
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(9600);
+  Serial.begin(57600);
   delay(1000);
   Serial.print(F("Starting setup\n"));
   // Setup pins
@@ -127,11 +127,10 @@ void setup() {
   // byte brightness = 1600;
   digitalWrite(light1_pin, HIGH);
   digitalWrite(light2_pin, HIGH);
-
+  Serial.print(F("Setting up ROS\n"));
   delay(1000);
 
   // Set up ROS node
-  Serial.print(F("Setting up ROS\n"));
   nh.initNode();
   nh.advertise(leak_pub);
   nh.advertise(temperature_pub);

@@ -137,7 +137,7 @@ void setup() {
   trusterVBL.writeMicroseconds(1500);
   trusterVBR.writeMicroseconds(1500);
   delay(7000); // delay to allow the ESC to recognize the stopped signal
-  Serial.begin(9600);
+  Serial.begin(57600);
   node_handle.initNode();
   node_handle.subscribe(motor_subscriber);
 }
