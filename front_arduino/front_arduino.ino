@@ -23,7 +23,7 @@ DHT11 dht11(temperature_pin);
 MPU6050 mpu;
 
 // Timer
-unsigned long timer = 0;
+int timer = 0;
 float timeStep = 0.01;
 
 // Pitch, Roll and Yaw values
