@@ -14,6 +14,8 @@ byte light1_pin = 6;
 byte light2_pin = 9;
 byte trusterPinBL= 10;
 byte trusterPinBR = 11;
+byte imu_SDA = 8;
+byte imu_SCL = 9;
 Servo trusterBL;
 Servo trusterBR;
 DHT11 dht11(temperature_pin);
@@ -102,8 +104,8 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
 ros::NodeHandle nh;
 std_msgs::Bool leak_val;
 std_msgs::Float64 temp_val;
-std_msg::Float64MultiArray gyro_val;
-std_msg::Float64MultiArray displacement_val;
+std_msgs::Float64MultiArray gyro_val;
+std_msgs::Float64MultiArray displacement_val;
 
 bool leak;
 int temperature;
