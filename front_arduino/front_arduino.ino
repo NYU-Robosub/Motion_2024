@@ -23,11 +23,12 @@ MPU6050 mpu(Wire);
 
 // Timer
 int timer = 0;
+float timeStep = 0.01;
 
 // Displacement values
-float x_disp;
-float y_disp;
-float z_disp;
+float x_disp = 0;
+float y_disp = 0;
+float z_disp = 0;
 
 // Signal value for truster to move forward or backward
 // int forward_max = 200; 
@@ -148,7 +149,6 @@ void setup() {
 }
 
 void loop() {
-  float timeStep = 0.01;
   timer = millis();
 
   //Measure from sensor
