@@ -4,6 +4,7 @@
 #include <std_msgs/Bool.h>
 #include <Servo.h>
 #include <std_msgs/Int32MultiArray.h>
+#include <std_msgs/Float64MultiArray.h>
 #include <std_msgs/Float64.h>
 #include <DHT11.h>
 #include <MPU6050.h>
