@@ -23,7 +23,7 @@ MPU6050 mpu(Wire);
 
 // Timer
 int timer = 0;
-float timeStep = 0.01;
+float timeStep = 10; // in ms
 
 // Displacement values
 float x_disp = 0;
@@ -179,5 +179,5 @@ void loop() {
   displacement_pub.publish(&displacement_val);
 
   nh.spinOnce();
-  delay((timeStep*1000) - (millis() - timer));
+  delay((timeStep) - (millis() - timer));
 }
