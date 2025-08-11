@@ -5,8 +5,8 @@
 #include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/Float32.h>
-// #include <DHT11.h>
-#include <MPU6050.h>
+#include <DHT11.h>
+// #include <MPU6050.h>
 
 byte leak_pin = 1;
 byte temperature_pin = 2;
@@ -18,8 +18,8 @@ byte imu_SDA = 8;
 byte imu_SCL = 9;
 Servo trusterBL;
 Servo trusterBR;
-// DHT11 dht11(temperature_pin);
-MPU6050 mpu;
+DHT11 dht11(temperature_pin);
+// MPU6050 mpu;
 
 // Timer
 int timer = 0;
@@ -144,13 +144,13 @@ void setup() {
   nh.advertise(displacement_pub);
   nh.subscribe(motor_subscriber);
 
-  while(!mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G))
-  {
-    Serial.println("Could not find a valid MPU6050 sensor, check wiring!");
-    delay(500);
-  }
-  mpu.calibrateGyro();
-  mpu.setThreshold(0);
+  // while(!mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G))
+  // {
+  //   Serial.println("Could not find a valid MPU6050 sensor, check wiring!");
+  //   delay(500);
+  // }
+  // mpu.calibrateGyro();
+  // mpu.setThreshold(0);
 
   // Set accelerometer offsets
   // mpu.setAccelOffsetX();
@@ -166,24 +166,24 @@ void loop() {
   int temperature;
   leak = digitalRead(leak_pin);
   leak_val.data = leak;
-  // temperature = dht11.readTemperature();
+  temperature = dht11.readTemperature();
   temp_val.data = temperature;
   Vector normGyro = mpu.readNormalizeGyro();
   Vector normAccel = mpu.readNormalizeAccel();
 
   // Calculate Pitch, Roll and Yaw
-  pitch = pitch + normGyro.YAxis * timeStep;
-  roll = roll + normGyro.XAxis * timeStep;
-  yaw = yaw + normGyro.ZAxis * timeStep;
-  float gyro_data[] = {pitch, roll, yaw};
-  gyro_val.data = gyro_data;
+  // pitch = pitch + normGyro.YAxis * timeStep;
+  // roll = roll + normGyro.XAxis * timeStep;
+  // yaw = yaw + normGyro.ZAxis * timeStep;
+  // float gyro_data[] = {pitch, roll, yaw};
+  // gyro_val.data = gyro_data;
 
   // Calculate displacement
-  x_disp = x_disp + normAccel.XAxis * timeStep;
-  y_disp = y_disp + normAccel.YAxis * timeStep;
-  z_disp = z_disp + normAccel.ZAxis * timeStep;
-  float displacement_data[] = {x_disp, y_disp, z_disp};
-  displacement_val.data = displacement_data;
+  // x_disp = x_disp + normAccel.XAxis * timeStep;
+  // y_disp = y_disp + normAccel.YAxis * timeStep;
+  // z_disp = z_disp + normAccel.ZAxis * timeStep;
+  // float displacement_data[] = {x_disp, y_disp, z_disp};
+  // displacement_val.data = displacement_data;
   
   leak_pub.publish(&leak_val);
   temperature_pub.publish(&temp_val);
