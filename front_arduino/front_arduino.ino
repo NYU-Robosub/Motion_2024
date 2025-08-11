@@ -10,8 +10,8 @@
 
 byte leak_pin = 1;
 byte temperature_pin = 2;
-byte light1_pin = 6;
-byte light2_pin = 9;
+byte light1_pin = 3;
+byte light2_pin = 5;
 // byte trusterPinBL= 10;
 // byte trusterPinBR = 11;
 byte imu_SDA = 8;
@@ -125,6 +125,7 @@ void setup() {
   // delay(7000); // delay to allow the ESC to recognize the stopped signal
   
   // Turn on light
+
   byte brightness = 1600;
   analogWrite(light1_pin, brightness);
   analogWrite(light2_pin, brightness);
