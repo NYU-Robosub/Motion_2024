@@ -6,7 +6,7 @@
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/Float32.h>
 #include <DHT11.h>
-// #include <MPU6050.h>
+#include <MPU6050.h>
 
 byte leak_pin = 1;
 byte temperature_pin = 2;
@@ -123,10 +123,10 @@ void setup() {
   pinMode(light2_pin, OUTPUT);
 
   // Setup thrusters
-  trusterBL.attach(trusterPinBL);
-  trusterBR.attach(trusterPinBR);
-  trusterBL.writeMicroseconds(1500);
-  trusterBR.writeMicroseconds(1500);
+  // trusterBL.attach(trusterPinBL);
+  // trusterBR.attach(trusterPinBR);
+  // trusterBL.writeMicroseconds(1500);
+  // trusterBR.writeMicroseconds(1500);
 
   delay(7000); // delay to allow the ESC to recognize the stopped signal
   
