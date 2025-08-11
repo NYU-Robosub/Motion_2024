@@ -120,12 +120,14 @@ void setup() {
   // trusterBL.writeMicroseconds(1500);
   // trusterBR.writeMicroseconds(1500);
 
-  delay(7000); // delay to allow the ESC to recognize the stopped signal
+  // delay(7000); // delay to allow the ESC to recognize the stopped signal
   
   // Turn on light
   byte brightness = 1600;
   analogWrite(light1_pin, brightness);
   analogWrite(light2_pin, brightness);
+
+  delay(5000);
 
   // Set up ROS node
   Serial.begin(9600);
