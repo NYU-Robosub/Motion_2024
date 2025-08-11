@@ -26,9 +26,9 @@ int timer = 0;
 byte timeStep = 10; // in ms
 
 // Displacement values
-float x_disp = 0;
-float y_disp = 0;
-float z_disp = 0;
+short x_disp = 0;
+short y_disp = 0;
+short z_disp = 0;
 
 // Signal value for truster to move forward or backward
 // int forward_max = 200; 
@@ -153,7 +153,7 @@ void loop() {
 
   //Measure from sensor
   bool leak;
-  int temperature;
+  short temperature;
   leak = digitalRead(leak_pin);
   leak_val.data = leak;
   temperature = dht11.readTemperature();
