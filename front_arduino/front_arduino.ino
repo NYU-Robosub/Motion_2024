@@ -5,14 +5,20 @@
 #include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/Float32.h>
-#include <DHT11.h>
+// #include <DHT11.h>
 #include <MPU6050.h>
 
-
+byte leak_pin = 1;
+byte temperature_pin = 2;
+byte light1_pin = 6;
+byte light2_pin = 9;
+byte trusterPinBL= 10;
+byte trusterPinBR = 11;
+byte imu_SDA = 8;
+byte imu_SCL = 9;
 Servo trusterBL;
 Servo trusterBR;
-byte temperature_pin = 2;
-DHT11 dht11(temperature_pin);
+// DHT11 dht11(temperature_pin);
 MPU6050 mpu;
 
 // Timer
@@ -30,6 +36,8 @@ float y_disp = 0;
 float z_disp = 0;
 
 // Signal value for truster to move forward or backward
+int forward_max = 200; 
+int backward_max = -200;
 int noMove = 1500;
 
 // Light analog value
@@ -60,8 +68,6 @@ void goBackward(const int value)
 
 void motorCallback(const std_msgs::Int32MultiArray& msg)
 {
-  int forward_max = 200; 
-  int backward_max = -200;
   if (msg.data[1] > forward_max)
   {
     msg.data[1] = forward_max;
@@ -111,15 +117,6 @@ ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("thruster", &motorCa
 void setup() {
   // put your setup code here, to run once:
 
-  // Pins
-  byte leak_pin = 1;
-  byte light1_pin = 6;
-  byte light2_pin = 9;
-  byte trusterPinBL= 10;
-  byte trusterPinBR = 11;
-  byte imu_SDA = 8;
-  byte imu_SCL = 9;
-
   // Setup pins
   pinMode(leak_pin, INPUT);
   pinMode(light1_pin, OUTPUT);
@@ -167,10 +164,9 @@ void loop() {
   //Measure from sensor
   bool leak;
   int temperature;
-  byte leak_pin = 1;
   leak = digitalRead(leak_pin);
   leak_val.data = leak;
-  temperature = dht11.readTemperature();
+  // temperature = dht11.readTemperature();
   temp_val.data = temperature;
   Vector normGyro = mpu.readNormalizeGyro();
   Vector normAccel = mpu.readNormalizeAccel();
