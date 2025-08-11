@@ -107,11 +107,11 @@ std_msgs::Float32 temp_val;
 std_msgs::Float32MultiArray gyro_val;
 std_msgs::Float32MultiArray displacement_val;
 
-ros::Publisher leak_pub(F("leak_sensor"), &leak_val);
-ros::Publisher temperature_pub(F("temperature_sensor"), &temp_val);
-ros::Publisher gyro_pub(F("gyro_sensor"), &gyro_val);
-ros::Publisher displacement_pub(F("displacement_sensor"), &displacement_val);
-ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber(F("thruster"), &motorCallback);
+ros::Publisher leak_pub("leak_sensor", &leak_val);
+ros::Publisher temperature_pub("temperature_sensor", &temp_val);
+ros::Publisher gyro_pub("gyro_sensor", &gyro_val);
+ros::Publisher displacement_pub("displacement_sensor", &displacement_val);
+ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("thruster", &motorCallback);
 
 
 void setup() {
@@ -146,7 +146,6 @@ void setup() {
 
   while(!mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G))
   {
-    Serial.println(F("Could not find a valid MPU6050 sensor, check wiring!"));
     delay(500);
   }
   mpu.calibrateGyro();
