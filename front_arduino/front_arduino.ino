@@ -19,7 +19,7 @@ byte imu_SCL = 9;
 // Servo trusterBL;
 // Servo trusterBR;
 DHT11 dht11(temperature_pin);
-MPU6050 mpu(Wire);
+// MPU6050 mpu(Wire);
 
 // Timer
 int timer = 0;
@@ -141,14 +141,14 @@ void setup() {
   // nh.subscribe(motor_subscriber);
 
   // Setup IMU
-  Wire.begin();
-  byte status = mpu.begin();
-  if (!status){
-    analogWrite(light1_pin, 0);
-    analogWrite(light2_pin, 0);
-  }
-  delay(1000);
-  mpu.calcOffsets(true,true);
+  // Wire.begin();
+  // byte status = mpu.begin();
+  // if (!status){
+  //   analogWrite(light1_pin, 0);
+  //   analogWrite(light2_pin, 0);
+  // }
+  // delay(1000);
+  // mpu.calcOffsets(true,true);
 
 }
 
@@ -165,22 +165,22 @@ void loop() {
   leak_pub.publish(&leak_val);
   temperature_pub.publish(&temp_val);
 
-  mpu.update();
+  // mpu.update();
 
-  // Calculate Pitch, Roll and Yaw
-  float gyro_data[] = {mpu.getAngleX(), mpu.getAngleY(), mpu.getAngleZ()};
-  gyro_val.data = gyro_data;
+  // // Calculate Pitch, Roll and Yaw
+  // float gyro_data[] = {mpu.getAngleX(), mpu.getAngleY(), mpu.getAngleZ()};
+  // gyro_val.data = gyro_data;
 
-  // Calculate displacement
-  x_disp = x_disp + mpu.getAccX() * timeStep;
-  y_disp = y_disp + mpu.getAccY() * timeStep;
-  z_disp = z_disp + mpu.getAccZ() * timeStep;
-  float displacement_data[] = {x_disp, y_disp, z_disp};
-  displacement_val.data = displacement_data;
+  // // Calculate displacement
+  // x_disp = x_disp + mpu.getAccX() * timeStep;
+  // y_disp = y_disp + mpu.getAccY() * timeStep;
+  // z_disp = z_disp + mpu.getAccZ() * timeStep;
+  // float displacement_data[] = {x_disp, y_disp, z_disp};
+  // displacement_val.data = displacement_data;
   
   
-  gyro_pub.publish(&gyro_val);
-  displacement_pub.publish(&displacement_val);
+  // gyro_pub.publish(&gyro_val);
+  // displacement_pub.publish(&displacement_val);
 
   nh.spinOnce();
   delay((timeStep) - (millis() - timer));
