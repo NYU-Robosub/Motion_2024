@@ -114,7 +114,7 @@ int temperature;
 ros::Publisher leak_pub("leak_sensor", &leak_val);
 ros::Publisher temperature_pub("temperature_sensor", &temp_val);
 ros::Publisher gyro_pub("gyro_sensor", &gyro_val);
-ros::Publisher displacement_pub("displacement_sensor", &displacement_val)
+ros::Publisher displacement_pub("displacement_sensor", &displacement_val);
 ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("thruster", &motorCallback);
 
 
@@ -144,6 +144,8 @@ void setup() {
   nh.initNode();
   nh.advertise(leak_pub);
   nh.advertise(temperature_pub);
+  nh.advertise(gyro_pub);
+  nh.advertise(displacement_pub);
   nh.subscribe(motor_subscriber);
 
   while(!mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G))
