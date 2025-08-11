@@ -6,7 +6,6 @@
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/Float32.h>
 #include <DHT11.h>
-// #include <MPU6050.h>
 #include <MPU6050_light.h>
 
 byte leak_pin = 1;
@@ -39,9 +38,6 @@ float z_disp = 0;
 // int forward_max = 200; 
 // int backward_max = -200;
 // int noMove = 1500;
-
-// Light analog value
-int brightness = 1600;
 
 
 // void turnLeft(const int value)
@@ -131,6 +127,7 @@ void setup() {
   delay(7000); // delay to allow the ESC to recognize the stopped signal
   
   // Turn on light
+  int brightness = 1600;
   analogWrite(light1_pin, brightness);
   analogWrite(light2_pin, brightness);
 
@@ -153,17 +150,6 @@ void setup() {
   delay(1000);
   mpu.calcOffsets(true,true);
 
-  // while(!mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G))
-  // {
-  //   delay(500);
-  // }
-  // mpu.calibrateGyro();
-  // mpu.setThreshold(0);
-
-  // Set accelerometer offsets
-  // mpu.setAccelOffsetX();
-  // mpu.setAccelOffsetY();
-  // mpu.setAccelOffsetZ();
 }
 
 void loop() {
@@ -181,9 +167,6 @@ void loop() {
   temperature_pub.publish(&temp_val);
 
   mpu.update();
-
-  // Vector normGyro = mpu.readNormalizeGyro();
-  // Vector normAccel = mpu.readNormalizeAccel();
 
   // Calculate Pitch, Roll and Yaw
   float gyro_data[] = {mpu.getAngleX(), mpu.getAngleY(), mpu.getAngleZ()};
