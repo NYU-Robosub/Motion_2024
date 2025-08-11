@@ -6,7 +6,8 @@
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/Float32.h>
 #include <DHT11.h>
-#include <MPU6050.h>
+// #include <MPU6050.h>
+#include <MPU6050_light.h>
 
 byte leak_pin = 1;
 byte temperature_pin = 2;
@@ -19,7 +20,7 @@ byte imu_SCL = 9;
 // Servo trusterBL;
 // Servo trusterBR;
 DHT11 dht11(temperature_pin);
-MPU6050 mpu;
+MPU6050 mpu(Wire);
 
 // Timer
 int timer = 0;
@@ -143,12 +144,21 @@ void setup() {
   nh.advertise(displacement_pub);
   // nh.subscribe(motor_subscriber);
 
-  while(!mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G))
-  {
-    delay(500);
+  Wire.begin();
+  byte status = mpu.begin();
+  if (!status){
+    analogWrite(light1_pin, 0);
+    analogWrite(light2_pin, 0);
   }
-  mpu.calibrateGyro();
-  mpu.setThreshold(0);
+  delay(1000);
+  mpu.calcOffsets(true,true);
+
+  // while(!mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G))
+  // {
+  //   delay(500);
+  // }
+  // mpu.calibrateGyro();
+  // mpu.setThreshold(0);
 
   // Set accelerometer offsets
   // mpu.setAccelOffsetX();
@@ -167,25 +177,26 @@ void loop() {
   leak_val.data = leak;
   temperature = dht11.readTemperature();
   temp_val.data = temperature;
-  Vector normGyro = mpu.readNormalizeGyro();
-  Vector normAccel = mpu.readNormalizeAccel();
+  leak_pub.publish(&leak_val);
+  temperature_pub.publish(&temp_val);
+
+  mpu.update()
+
+  // Vector normGyro = mpu.readNormalizeGyro();
+  // Vector normAccel = mpu.readNormalizeAccel();
 
   // Calculate Pitch, Roll and Yaw
-  pitch = pitch + normGyro.YAxis * timeStep;
-  roll = roll + normGyro.XAxis * timeStep;
-  yaw = yaw + normGyro.ZAxis * timeStep;
-  float gyro_data[] = {pitch, roll, yaw};
+  float gyro_data[] = {mpu.getAngleX(), mpu.getAngleY(), mpu.getAngleZ()};
   gyro_val.data = gyro_data;
 
   // Calculate displacement
-  x_disp = x_disp + normAccel.XAxis * timeStep;
-  y_disp = y_disp + normAccel.YAxis * timeStep;
-  z_disp = z_disp + normAccel.ZAxis * timeStep;
+  x_disp = x_disp + mpu.getAccX() * timeStep;
+  y_disp = y_disp + mpu.getAccY() * timeStep;
+  z_disp = z_disp + mpu.getAccZ() * timeStep;
   float displacement_data[] = {x_disp, y_disp, z_disp};
   displacement_val.data = displacement_data;
   
-  leak_pub.publish(&leak_val);
-  temperature_pub.publish(&temp_val);
+  
   gyro_pub.publish(&gyro_val);
   displacement_pub.publish(&displacement_val);
 
