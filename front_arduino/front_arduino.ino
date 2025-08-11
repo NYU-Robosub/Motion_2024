@@ -14,8 +14,6 @@ byte light1_pin = 3;
 byte light2_pin = 5;
 // byte trusterPinBL= 10;
 // byte trusterPinBR = 11;
-byte imu_SDA = 8;
-byte imu_SCL = 9;
 // Servo trusterBL;
 // Servo trusterBR;
 DHT11 dht11(temperature_pin);
@@ -125,15 +123,15 @@ void setup() {
   // delay(7000); // delay to allow the ESC to recognize the stopped signal
   
   // Turn on light
-
+  Serial.print(F("Turning on light"));
   byte brightness = 1600;
   analogWrite(light1_pin, brightness);
   analogWrite(light2_pin, brightness);
 
-  delay(5000);
+  delay(1000);
 
   // Set up ROS node
-
+  Serial.print(F("Setting up ROS"));
   nh.initNode();
   nh.advertise(leak_pub);
   nh.advertise(temperature_pub);
@@ -150,7 +148,7 @@ void setup() {
   // }
   // delay(1000);
   // mpu.calcOffsets(true,true);
-
+  Serial.print(F("Setup completes"));
 }
 
 void loop() {
