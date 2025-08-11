@@ -181,5 +181,4 @@ void loop() {
   // displacement_pub.publish(&displacement_val);
 
   nh.spinOnce();
-  delay((timeStep) - (millis() - timer));
 }
