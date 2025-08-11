@@ -30,8 +30,6 @@ float y_disp = 0;
 float z_disp = 0;
 
 // Signal value for truster to move forward or backward
-int forward_max = 200; 
-int backward_max = -200;
 int noMove = 1500;
 
 // Light analog value
@@ -62,6 +60,8 @@ void goBackward(const int value)
 
 void motorCallback(const std_msgs::Int32MultiArray& msg)
 {
+  int forward_max = 200; 
+  int backward_max = -200;
   if (msg.data[1] > forward_max)
   {
     msg.data[1] = forward_max;
