@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import rospy
-from std_msgs.msg import Float64MultiArray, Float32MultiArray, Int32MultiArray, Bool
+from std_msgs.msg import Float64MultiArray, Float32MultiArray, Int32MultiArray, Bool, Float32
 from math import *
 from util import *
 from rospy import sleep
@@ -35,14 +35,14 @@ thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
 depthSub = rospy.Subscriber('depth_sensor', Float32MultiArray, depthCallback, callback_args=sensor)
 
 # Get angle from IMU
-gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
+gyroSub = rospy.Subscriber('gyro_sensor', Float32MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
 
 # Get distance travelled from IMU
-distanceSub = rospy.Subscriber("displacement_sensor", Float64MultiArray, distanceCallback, callback_args=sensor)
+distanceSub = rospy.Subscriber("displacement_sensor", Float32MultiArray, distanceCallback, callback_args=sensor)
 
 # Leak sensor
 leakSub = rospy.Subscriber('leak_sensor', Bool, leakCallback, callback_args=(sensor, thrusterPub))
-temperatureSub = rospy.Subscriber('temperature_sensor', Float64, temperatureCallback, callback_args=(sensor, thrusterPub))
+temperatureSub = rospy.Subscriber('temperature_sensor', Float32, temperatureCallback, callback_args=(sensor, thrusterPub))
 
 def alignPath(path):
   # First place the path at the center of the image.

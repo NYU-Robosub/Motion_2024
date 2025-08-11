@@ -4,8 +4,8 @@
 #include <std_msgs/Bool.h>
 #include <Servo.h>
 #include <std_msgs/Int32MultiArray.h>
-#include <std_msgs/Float64MultiArray.h>
-#include <std_msgs/Float64.h>
+#include <std_msgs/Float32MultiArray.h>
+#include <std_msgs/Float32.h>
 #include <DHT11.h>
 #include <MPU6050.h>
 
@@ -104,9 +104,9 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
 
 ros::NodeHandle nh;
 std_msgs::Bool leak_val;
-std_msgs::Float64 temp_val;
-std_msgs::Float64MultiArray gyro_val;
-std_msgs::Float64MultiArray displacement_val;
+std_msgs::Float32 temp_val;
+std_msgs::Float32MultiArray gyro_val;
+std_msgs::Float32MultiArray displacement_val;
 
 bool leak;
 int temperature;

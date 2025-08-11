@@ -1,14 +1,14 @@
 import rospy
-from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray
+from std_msgs.msg import Float64MultiArray, Int32MultiArray, Float32MultiArray
 
 from util import move, gyroCallback, distanceCallback, depthCallback
 
 thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
 sensor = {}
 # Get angle from IMU
-gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
+gyroSub = rospy.Subscriber('gyro_sensor', Float32MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
 # Get distance travelled from IMU
-distanceSub = rospy.Subscriber("displacement_sensor", Float64MultiArray, distanceCallback, callback_args=sensor)
+distanceSub = rospy.Subscriber("displacement_sensor", Float32MultiArray, distanceCallback, callback_args=sensor)
 # Get distance from bottom from bottom camera
 depthSub = rospy.Subscriber('depth_sensor', Float64MultiArray, depthCallback, callback_args=sensor)
 

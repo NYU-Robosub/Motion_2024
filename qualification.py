@@ -21,7 +21,7 @@
 # Computer vision: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
 import rospy
 from rospy import sleep
-from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray, Bool
+from std_msgs.msg import Float64MultiArray, Float32, Int32MultiArray, Bool, Float32MultiArray
 from util import *
 
 
@@ -37,18 +37,18 @@ cvSub = rospy.Subscriber('CV', Float64MultiArray, cvCallback, callback_args=sens
 thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
 
 #Subscribing to the depth sensor
-depthSub = rospy.Subscriber('depth_sensor', Float64, depthCallback, callback_args=sensor)
-#pressureSub = rospy.Subscriber('pressure_sensor', Float64, pressureCallback, callback_args=sensor)
+depthSub = rospy.Subscriber('depth_sensor', Float32, depthCallback, callback_args=sensor)
+#pressureSub = rospy.Subscriber('pressure_sensor', Float32, pressureCallback, callback_args=sensor)
 
 # Subscribing to IMU to get angle
-gyroSub = rospy.Subscriber('gyro_sensor', Float64MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
+gyroSub = rospy.Subscriber('gyro_sensor', Float32MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
 
 # Subscribing to leak sensor and temperature sensor for emergency exit.
 leakSub = rospy.Subscriber('leak_sensor', Bool, leakCallback, callback_args=(sensor, thrusterPub))
-temperatureSub = rospy.Subscriber('temperature_sensor', Float64, temperatureCallback, callback_args=(sensor, thrusterPub))
+temperatureSub = rospy.Subscriber('temperature_sensor', Float32, temperatureCallback, callback_args=(sensor, thrusterPub))
 
 # Subscribe to IMU to get distance
-distanceSub = rospy.Subscriber("displacement_sensor", Float64MultiArray, distanceCallback, callback_args=sensor)
+distanceSub = rospy.Subscriber("displacement_sensor", Float32MultiArray, distanceCallback, callback_args=sensor)
 
 # Contain the class number for each object
 CV_dictionary = {"pole":0, "marker": 1}

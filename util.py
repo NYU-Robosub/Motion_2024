@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from std_msgs.msg import Float64MultiArray, String, Float64, Bool, Int32MultiArray
+from std_msgs.msg import Int32MultiArray
 from math import *
 from time import time
 from rospy import sleep
