@@ -23,7 +23,7 @@ MPU6050 mpu(Wire);
 
 // Timer
 int timer = 0;
-float timeStep = 10; // in ms
+byte timeStep = 10; // in ms
 
 // Displacement values
 float x_disp = 0;
@@ -99,10 +99,10 @@ std_msgs::Float32 temp_val;
 std_msgs::Float32MultiArray gyro_val;
 std_msgs::Float32MultiArray displacement_val;
 
-ros::Publisher leak_pub("l", &leak_val);
-ros::Publisher temperature_pub("t", &temp_val);
-ros::Publisher gyro_pub("g", &gyro_val);
-ros::Publisher displacement_pub("d", &displacement_val);
+ros::Publisher leak_pub('l', &leak_val);
+ros::Publisher temperature_pub('t', &temp_val);
+ros::Publisher gyro_pub('g', &gyro_val);
+ros::Publisher displacement_pub('d', &displacement_val);
 // ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("t", &motorCallback);
 
 
