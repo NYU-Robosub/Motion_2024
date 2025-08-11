@@ -123,7 +123,7 @@ void setup() {
   delay(7000); // delay to allow the ESC to recognize the stopped signal
   
   // Turn on light
-  int brightness = 1600;
+  byte brightness = 1600;
   analogWrite(light1_pin, brightness);
   analogWrite(light2_pin, brightness);
 
