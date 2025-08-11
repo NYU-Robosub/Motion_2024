@@ -177,13 +177,15 @@ void loop() {
   pitch = pitch + normGyro.YAxis * timeStep;
   roll = roll + normGyro.XAxis * timeStep;
   yaw = yaw + normGyro.ZAxis * timeStep;
-  gyro_val.data = {pitch, roll, yaw};
+  float gyro_data = {pitch, roll, yaw};
+  gyro_val.data = gyro_data;
 
   // Calculate displacement
   x_disp = x_disp + normAccel.XAxis * timeStep;
   y_disp = y_disp + normAccel.YAxis * timeStep;
   z_disp = z_disp + normAccel.ZAxis * timeStep;
-  displacement_val.data = [x_disp, y_disp, z_disp];
+  float displacement_data = {x_disp, y_disp, z_disp};
+  displacement_val.data = displacement_data;
   
   leak_pub.publish(&leak_val);
   temperature_pub.publish(&temp_val);
