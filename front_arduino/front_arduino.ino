@@ -107,10 +107,10 @@ std_msgs::Float32 temp_val;
 std_msgs::Float32MultiArray gyro_val;
 std_msgs::Float32MultiArray displacement_val;
 
-ros::Publisher leak_pub("leak_sensor", &leak_val);
-ros::Publisher temperature_pub("temperature_sensor", &temp_val);
-ros::Publisher gyro_pub("gyro_sensor", &gyro_val);
-ros::Publisher displacement_pub("displacement_sensor", &displacement_val);
+ros::Publisher leak_pub("leak", &leak_val);
+ros::Publisher temperature_pub("temp", &temp_val);
+ros::Publisher gyro_pub("gyro", &gyro_val);
+ros::Publisher displacement_pub("dis", &displacement_val);
 ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("thruster", &motorCallback);
 
 
