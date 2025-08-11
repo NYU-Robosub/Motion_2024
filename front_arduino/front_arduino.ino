@@ -108,7 +108,7 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(57600);
   delay(1000);
-  Serial.print(F("Starting setup\n"));
+  // Serial.print(F("Starting setup\n"));
   // Setup pins
   pinMode(leak_pin, INPUT);
   pinMode(light1_pin, OUTPUT);
@@ -123,11 +123,11 @@ void setup() {
   // delay(7000); // delay to allow the ESC to recognize the stopped signal
   
   // Turn on light
-  Serial.print(F("Turning on light\n"));
+  // Serial.print(F("Turning on light\n"));
   // byte brightness = 1600;
   digitalWrite(light1_pin, HIGH);
   digitalWrite(light2_pin, HIGH);
-  Serial.print(F("Setting up ROS\n"));
+  // Serial.print(F("Setting up ROS\n"));
   delay(1000);
 
   // Set up ROS node
@@ -147,7 +147,7 @@ void setup() {
   // }
   // delay(1000);
   // mpu.calcOffsets(true,true);
-  Serial.print(F("Setup completes"));
+  // Serial.print(F("Setup completes"));
 }
 
 void loop() {
