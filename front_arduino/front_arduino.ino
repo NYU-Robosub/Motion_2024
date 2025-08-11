@@ -109,7 +109,8 @@ ros::Publisher displacement_pub('d', &displacement_val);
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  Serial.print(F("Starting setup"))
+  delay(1000);
+  Serial.print(F("Starting setup"));
   // Setup pins
   pinMode(leak_pin, INPUT);
   pinMode(light1_pin, OUTPUT);
@@ -139,6 +140,7 @@ void setup() {
   nh.advertise(displacement_pub);
   // nh.subscribe(motor_subscriber);
 
+  // Setup IMU
   Wire.begin();
   byte status = mpu.begin();
   if (!status){
