@@ -24,11 +24,6 @@ MPU6050 mpu(Wire);
 // Timer
 int timer = 0;
 
-// Pitch, Roll and Yaw values
-float pitch = 0;
-float roll = 0;
-float yaw = 0;
-
 // Displacement values
 float x_disp = 0;
 float y_disp = 0;
