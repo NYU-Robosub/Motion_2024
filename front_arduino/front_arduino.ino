@@ -168,8 +168,8 @@ void loop() {
   leak_val.data = leak;
   temperature = dht11.readTemperature();
   temp_val.data = temperature;
-  Vector normGyro = mpu.readNormalizeGyro();
-  Vector normAccel = mpu.readNormalizeAccel();
+  // Vector normGyro = mpu.readNormalizeGyro();
+  // Vector normAccel = mpu.readNormalizeAccel();
 
   // Calculate Pitch, Roll and Yaw
   // pitch = pitch + normGyro.YAxis * timeStep;
