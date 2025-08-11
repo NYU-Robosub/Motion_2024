@@ -180,11 +180,7 @@ void loop() {
   leak_pub.publish(&leak_val);
   temperature_pub.publish(&temp_val);
 
-<<<<<<< HEAD
   mpu.update();
-=======
-  mpu.update()
->>>>>>> 8d50f4ae0a2c5b976a0b3928f2fac1ec5ed5db22
 
   // Vector normGyro = mpu.readNormalizeGyro();
   // Vector normAccel = mpu.readNormalizeAccel();
