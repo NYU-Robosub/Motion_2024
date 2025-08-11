@@ -167,6 +167,7 @@ void loop() {
   //Measure from sensor
   bool leak;
   int temperature;
+  byte leak_pin = 1;
   leak = digitalRead(leak_pin);
   leak_val.data = leak;
   temperature = dht11.readTemperature();
