@@ -132,12 +132,11 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
 
 ros::NodeHandle node_handle;
 
-std_msgs::Float32MultiArray gyro_val;
-std_msgs::Float32MultiArray displacement_val;
+std_msgs::Float32MultiArray imu_val;
 
 ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("t", &motorCallback);
-ros::Publisher gyro_pub("g", &gyro_val);
-ros::Publisher displacement_pub("d", &displacement_val);
+ros::Publisher imu_pub("i", &gyro_val);
+// ros::Publisher displacement_pub("d", &displacement_val);
 
 void setup() {
   trusterFL.attach(trusterPinFL);
@@ -154,11 +153,12 @@ void setup() {
   trusterVFR.writeMicroseconds(1500);
   trusterVBL.writeMicroseconds(1500);
   trusterVBR.writeMicroseconds(1500);
+  delay(7000); // delay to allow the ESC to recognize the stopped signal
 
   // Setup IMU
   Wire.begin();
   byte status = mpu.begin();
-  delay(7000);
+  delay(1000);
   mpu.calcOffsets(true,true);
 
   // Setup ROS
@@ -173,20 +173,15 @@ void loop() {
   unsigned short new_time = millis();
   mpu.update();
 
-  // Calculate Pitch, Roll and Yaw
-  float gyro_data[] = {mpu.getAngleX(), mpu.getAngleY(), mpu.getAngleZ()};
-  gyro_val.data = gyro_data;
-
   // Calculate displacement
   x_disp = x_disp + mpu.getAccX() * (new_time-timer);
   y_disp = y_disp + mpu.getAccY() * (new_time-timer);
   z_disp = z_disp + mpu.getAccZ() * (new_time-timer);
-  float displacement_data[] = {x_disp, y_disp, z_disp};
-  displacement_val.data = displacement_data;
   
+  float imu_data[] = {mpu.getAngleX(), mpu.getAngleY(), mpu.getAngleZ(), x_disp, y_disp, z_disp};
+  imu_val.data = imu_data
   
-  gyro_pub.publish(&gyro_val);
-  displacement_pub.publish(&displacement_val);
+  imu_pub.publish(&imu_val);
   timer=new_time;
   node_handle.spinOnce();
 }
