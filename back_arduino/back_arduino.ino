@@ -21,8 +21,8 @@ Servo trusterVFR;
 Servo trusterVBL;
 Servo trusterVBR;
 // Signal value for truster to move forward or backward
-byte forward_max = 200; 
-byte backward_max = -200;
+int forward_max = 200; 
+int backward_max = -200;
 byte noMove = 1500;
 
 // Timer

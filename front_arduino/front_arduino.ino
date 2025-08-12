@@ -47,7 +47,6 @@ void goBackward(const int value)
 
 void motorCallback(const std_msgs::Int32MultiArray& msg)
 {
-  digitalWrite(light2_pin, LOW);
   if (msg.data[1] > forward_max)
   {
     msg.data[1] = forward_max;
@@ -76,7 +75,6 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
   {
     if (msg.data[1] <= 0)
     {
-      digitalWrite(light1_pin, LOW);
       goBackward(abs(msg.data[1]));
     }
   }
