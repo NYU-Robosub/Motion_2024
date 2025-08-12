@@ -140,7 +140,6 @@ ros::Publisher gyro_pub("g", &gyro_val);
 ros::Publisher displacement_pub("d", &displacement_val);
 
 void setup() {
-  byte one_sec = 1000;
   trusterFL.attach(trusterPinFL);
   trusterFR.attach(trusterPinFR);
   trusterVFL.attach(trusterPinVFL);
@@ -155,12 +154,11 @@ void setup() {
   trusterVFR.writeMicroseconds(1500);
   trusterVBL.writeMicroseconds(1500);
   trusterVBR.writeMicroseconds(1500);
-  delay(one_sec*7); // delay to allow the ESC to recognize the stopped signal
 
   // Setup IMU
   Wire.begin();
   byte status = mpu.begin();
-  delay(one_sec);
+  delay(7000);
   mpu.calcOffsets(true,true);
 
   // Setup ROS
