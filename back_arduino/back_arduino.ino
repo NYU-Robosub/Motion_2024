@@ -165,8 +165,7 @@ void setup() {
   Serial.begin(57600);
   node_handle.initNode();
   node_handle.subscribe(motor_subscriber);
-  node_handle.advertise(gyro_pub);
-  node_handle.advertise(displacement_pub);
+  node_handle.advertise(imu_pub);
 }
 
 void loop() {
