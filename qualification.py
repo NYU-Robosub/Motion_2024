@@ -151,7 +151,7 @@ def aroundMarker():
 
 def main():
   print("Qualification Start")
-  sleep(5000)
+  sleep(6)
   print(sensor)
   changeDepth(0.3, sensor, thrusterPub)
   distance_from_pole, angle_from_left, angle_difference = searchGate("center", sensor, thrusterPub, CV_dictionary)
