@@ -26,7 +26,7 @@ byte backward_max = -200;
 byte noMove = 1500;
 
 // Timer
-unsigned long timer = 0;
+unsigned short timer = 0;
 
 // Displacement values
 short x_disp = 0;
@@ -171,18 +171,18 @@ void setup() {
 }
 
 void loop() {
-  unsigned long new_time = millis();
+  unsigned short new_time = millis();
   mpu.update();
 
   // Calculate Pitch, Roll and Yaw
-  float gyro_data[] = {mpu.getAngleX(), mpu.getAngleY(), mpu.getAngleZ()};
+  short gyro_data[] = {mpu.getAngleX(), mpu.getAngleY(), mpu.getAngleZ()};
   gyro_val.data = gyro_data;
 
   // Calculate displacement
   x_disp = x_disp + mpu.getAccX() * (new_time-timer);
   y_disp = y_disp + mpu.getAccY() * (new_time-timer);
   z_disp = z_disp + mpu.getAccZ() * (new_time-timer);
-  float displacement_data[] = {x_disp, y_disp, z_disp};
+  short displacement_data[] = {x_disp, y_disp, z_disp};
   displacement_val.data = displacement_data;
   
   
