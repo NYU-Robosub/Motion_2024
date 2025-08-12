@@ -27,8 +27,8 @@ POOL_DEPTH = 3
 sensor={}
 
 # Subscribe to the CV output
-cvSub = rospy.Subscriber('CV', Float32MultiArray, cvCallback, callback_args=sensor)
-cvBottomSUb = rospy.Subscriber('CV_bottom', Float32MultiArray, cvBottomCallback, callback_args=sensor)
+cvSub = rospy.Subscriber('detections', Float32MultiArray, cvCallback, callback_args=sensor)
+# cvBottomSub = rospy.Subscriber('CV_bottom', Float32MultiArray, cvBottomCallback, callback_args=sensor)
 
 thrusterPub = rospy.Publisher("thruster", Int32MultiArray, queue_size=2)
 # Get distance from bottom from bottom camera
