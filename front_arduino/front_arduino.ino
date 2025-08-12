@@ -20,8 +20,8 @@ Servo trusterBR;
 DHT11 dht11(temperature_pin);
 
 // Signal value for truster to move forward or backward
-byte thruster_max = 300; 
-byte noMove = 1500;
+int thruster_max = 300; 
+int noMove = 1500;
 
 // ROS subscribers
 ros::NodeHandle nh;
@@ -56,6 +56,8 @@ void goBackward(const int value)
   info_pub.publish(&info_val);
   trusterBR.writeMicroseconds(noMove + value);
   trusterBL.writeMicroseconds(noMove + value);  
+  info_val.data = noMove+value;
+  info_pub.publish(&info_val);
 }
 
 void motorCallback(const std_msgs::Int32MultiArray& msg)
