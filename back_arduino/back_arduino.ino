@@ -175,14 +175,14 @@ void loop() {
   mpu.update();
 
   // Calculate Pitch, Roll and Yaw
-  short gyro_data[] = {mpu.getAngleX(), mpu.getAngleY(), mpu.getAngleZ()};
+  float gyro_data[] = {mpu.getAngleX(), mpu.getAngleY(), mpu.getAngleZ()};
   gyro_val.data = gyro_data;
 
   // Calculate displacement
   x_disp = x_disp + mpu.getAccX() * (new_time-timer);
   y_disp = y_disp + mpu.getAccY() * (new_time-timer);
   z_disp = z_disp + mpu.getAccZ() * (new_time-timer);
-  short displacement_data[] = {x_disp, y_disp, z_disp};
+  float displacement_data[] = {x_disp, y_disp, z_disp};
   displacement_val.data = displacement_data;
   
   
