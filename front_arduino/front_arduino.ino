@@ -18,8 +18,7 @@ Servo trusterBR;
 DHT11 dht11(temperature_pin);
 
 // Signal value for truster to move forward or backward
-int forward_max = 200; 
-int backward_max = -200;
+byte thruster_max = 300; 
 byte noMove = 1500;
 
 
@@ -47,13 +46,13 @@ void goBackward(const int value)
 
 void motorCallback(const std_msgs::Int32MultiArray& msg)
 {
-  if (msg.data[1] > forward_max)
+  if (abs(msg.data[1]) > thruster_max)
   {
-    msg.data[1] = forward_max;
-  }
-  if (msg.data[1] < backward_max)
-  {
-    msg.data[1] = backward_max;
+    if (msg.data[1] > 0){
+      msg.data[1] = (int)thruster_max;
+    } else {
+      msg.data[1] = -1 *  (int)thruster_max
+    } 
   }
   if (msg.data[0] == 1)
   {
