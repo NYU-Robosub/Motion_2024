@@ -113,15 +113,10 @@ void setup() {
   nh.initNode();
   nh.advertise(leak_pub);
   nh.advertise(temperature_pub);
-  nh.advertise(gyro_pub);
-  nh.advertise(displacement_pub);
   nh.subscribe(motor_subscriber);
-
-  
 }
 
 void loop() {
-  timer = millis();
 
   //Measure from sensor
   bool leak;

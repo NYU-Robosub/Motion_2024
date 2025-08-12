@@ -167,9 +167,12 @@ void setup() {
   Serial.begin(57600);
   node_handle.initNode();
   node_handle.subscribe(motor_subscriber);
+  nh.advertise(gyro_pub);
+  nh.advertise(displacement_pub);
 }
 
 void loop() {
+  timer = millis()
   mpu.update();
 
   // Calculate Pitch, Roll and Yaw
