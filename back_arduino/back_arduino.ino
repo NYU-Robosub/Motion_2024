@@ -26,8 +26,7 @@ byte backward_max = -200;
 byte noMove = 1500;
 
 // Timer
-int timer = 0;
-byte timeStep = 10; // in ms
+unsigned long timer = 0;
 
 // Displacement values
 short x_disp = 0;
@@ -167,12 +166,12 @@ void setup() {
   Serial.begin(57600);
   node_handle.initNode();
   node_handle.subscribe(motor_subscriber);
-  nh.advertise(gyro_pub);
-  nh.advertise(displacement_pub);
+  node_handle.advertise(gyro_pub);
+  node_handle.advertise(displacement_pub);
 }
 
 void loop() {
-  timer = millis()
+  unsigned long new_time = millis();
   mpu.update();
 
   // Calculate Pitch, Roll and Yaw
@@ -180,14 +179,15 @@ void loop() {
   gyro_val.data = gyro_data;
 
   // Calculate displacement
-  x_disp = x_disp + mpu.getAccX() * timeStep;
-  y_disp = y_disp + mpu.getAccY() * timeStep;
-  z_disp = z_disp + mpu.getAccZ() * timeStep;
+  x_disp = x_disp + mpu.getAccX() * (new_time-timer);
+  y_disp = y_disp + mpu.getAccY() * (new_time-timer);
+  z_disp = z_disp + mpu.getAccZ() * (new_time-timer);
   float displacement_data[] = {x_disp, y_disp, z_disp};
   displacement_val.data = displacement_data;
   
   
   gyro_pub.publish(&gyro_val);
   displacement_pub.publish(&displacement_val);
+  timer=new_time;
   node_handle.spinOnce();
 }
