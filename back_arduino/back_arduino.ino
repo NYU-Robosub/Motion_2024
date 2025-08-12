@@ -37,7 +37,7 @@ int noMove = 1500;
 
 void turnLeft(const int value)
 {
-  // trusterFR.writeMicroseconds(backward);
+  trusterFR.writeMicroseconds(noMove);
   // trusterBR.writeMicroseconds(noMove + value);
   trusterFL.writeMicroseconds(noMove + value);
   // trusterBL.writeMicroseconds(backward);  
@@ -47,7 +47,7 @@ void turnRight(const int value)
 {
   trusterFR.writeMicroseconds(noMove + value);
   // trusterBR.writeMicroseconds(backward);
-  // trusterFL.writeMicroseconds(backward);
+  trusterFL.writeMicroseconds(noMove);
   // trusterBL.writeMicroseconds(noMove + value);  
 }
 
@@ -93,13 +93,18 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
   }
   if (msg.data[0] == 0)
   {
-    if (msg.data[1] >= 0)
+    goUpDown(0);
+    if (msg.data[1] > 0)
     {
       goForward(msg.data[1]);
+    }
+    else {
+      goForward(0);
     }
   }
   else if (msg.data[0] == 1)
   {
+    goUpDown(0);
     if (msg.data[1] > 0)
     {
       turnRight(msg.data[1]);
@@ -110,20 +115,22 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
     }
     else
     {
-      turnLeft(0);
-      turnRight(0);
+      goForward(0);
     }
   }
   else if (msg.data[0] == 2)
   {
+    goForward(0);
     goUpDown(msg.data[1]);
   }
   else if (msg.data[0] == 3)
   {
+    goForward(0);
     pitch(msg.data[1]);
   }
   else if (msg.data[0] == 4)
   {
+    goForward(0);
     roll(msg.data[1]);
   }
   
@@ -133,7 +140,7 @@ ros::NodeHandle node_handle;
 
 // std_msgs::Float32MultiArray imu_val;
 
-ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("thruster", &motorCallback);
+ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("/thruster", &motorCallback);
 // ros::Publisher imu_pub("i", &imu_val);
 
 void setup() {

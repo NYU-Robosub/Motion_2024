@@ -39,13 +39,13 @@ void turnLeft(const int value)
   // trusterFR.writeMicroseconds(backward);
   trusterBR.writeMicroseconds(noMove + value);
   // trusterFL.writeMicroseconds(noMove + value);
-  // trusterBL.writeMicroseconds(backward);  
+  trusterBL.writeMicroseconds(noMove);  
 }
 
 void turnRight(const int value)
 {
   // trusterFR.writeMicroseconds(noMove + value);
-  // trusterBR.writeMicroseconds(backward);
+  trusterBR.writeMicroseconds(noMove);
   // trusterFL.writeMicroseconds(backward);
   trusterBL.writeMicroseconds(noMove + value);  
 }
@@ -78,20 +78,25 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
     }
     else
     {
-      turnLeft(0);
-      turnRight(0);
+      goBackward(0);
     }
   }
   else if (msg.data[0] == 0)
   {
-    if (msg.data[1] <= 0)
+    if (msg.data[1] < 0)
     {
       goBackward(abs(msg.data[1]));
     }
+    else {
+      goBackward(0);
+    }
+  }
+  else {
+    goBackward(0);
   }
 }
 
-ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("thruster", &motorCallback);
+ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("/thruster", &motorCallback);
 
 void setup() {
   // put your setup code here, to run once:
