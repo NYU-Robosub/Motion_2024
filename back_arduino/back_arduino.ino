@@ -156,7 +156,7 @@ void setup() {
 
   // Setup IMU
   Wire.begin();
-  byte status = mpu.begin();
+  mpu.begin();
   delay(1000);
   mpu.calcOffsets(true,true);
 
