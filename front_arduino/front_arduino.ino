@@ -75,6 +75,7 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
   {
     if (msg.data[1] <= 0)
     {
+      digitalWrite(light1_pin, LOW);
       goBackward(abs(msg.data[1]));
     }
   }
