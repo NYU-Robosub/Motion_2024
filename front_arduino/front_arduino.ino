@@ -47,6 +47,7 @@ void goBackward(const int value)
 
 void motorCallback(const std_msgs::Int32MultiArray& msg)
 {
+  digitalWrite(light2_pin, LOW);
   if (msg.data[1] > forward_max)
   {
     msg.data[1] = forward_max;
@@ -128,8 +129,6 @@ void loop() {
   temp_val.data = temperature;
   leak_pub.publish(&leak_val);
   temperature_pub.publish(&temp_val);
-
-  
 
   nh.spinOnce();
 }
