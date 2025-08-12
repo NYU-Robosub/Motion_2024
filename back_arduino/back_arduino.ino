@@ -135,8 +135,7 @@ ros::NodeHandle node_handle;
 std_msgs::Float32MultiArray imu_val;
 
 ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("t", &motorCallback);
-ros::Publisher imu_pub("i", &gyro_val);
-// ros::Publisher displacement_pub("d", &displacement_val);
+ros::Publisher imu_pub("i", &imu_val);
 
 void setup() {
   trusterFL.attach(trusterPinFL);
