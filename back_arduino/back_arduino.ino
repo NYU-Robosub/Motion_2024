@@ -144,6 +144,7 @@ ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("/thruster", &motorC
 // ros::Publisher imu_pub("i", &imu_val);
 
 void setup() {
+  Serial.begin(57600);
   trusterFL.attach(trusterPinFL);
   trusterFR.attach(trusterPinFR);
   trusterVFL.attach(trusterPinVFL);
@@ -167,7 +168,6 @@ void setup() {
   // mpu.calcOffsets(true,true);
 
   // Setup ROS
-  Serial.begin(57600);
   node_handle.initNode();
   node_handle.subscribe(motor_subscriber);
   // node_handle.advertise(imu_pub);
