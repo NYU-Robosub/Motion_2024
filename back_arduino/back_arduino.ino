@@ -2,6 +2,8 @@
 #include <ros.h>
 #include <Servo.h>
 #include <std_msgs/Int32MultiArray.h>
+#include <MPU6050_light.h>
+#include <std_msgs/Float32MultiArray.h>
 
 // Arduino pin for trusters. 
 // F means front, B, means back, V means vertical, L means left, R means right. 
@@ -19,9 +21,21 @@ Servo trusterVFR;
 Servo trusterVBL;
 Servo trusterVBR;
 // Signal value for truster to move forward or backward
-int forward_max = 200; 
-int backward_max = -200;
-int noMove = 1500;
+byte forward_max = 200; 
+byte backward_max = -200;
+byte noMove = 1500;
+
+// Timer
+int timer = 0;
+byte timeStep = 10; // in ms
+
+// Displacement values
+short x_disp = 0;
+short y_disp = 0;
+short z_disp = 0;
+
+MPU6050 mpu(Wire);
+
 
 void turnLeft(const int value)
 {
@@ -119,7 +133,12 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
 
 ros::NodeHandle node_handle;
 
+std_msgs::Float32MultiArray gyro_val;
+std_msgs::Float32MultiArray displacement_val;
+
 ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("thruster", &motorCallback);
+ros::Publisher gyro_pub("g", &gyro_val);
+ros::Publisher displacement_pub("d", &displacement_val);
 
 void setup() {
   trusterFL.attach(trusterPinFL);
@@ -137,12 +156,35 @@ void setup() {
   trusterVBL.writeMicroseconds(1500);
   trusterVBR.writeMicroseconds(1500);
   delay(7000); // delay to allow the ESC to recognize the stopped signal
+
+  // Setup IMU
+  Wire.begin();
+  byte status = mpu.begin();
+  delay(1000);
+  mpu.calcOffsets(true,true);
+
+  // Setup ROS
   Serial.begin(57600);
   node_handle.initNode();
   node_handle.subscribe(motor_subscriber);
 }
 
 void loop() {
+  mpu.update();
+
+  // Calculate Pitch, Roll and Yaw
+  float gyro_data[] = {mpu.getAngleX(), mpu.getAngleY(), mpu.getAngleZ()};
+  gyro_val.data = gyro_data;
+
+  // Calculate displacement
+  x_disp = x_disp + mpu.getAccX() * timeStep;
+  y_disp = y_disp + mpu.getAccY() * timeStep;
+  z_disp = z_disp + mpu.getAccZ() * timeStep;
+  float displacement_data[] = {x_disp, y_disp, z_disp};
+  displacement_val.data = displacement_data;
+  
+  
+  gyro_pub.publish(&gyro_val);
+  displacement_pub.publish(&displacement_val);
   node_handle.spinOnce();
-  delay(1);
 }
