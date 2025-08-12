@@ -88,7 +88,7 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
     if (msg.data[1] > 0){
       msg.data[1] = (int)thruster_max;
     } else {
-      msg.data[1] = -1 *  (int)thruster_max
+      msg.data[1] = -1 *  (int)thruster_max;
     } 
   }
   if (msg.data[0] == 0)
