@@ -135,7 +135,7 @@ ros::NodeHandle node_handle;
 std_msgs::Float32MultiArray gyro_val;
 std_msgs::Float32MultiArray displacement_val;
 
-ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("thruster", &motorCallback);
+ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("t", &motorCallback);
 ros::Publisher gyro_pub("g", &gyro_val);
 ros::Publisher displacement_pub("d", &displacement_val);
 

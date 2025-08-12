@@ -84,8 +84,8 @@ ros::NodeHandle nh;
 std_msgs::Bool leak_val;
 std_msgs::Float32 temp_val;
 
-ros::Publisher leak_pub("l", &leak_val);
-ros::Publisher temperature_pub("t", &temp_val);
+ros::Publisher leak_pub("leak", &leak_val);
+ros::Publisher temperature_pub("temp", &temp_val);
 ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("t", &motorCallback);
 
 
