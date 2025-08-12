@@ -34,7 +34,7 @@ sensor = {}
 
 # Subscribe to the CV output
 cvSub = rospy.Subscriber('CV', Float32MultiArray, cvCallback, callback_args=sensor)
-thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
+thrusterPub = rospy.Publisher("thruster", Int32MultiArray, queue_size=2)
 
 #Subscribing to the depth sensor
 # depthSub = rospy.Subscriber('depth', Float32, depthCallback, callback_args=sensor)
