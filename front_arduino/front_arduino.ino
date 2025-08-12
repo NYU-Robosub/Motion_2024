@@ -36,10 +36,11 @@ ros::Publisher temperature_pub("temp", &temp_val);
 
 void turnLeft(const int value)
 {
+  // modified to accomodate the fact that FL thruster is not functioning.
   // trusterFR.writeMicroseconds(backward);
-  trusterBR.writeMicroseconds(noMove + value);
+  trusterBR.writeMicroseconds(noMove);
   // trusterFL.writeMicroseconds(noMove + value);
-  trusterBL.writeMicroseconds(noMove);  
+  trusterBL.writeMicroseconds(noMove - value);  
 }
 
 void turnRight(const int value)
@@ -54,6 +55,12 @@ void goBackward(const int value)
 {
   trusterBR.writeMicroseconds(noMove + value);
   trusterBL.writeMicroseconds(noMove + value);  
+}
+
+void goForward(const int value)
+{
+  trusterBR.writeMicroseconds(noMove - value);
+  trusterBL.writeMicroseconds(noMove - value);  
 }
 
 void motorCallback(const std_msgs::Int32MultiArray& msg)
@@ -83,12 +90,12 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
   }
   else if (msg.data[0] == 0)
   {
-    if (msg.data[1] < 0)
+    if (msg.data[1] <= 0)
     {
       goBackward(abs(msg.data[1]));
     }
     else {
-      goBackward(0);
+      goForward(msg.data[1]);
     }
   }
   else {

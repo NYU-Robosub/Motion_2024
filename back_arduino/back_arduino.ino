@@ -37,9 +37,10 @@ int noMove = 1500;
 
 void turnLeft(const int value)
 {
-  trusterFR.writeMicroseconds(noMove);
+  // Modified to accomodate the fact that thrusterFL is not functioning
+  trusterFR.writeMicroseconds(noMove - value);
   // trusterBR.writeMicroseconds(noMove + value);
-  trusterFL.writeMicroseconds(noMove + value);
+  trusterFL.writeMicroseconds(noMove);
   // trusterBL.writeMicroseconds(backward);  
 }
 
@@ -94,13 +95,15 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
   if (msg.data[0] == 0)
   {
     goUpDown(0);
-    if (msg.data[1] > 0)
-    {
-      goForward(msg.data[1]);
-    }
-    else {
-      goForward(0);
-    }
+    goForward(0);
+    // Modified for broken FL thruster
+    // if (msg.data[1] > 0)
+    // {
+    //   goForward(msg.data[1]);
+    // }
+    // else {
+    //   goForward(0);
+    // }
   }
   else if (msg.data[0] == 1)
   {
