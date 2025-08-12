@@ -20,7 +20,7 @@ IMG_WIDTH = 640
 IMG_HEIGHT = 480
 
 # Assumed pool depth in m
-POOL_DEPTH = 5 
+POOL_DEPTH = 3 
 
 def unflatten(data, length=5):
   # Convert the CV data to a list of list
@@ -153,8 +153,11 @@ def gyroCallback(data, args):
   # the correct direction during movement.
   data = list(data.data)
   angles = []
-  for i in range(len(data)):
-    angles.append(float(data[i]))
+  angles.append(float(data[0]))
+  angles.append(float(data[2]))
+  angles.append(float(data[1]))
+  # for i in range(len(data)):
+  #   angles.append(float(data[i]))
   sensor["angles"] = angles
 
   if not sensor.get("roll_pitch", False) and abs(angles[1]) > 1:
@@ -172,7 +175,13 @@ def gyroCallback(data, args):
 
 def distanceCallback(data, sensor):
   print("Distance updated")
-  sensor["distance"] = list(data.data)
+  data = list(data.data)
+  displacements = []
+  displacements.append(float(data[0]))
+  displacements.append(float(data[2]))
+  displacements.append(float(data[1]))
+  sensor["distance"] = displacements
+  sensor["depth"] = POOL_DEPTH - float(data[1])
   
 
 def temperatureCallback(data, args):

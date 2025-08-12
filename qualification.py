@@ -37,18 +37,18 @@ cvSub = rospy.Subscriber('CV', Float32MultiArray, cvCallback, callback_args=sens
 thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
 
 #Subscribing to the depth sensor
-depthSub = rospy.Subscriber('depth', Float32, depthCallback, callback_args=sensor)
-#pressureSub = rospy.Subscriber('pressure_sensor', Float32, pressureCallback, callback_args=sensor)
+# depthSub = rospy.Subscriber('depth', Float32, depthCallback, callback_args=sensor)
+# pressureSub = rospy.Subscriber('pressure_sensor', Float32, pressureCallback, callback_args=sensor)
 
 # Subscribing to IMU to get angle
-gyroSub = rospy.Subscriber('gyro', Float32MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
+gyroSub = rospy.Subscriber('zed/gyro', Float32MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
 
 # Subscribing to leak sensor and temperature sensor for emergency exit.
 # leakSub = rospy.Subscriber('leak', Bool, leakCallback, callback_args=(sensor, thrusterPub))
-temperatureSub = rospy.Subscriber('temp', Float32, temperatureCallback, callback_args=(sensor, thrusterPub))
+temperatureSub = rospy.Subscriber('front/temp', Float32, temperatureCallback, callback_args=(sensor, thrusterPub))
 
 # Subscribe to IMU to get distance
-distanceSub = rospy.Subscriber("displacement", Float32MultiArray, distanceCallback, callback_args=sensor)
+distanceSub = rospy.Subscriber("zed/displacement", Float32MultiArray, distanceCallback, callback_args=sensor)
 
 # Contain the class number for each object
 CV_dictionary = {"pole":0, "marker": 1}

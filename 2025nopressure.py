@@ -18,7 +18,7 @@ cvDict = {"pole":0}
 # Flag for whether to pass through the gate with style 
 style = True
 # Assumed pool depth in m
-POOL_DEPTH = 5
+POOL_DEPTH = 3
 
 # CV_result: A list of bounding boxes [x1, x2, y1, y2, class, object depth, confidence]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
 # angle: The angles on x-axis, y-axis, and z-axis from gyrometer. Format is 360 degrees. angles[2] is suppose to be the horizontal angle
@@ -32,7 +32,7 @@ cvBottomSUb = rospy.Subscriber('CV_bottom', Float32MultiArray, cvBottomCallback,
 
 thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
 # Get distance from bottom from bottom camera
-depthSub = rospy.Subscriber('depth', Float32, depthCallback, callback_args=sensor)
+# depthSub = rospy.Subscriber('depth', Float32, depthCallback, callback_args=sensor)
 
 # Get angle from IMU
 gyroSub = rospy.Subscriber('gyro', Float32MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
