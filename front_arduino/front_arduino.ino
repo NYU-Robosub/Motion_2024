@@ -1,6 +1,8 @@
 // Arduino code for the front arduino
+// Leak publisher is disabled because the leak sensor seems to be malfunctioning, uncomment relevent code once the sensor is repalced. 
+
 #include <ros.h>
-#include <std_msgs/Bool.h>
+// #include <std_msgs/Bool.h>
 #include <Servo.h>
 #include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Float32.h>
@@ -21,6 +23,16 @@ DHT11 dht11(temperature_pin);
 byte thruster_max = 300; 
 byte noMove = 1500;
 
+// ROS publishers and subscribers
+ros::NodeHandle nh;
+// std_msgs::Bool leak_val;
+std_msgs::Float32 temp_val;
+std_msgs::Float32 info_val;
+
+// ros::Publisher leak_pub("leak", &leak_val);
+ros::Publisher info_pub("info", &info_val);
+ros::Publisher temperature_pub("temp", &temp_val);
+ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("t", &motorCallback);
 
 void turnLeft(const int value)
 {
@@ -40,6 +52,8 @@ void turnRight(const int value)
 
 void goBackward(const int value)
 {
+  info_val.data = value;
+  info_pub.publish(&info_val);
   trusterBR.writeMicroseconds(noMove + value);
   trusterBL.writeMicroseconds(noMove + value);  
 }
@@ -79,15 +93,6 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
   }
 }
 
-ros::NodeHandle nh;
-std_msgs::Bool leak_val;
-std_msgs::Float32 temp_val;
-
-ros::Publisher leak_pub("leak", &leak_val);
-ros::Publisher temperature_pub("temp", &temp_val);
-ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("t", &motorCallback);
-
-
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(57600);
@@ -110,7 +115,8 @@ void setup() {
 
   // Set up ROS node
   nh.initNode();
-  nh.advertise(leak_pub);
+  // nh.advertise(leak_pub);
+  nh.advertise(info_pub);
   nh.advertise(temperature_pub);
   nh.subscribe(motor_subscriber);
 }
@@ -118,13 +124,13 @@ void setup() {
 void loop() {
 
   //Measure from sensor
-  bool leak;
+  // bool leak;
   short temperature;
-  leak = digitalRead(leak_pin);
-  leak_val.data = leak;
+  // leak = digitalRead(leak_pin);
+  // leak_val.data = leak;
   temperature = dht11.readTemperature();
   temp_val.data = temperature;
-  leak_pub.publish(&leak_val);
+  // leak_pub.publish(&leak_val);
   temperature_pub.publish(&temp_val);
 
   nh.spinOnce();
