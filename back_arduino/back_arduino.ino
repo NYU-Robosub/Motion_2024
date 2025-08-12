@@ -178,7 +178,7 @@ void loop() {
   z_disp = z_disp + mpu.getAccZ() * (new_time-timer);
   
   float imu_data[] = {mpu.getAngleX(), mpu.getAngleY(), mpu.getAngleZ(), x_disp, y_disp, z_disp};
-  imu_val.data = imu_data
+  imu_val.data = imu_data;
   
   imu_pub.publish(&imu_val);
   timer=new_time;
