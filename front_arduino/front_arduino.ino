@@ -30,7 +30,7 @@ std_msgs::Float32 temp_val;
 std_msgs::Float32 info_val;
 
 // ros::Publisher leak_pub("leak", &leak_val);
-ros::Publisher info_pub("info", &info_val);
+// ros::Publisher info_pub("info", &info_val);
 ros::Publisher temperature_pub("temp", &temp_val);
 
 
@@ -52,12 +52,8 @@ void turnRight(const int value)
 
 void goBackward(const int value)
 {
-  info_val.data = value;
-  info_pub.publish(&info_val);
   trusterBR.writeMicroseconds(noMove + value);
   trusterBL.writeMicroseconds(noMove + value);  
-  info_val.data = noMove+value;
-  info_pub.publish(&info_val);
 }
 
 void motorCallback(const std_msgs::Int32MultiArray& msg)
@@ -120,7 +116,7 @@ void setup() {
   // Set up ROS node
   nh.initNode();
   // nh.advertise(leak_pub);
-  nh.advertise(info_pub);
+  // nh.advertise(info_pub);
   nh.advertise(temperature_pub);
   nh.subscribe(motor_subscriber);
 }
