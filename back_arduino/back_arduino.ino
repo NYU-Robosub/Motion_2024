@@ -60,26 +60,26 @@ void goForward(const int value)
 
 void goUpDown(const int value)
 {
-  trusterVFL.writeMicroseconds(noMove - value);
-  trusterVBR.writeMicroseconds(noMove - value);
-  trusterVBL.writeMicroseconds(noMove + value);
-  trusterVFR.writeMicroseconds(noMove + value);
-}
-
-void pitch(const int value)
-{
-  trusterVFL.writeMicroseconds(noMove - value);
+  trusterVFL.writeMicroseconds(noMove + value);
   trusterVBR.writeMicroseconds(noMove + value);
-  trusterVBL.writeMicroseconds(noMove + value);
+  trusterVBL.writeMicroseconds(noMove - value);
   trusterVFR.writeMicroseconds(noMove - value);
 }
 
 void roll(const int value)
 {
-  trusterVFL.writeMicroseconds(noMove - value);
-  trusterVBR.writeMicroseconds(noMove + value);
-  trusterVBL.writeMicroseconds(noMove - value);
-  trusterVFR.writeMicroseconds(noMove + value);
+  trusterVFL.writeMicroseconds(noMove + value);
+  trusterVBR.writeMicroseconds(noMove - value); 
+  trusterVBL.writeMicroseconds(noMove - value); 
+  trusterVFR.writeMicroseconds(noMove + value); 
+}
+
+void pitch(const int value)
+{
+  trusterVFL.writeMicroseconds(noMove + value);
+  trusterVBR.writeMicroseconds(noMove - value);
+  trusterVBL.writeMicroseconds(noMove + value);
+  trusterVFR.writeMicroseconds(noMove - value);
 }
 
 void motorCallback(const std_msgs::Int32MultiArray& msg)

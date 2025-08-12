@@ -581,7 +581,7 @@ def PIDdepth(sensor, target, thrusterPub):
 
 
 def PIDpitch(sensor, target, thrusterPub):
-  # Move the target angle in pitch. Clockwise is positive
+  # Move the target angle in pitch. Clockwise (sub's head is lifting) is positive.
   start = sensor['angles'][0] # angle with x-axis
   target = start + target
   time_prev = None
