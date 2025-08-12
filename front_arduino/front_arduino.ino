@@ -23,7 +23,7 @@ DHT11 dht11(temperature_pin);
 byte thruster_max = 300; 
 byte noMove = 1500;
 
-// ROS publishers and subscribers
+// ROS subscribers
 ros::NodeHandle nh;
 // std_msgs::Bool leak_val;
 std_msgs::Float32 temp_val;
@@ -32,7 +32,7 @@ std_msgs::Float32 info_val;
 // ros::Publisher leak_pub("leak", &leak_val);
 ros::Publisher info_pub("info", &info_val);
 ros::Publisher temperature_pub("temp", &temp_val);
-ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("t", &motorCallback);
+
 
 void turnLeft(const int value)
 {
@@ -92,6 +92,8 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
     }
   }
 }
+
+ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("t", &motorCallback);
 
 void setup() {
   // put your setup code here, to run once:
