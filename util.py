@@ -42,8 +42,8 @@ def unflatten(data, length=5):
 def cvCallback(data, sensor):
   print("CV result received")
   # sensor is the object to be modified
-  # Computer vision: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
-  sensor["CV_result"] = unflatten(list(data.data))
+  # Computer vision: A list of bounding boxes [x1, x2, y1, y2, class, object depth, confidence]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
+  sensor["CV_result"] = unflatten(list(data.data), length=7)
   
 
 
@@ -63,7 +63,12 @@ def depthMapFrontCallback(data, sensor):
 
 
 def depthMapFront(sensor):
-  return copy.deepcopy(sensor.get("depth_map_front"))
+  result = sensor.get("depth_map_front") 
+  if result is None:
+    return None
+  else:
+    return copy.deepcopy(result)
+  
 
 def cvBottom(sensor):
   return copy.deepcopy(sensor.get("CV_bottom"))
@@ -104,13 +109,14 @@ def move(direction, sensor, thrusterPub, distance=0.2):
     return
 
 
-def depthCallback(depth_msg, sensor):
+def depthCallback(data, sensor):
   # Set the distance from the bottom of the pool in meter
   print("Depth updated")
+  sensor["depth"] = float(data.data)
 
-  depth_matrix = np.array(depth_msg.data).reshape((720, 1280)) #height, width  
+  # depth_matrix = np.array(depth_msg.data).reshape((720, 1280)) #height, width  
 
-  sensor["depth"] = getDepth(depth_matrix)
+  # sensor["depth"] = getDepth(depth_matrix)
 
 def getDepth(depthmap):
     dmap = np.array(depthmap)
@@ -434,7 +440,9 @@ def getDistance(object, sensor, cvDict):
     return distance
 
 
-def getBBdistance(bb, depth_map_front):
+def getBBdistance(bb, depth_map_front=None):
+  if depth_map_front is None:
+    return bb[5]
   #get the average distance from the center of the bounding box
   x1, x2, y1, y2, _ = bb
 

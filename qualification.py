@@ -21,7 +21,7 @@
 # Computer vision: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
 import rospy
 from rospy import sleep
-from std_msgs.msg import Float64MultiArray, Float32, Int32MultiArray, Bool, Float32MultiArray
+from std_msgs.msg import Float32, Int32MultiArray, Bool, Float32MultiArray
 from util import *
 
 
@@ -33,22 +33,22 @@ through_gate = 0.5
 sensor = {}
 
 # Subscribe to the CV output
-cvSub = rospy.Subscriber('CV', Float64MultiArray, cvCallback, callback_args=sensor)
+cvSub = rospy.Subscriber('CV', Float32MultiArray, cvCallback, callback_args=sensor)
 thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
 
 #Subscribing to the depth sensor
-depthSub = rospy.Subscriber('depth_sensor', Float32, depthCallback, callback_args=sensor)
+depthSub = rospy.Subscriber('depth', Float32, depthCallback, callback_args=sensor)
 #pressureSub = rospy.Subscriber('pressure_sensor', Float32, pressureCallback, callback_args=sensor)
 
 # Subscribing to IMU to get angle
-gyroSub = rospy.Subscriber('gyro_sensor', Float32MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
+gyroSub = rospy.Subscriber('gyro', Float32MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
 
 # Subscribing to leak sensor and temperature sensor for emergency exit.
-leakSub = rospy.Subscriber('leak_sensor', Bool, leakCallback, callback_args=(sensor, thrusterPub))
-temperatureSub = rospy.Subscriber('temperature_sensor', Float32, temperatureCallback, callback_args=(sensor, thrusterPub))
+# leakSub = rospy.Subscriber('leak', Bool, leakCallback, callback_args=(sensor, thrusterPub))
+temperatureSub = rospy.Subscriber('temp', Float32, temperatureCallback, callback_args=(sensor, thrusterPub))
 
 # Subscribe to IMU to get distance
-distanceSub = rospy.Subscriber("displacement_sensor", Float32MultiArray, distanceCallback, callback_args=sensor)
+distanceSub = rospy.Subscriber("displacement", Float32MultiArray, distanceCallback, callback_args=sensor)
 
 # Contain the class number for each object
 CV_dictionary = {"pole":0, "marker": 1}
@@ -150,10 +150,8 @@ def aroundMarker():
 
 
 def main():
-  print("Manual testing data: 15 seconds")
-  sleep(15)
   print("Qualification Start")
-  sleep(5)
+  sleep(5000)
   print(sensor)
   changeDepth(0.3, sensor, thrusterPub)
   distance_from_pole, angle_from_left, angle_difference = searchGate("center", sensor, thrusterPub, CV_dictionary)
@@ -163,13 +161,15 @@ def main():
   print("passed the gate")
   turn(correction_angle)
 
-  aroundMarker()
+  # Uncomment code block below for pre qualification
+  # aroundMarker()
 
-  distance_from_pole, angle_from_left, angle_difference = searchGate("center", sensor, thrusterPub, CV_dictionary)
-  correction_angle, distance_to_move = gateAngleCorrection(distance_from_pole, angle_from_left, angle_difference)
-  # move through the gate 
-  move("forward", sensor, thrusterPub, distance=distance_to_move + through_gate)
-  print("Finished the qualification task.") 
+  # distance_from_pole, angle_from_left, angle_difference = searchGate("center", sensor, thrusterPub, CV_dictionary)
+  # correction_angle, distance_to_move = gateAngleCorrection(distance_from_pole, angle_from_left, angle_difference)
+  # # move through the gate 
+  # move("forward", sensor, thrusterPub, distance=distance_to_move + through_gate)
+  # print("Finished the qualification task.") 
+
   surfacing(sensor, thrusterPub)
 
 if __name__ == "__main__":

@@ -133,7 +133,7 @@ ros::NodeHandle node_handle;
 
 // std_msgs::Float32MultiArray imu_val;
 
-ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("t", &motorCallback);
+ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("thruster", &motorCallback);
 // ros::Publisher imu_pub("i", &imu_val);
 
 void setup() {

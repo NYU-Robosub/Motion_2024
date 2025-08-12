@@ -91,7 +91,7 @@ void motorCallback(const std_msgs::Int32MultiArray& msg)
   }
 }
 
-ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("t", &motorCallback);
+ros::Subscriber<std_msgs::Int32MultiArray> motor_subscriber("thruster", &motorCallback);
 
 void setup() {
   // put your setup code here, to run once:

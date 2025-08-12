@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import rospy
-from std_msgs.msg import Float64MultiArray, Float32MultiArray, Int32MultiArray, Bool, Float32
+from std_msgs.msg import Float32MultiArray, Int32MultiArray, Bool, Float32
 from math import *
 from util import *
 from rospy import sleep
@@ -20,29 +20,29 @@ style = True
 # Assumed pool depth in m
 POOL_DEPTH = 5
 
-# CV_result: A list of bounding boxes [x1, x2, y1, y2, class]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
+# CV_result: A list of bounding boxes [x1, x2, y1, y2, class, object depth, confidence]. (x1, y1) is the top left corner. (x2, y2) is the bottom right corner. Coordinates from 0-1
 # angle: The angles on x-axis, y-axis, and z-axis from gyrometer. Format is 360 degrees. angles[2] is suppose to be the horizontal angle
 # depth: The distance from the bottom of the pool in meters
 
 sensor={}
 
 # Subscribe to the CV output
-cvSub = rospy.Subscriber('CV', Float64MultiArray, cvCallback, callback_args=sensor)
-cvBottomSUb = rospy.Subscriber('CV_bottom', Float64MultiArray, cvBottomCallback, callback_args=sensor)
+cvSub = rospy.Subscriber('CV', Float32MultiArray, cvCallback, callback_args=sensor)
+cvBottomSUb = rospy.Subscriber('CV_bottom', Float32MultiArray, cvBottomCallback, callback_args=sensor)
 
 thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
 # Get distance from bottom from bottom camera
-depthSub = rospy.Subscriber('depth_sensor', Float32MultiArray, depthCallback, callback_args=sensor)
+depthSub = rospy.Subscriber('depth', Float32, depthCallback, callback_args=sensor)
 
 # Get angle from IMU
-gyroSub = rospy.Subscriber('gyro_sensor', Float32MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
+gyroSub = rospy.Subscriber('gyro', Float32MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
 
 # Get distance travelled from IMU
-distanceSub = rospy.Subscriber("displacement_sensor", Float32MultiArray, distanceCallback, callback_args=sensor)
+distanceSub = rospy.Subscriber("displacement", Float32MultiArray, distanceCallback, callback_args=sensor)
 
 # Leak sensor
-leakSub = rospy.Subscriber('leak_sensor', Bool, leakCallback, callback_args=(sensor, thrusterPub))
-temperatureSub = rospy.Subscriber('temperature_sensor', Float32, temperatureCallback, callback_args=(sensor, thrusterPub))
+# leakSub = rospy.Subscriber('leak', Bool, leakCallback, callback_args=(sensor, thrusterPub))
+# temperatureSub = rospy.Subscriber('temp', Float32, temperatureCallback, callback_args=(sensor, thrusterPub))
 
 def alignPath(path):
   # First place the path at the center of the image.
