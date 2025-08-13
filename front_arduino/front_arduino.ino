@@ -134,7 +134,9 @@ void setup() {
 }
 
 void loop() {
-
+  if (!Serial) {
+    goForward(0);
+  }
   //Measure from sensor
   // bool leak;
   short temperature;

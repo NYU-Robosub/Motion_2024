@@ -177,6 +177,11 @@ void setup() {
 }
 
 void loop() {
+  if (!Serial) {
+    goForward(0);
+    goUpDown(0);
+  }
+
   // unsigned short new_time = millis();
   // mpu.update();
 
@@ -190,5 +195,6 @@ void loop() {
   
   // imu_pub.publish(&imu_val);
   // timer=new_time;
+
   node_handle.spinOnce();
 }
