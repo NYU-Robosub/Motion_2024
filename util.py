@@ -556,7 +556,7 @@ def PIDturn(sensor, target, thrusterPub):
   integral = 0
   while True:
     e = target - sensor.get("angles")[2]
-    speed, time_prev, integral = PID(200, 0.1, 1000, e, time_prev, e_prev, integral)
+    speed, time_prev, integral = PID(10, 0.01, 10, e, time_prev, e_prev, integral)
     e_prev = e
     # speed is degree/s^2
     message = []
@@ -612,7 +612,7 @@ def PIDpitch(sensor, target, thrusterPub):
   integral = 0
   while True:
     e = target - sensor.get("angles")[0] # error
-    speed, time_prev, integral = PID(200, 0.1, 1000, e, time_prev, e_prev, integral)
+    speed, time_prev, integral = PID(10, 0.01, 10, e, time_prev, e_prev, integral)
     e_prev = e
     # speed is degree/s^2
     message = []
@@ -640,7 +640,7 @@ def PIDroll(sensor, target, thrusterPub):
   integral = 0
   while True:
     e = target - sensor.get("angles")[1] # error
-    speed, time_prev, integral = PID(200, 0.1, 1000, e, time_prev, e_prev, integral)
+    speed, time_prev, integral = PID(10, 0.01, 10, e, time_prev, e_prev, integral)
     e_prev = e
     # speed is degree/s^2
     message = []
