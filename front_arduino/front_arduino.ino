@@ -139,6 +139,10 @@ void loop() {
     digitalWrite(light1_pin, LOW);
     digitalWrite(light2_pin, LOW);
   }
+  else {
+    digitalWrite(light1_pin, HIGH);
+    digitalWrite(light2_pin, HIGH);
+  }
   //Measure from sensor
   // bool leak;
   short temperature;
