@@ -74,12 +74,25 @@ def cvBottom(sensor):
   return copy.deepcopy(sensor.get("CV_bottom"))
 
 
+def compareClass(bbox, objectName, cvDict):
+  object_id = cvDict.get(objectName)
+  bbox_class = bbox[4]
+  if object_id is None:
+    raise Exception(f"{objectName} not in cvDict")
+  if isinstance(object_id, int):
+    return id == object_id
+  elif isinstance(object_id, (list, tuple, set)):
+    return id in object_id
+  else:
+    raise Exception(f"Invalid type for {objectName}'s id in cvDict")
+
+
 def findObject(object, bboxes, cvDict):
   # Look for the object in the list of bounding boxes
   # bboxes is a list of bounding boxes.
   bounding_boxes = []
   for i in bboxes:
-    if i[4] == cvDict[object]:
+    if compareClass(i, object, cvDict):
       bounding_boxes.append(i)
   return bounding_boxes
 
@@ -301,7 +314,7 @@ def searchGate(target, sensor, thrusterPub, cvDict):
     curPoleCenter = []
     polebb = []
     for bbox in bboxes:
-      if bbox[4] == cvDict['pole']:
+      if compareClass(bbox, 'pole', cvDict):
         poleCount += 1
         print("Total of", poleCount, "poles detected")
         # Add the x-coordinate of the middle of the pole that is detected.
@@ -412,7 +425,7 @@ def alignObj(obj, sensor, thrusterPub, cvDict, axis=0.5):
   while (True):
     for i in cv(sensor):
       # Detected the marker
-      if i[4] == cvDict[obj]:
+      if compareClass(i, obj, cvDict):
         print("Marker detected")
         x1 = i[0]
         x2 = i[1]

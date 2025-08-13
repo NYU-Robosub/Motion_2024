@@ -14,7 +14,7 @@ gate_width = 3
 # Move step size
 step = 0.2
 # Contain the class number for each object
-cvDict = {"pole":0}
+cvDict = {"gate":0, "pole": [1,2]}
 # Flag for whether to pass through the gate with style 
 style = True
 # Assumed pool depth in m
@@ -198,7 +198,7 @@ def alignVertical(obj):
     found = False
     for i in cv(sensor):
       # Detected the obj
-      if i[4] == cvDict[obj]:
+      if compareClass(i, obj, cvDict):
         y1 = i[2]
         y2 = i[3]
 

@@ -51,7 +51,7 @@ temperatureSub = rospy.Subscriber('front/temp', Float32, temperatureCallback, ca
 distanceSub = rospy.Subscriber("zed/displacement", Float32MultiArray, distanceCallback, callback_args=sensor)
 
 # Contain the class number for each object
-CV_dictionary = {"pole":0, "marker": 1}
+CV_dictionary = {"gate":0, "pole":[1, 2]}
 
 
 def alignMarker(axis):
@@ -59,7 +59,7 @@ def alignMarker(axis):
   while (True):
     for i in cv():
       # Detected the marker
-      if i[4] == CV_dictionary['marker']:
+      if compareClass(i, 'marker', CV_dictionary):
         x1 = i[0]
         x2 = i[1]
         if (abs((x1+x2)/2)-axis)<=0.05:
@@ -79,7 +79,7 @@ def objectCaptured(object):
   # Check whether the object is captured by the camera
   # Return the x-coordinates of the center of the object
   for i in cv():
-    if i[4] == CV_dictionary[object]:
+    if compareClass(i, object, CV_dictionary):
       print(object ," captured by the camera, the x-coordinates is: ", (i[0] + i[1]) / 2)
       return (i[0] + i[1]) / 2
   print("NO ", object, " captured by the camera")
