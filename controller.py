@@ -7,7 +7,7 @@ from util import move, gyroCallback, distanceCallback, depthCallback
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--direction", type=str, required=True, help="Type f for moving forward, b for moving backward, u for moving up, d for moving down, l for turning left, r for turning right, s for stoping all thrusters. Typing anything else will terminate the program.")
-parser.add_argument("--distance", type=int, required=True, help="Enter the distance or angle.")
+parser.add_argument("--distance", type=float, required=True, help="Enter the distance or angle.")
 parser.add_argument("--sleep", type=int, required=True, help="Enter the amount of time to wait before moving")
 args = parser.parse_args()
 
