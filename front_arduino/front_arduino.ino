@@ -134,7 +134,7 @@ void setup() {
 }
 
 void loop() {
-  if (!Serial) {
+  if (!Serial || !nh.connected()) {
     goForward(0);
     digitalWrite(light1_pin, LOW);
     digitalWrite(light2_pin, LOW);

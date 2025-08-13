@@ -177,7 +177,7 @@ void setup() {
 }
 
 void loop() {
-  if (!Serial) {
+  if (!Serial || !node_handle.connected()) {
     goForward(0);
     goUpDown(0);
   }
