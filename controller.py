@@ -13,7 +13,7 @@ args = parser.parse_args()
 
 rospy.init_node('controller', anonymous=True)
 
-thrusterPub = rospy.Publisher("thruster", Int32MultiArray)
+thrusterPub = rospy.Publisher("thruster", Int32MultiArray, queue_size=2)
 sensor = {}
 # Get angle from IMU
 gyroSub = rospy.Subscriber('zed/gyro', Float32MultiArray, gyroCallback, callback_args=(sensor, thrusterPub))
