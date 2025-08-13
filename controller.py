@@ -1,8 +1,15 @@
 import rospy
 from std_msgs.msg import Float64MultiArray, Int32MultiArray, Float32MultiArray
 from rospy import sleep
+import argparse
 
 from util import move, gyroCallback, distanceCallback, depthCallback
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--direction", type=str, required=True, help="Type f for moving forward, b for moving backward, u for moving up, d for moving down, l for turning left, r for turning right, s for stoping all thrusters. Typing anything else will terminate the program.")
+parser.add_argument("--distance", type=int, required=True, help="Enter the distance or angle.")
+parser.add_argument("--sleep", type=int, required=True, help="Enter the amount of time to wait before moving")
+args = parser.parse_args()
 
 rospy.init_node('controller', anonymous=True)
 
@@ -15,10 +22,9 @@ distanceSub = rospy.Subscriber("zed/displacement", Float32MultiArray, distanceCa
 # Get distance from bottom from bottom camera
 depthSub = rospy.Subscriber('depth_sensor', Float64MultiArray, depthCallback, callback_args=sensor)
 
-direction = input("Type f for moving forward, b for moving backward, u for moving up, d for moving down, l for turning left, r for turning right, s for stoping all thrusters. Typing anything else will terminate the program.\n")
-distance = input("Enter the distance or angle: ")
-distance = int(distance)
-sleep_time = input("Enter the amount of time to wait before moving:")
+direction = args.direction
+distance = args.distance
+sleep_time = args.sleep
 sleep(int(sleep_time))
 direction = direction.upper()
 if direction == "F":
