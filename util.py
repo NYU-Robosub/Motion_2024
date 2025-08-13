@@ -173,16 +173,16 @@ def gyroCallback(data, args):
   #   angles.append(float(data[i]))
   sensor["angles"] = angles
 
-  if not sensor.get("roll_pitch", False) and abs(angles[1]) > 30:
-    sensor["roll_pitch"] = True
-    PIDroll(sensor, -angles[1] , thrusterPub)
-    sensor["roll_pitch"] = False
+  # if not sensor.get("roll_pitch", False) and abs(angles[1]) > 30:
+  #   sensor["roll_pitch"] = True
+  #   PIDroll(sensor, -angles[1] , thrusterPub)
+  #   sensor["roll_pitch"] = False
 
-  # if we are not doing roll ourself adjust the pitch and roll to stablize 
-  if not sensor.get("roll_pitch", False) and abs(angles[0]) > 30:
-    sensor["roll_pitch"] = True
-    PIDpitch(sensor, -angles[0] , thrusterPub)
-    sensor["roll_pitch"] = False
+  # # if we are not doing roll ourself adjust the pitch and roll to stablize 
+  # if not sensor.get("roll_pitch", False) and abs(angles[0]) > 30:
+  #   sensor["roll_pitch"] = True
+  #   PIDpitch(sensor, -angles[0] , thrusterPub)
+  #   sensor["roll_pitch"] = False
 
 
 
@@ -508,9 +508,10 @@ def PID(Kp, Ki, Kd, e, time_prev, e_prev, integral):
     if time_prev and e_prev:
       integral = integral + Ki*e*(cur_time - time_prev)
       D = Kd*(e - e_prev)/(cur_time - time_prev + 1e-6)
-    print(f"P: {P}, I: {integral}, D: {D}")
+    # print(f"P: {P}, I: {integral}, D: {D}")
     # calculate manipulated variable - MV
     MV = P + integral + D
+    sleep(0.01)
     return MV, cur_time, integral
 
 
