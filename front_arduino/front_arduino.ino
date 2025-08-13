@@ -136,6 +136,8 @@ void setup() {
 void loop() {
   if (!Serial) {
     goForward(0);
+    digitalWrite(light1_pin, LOW);
+    digitalWrite(light2_pin, LOW);
   }
   //Measure from sensor
   // bool leak;
