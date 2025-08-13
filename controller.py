@@ -17,7 +17,9 @@ depthSub = rospy.Subscriber('depth_sensor', Float64MultiArray, depthCallback, ca
 
 direction = input("Type f for moving forward, b for moving backward, u for moving up, d for moving down, l for turning left, r for turning right, s for stoping all thrusters. Typing anything else will terminate the program.\n")
 distance = input("Enter the distance or angle: ")
-sleep(120)
+distance = int(distance)
+sleep_time = input("Enter the amount of time to wait before moving:")
+sleep(int(sleep_time))
 direction = direction.upper()
 if direction == "F":
     move("forward", sensor, thrusterPub, distance)
